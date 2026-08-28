@@ -1,0 +1,167 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Nunito Sans", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: Fredoka, "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand-soft: var(--brand-soft);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 1rem;
+  --background: #fef9fb;
+  --foreground: #37234a;
+  --card: #ffffff;
+  --card-foreground: #37234a;
+  --popover: #ffffff;
+  --popover-foreground: #37234a;
+  --primary: #48335e;
+  --primary-foreground: #ffffff;
+  --secondary: #ccb5e9;
+  --secondary-foreground: #37234a;
+  --muted: #f7edef;
+  --muted-foreground: #6c5b7d;
+  --accent: #e3d1ee;
+  --accent-foreground: #37234a;
+  --destructive: #b33a4a;
+  --border: #eadff0;
+  --input: #eadff0;
+  --ring: #a987d8;
+  --brand-soft: #fcebf2;
+}
+
+.dark {
+  --background: #120f1c;
+  --foreground: #f5eefb;
+  --card: #1a1626;
+  --card-foreground: #f5eefb;
+  --popover: #1a1626;
+  --popover-foreground: #f5eefb;
+  --primary: #c9a8f2;
+  --primary-foreground: #1a1626;
+  --secondary: #2a2238;
+  --secondary-foreground: #f5eefb;
+  --muted: #221c30;
+  --muted-foreground: #bfafd3;
+  --accent: #3b2d55;
+  --accent-foreground: #f5eefb;
+  --destructive: #f1788b;
+  --border: #312744;
+  --input: #312744;
+  --ring: #c9a8f2;
+  --brand-soft: #261935;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply min-h-screen min-w-80 bg-background font-sans text-foreground antialiased transition-colors duration-300;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .yumi-page {
+    background:
+      radial-gradient(circle at 7% 8%, color-mix(in oklab, var(--brand-soft) 74%, transparent), transparent 28rem),
+      radial-gradient(circle at 93% 0%, color-mix(in oklab, var(--secondary) 36%, transparent), transparent 30rem),
+      linear-gradient(180deg, var(--background) 0%, color-mix(in oklab, var(--muted) 64%, var(--background)) 52%, var(--background) 100%);
+  }
+
+  .yumi-header-surface {
+    background: color-mix(in oklab, var(--card) 84%, transparent);
+  }
+
+  .yumi-hero {
+    background:
+      radial-gradient(circle at 76% 42%, color-mix(in oklab, var(--secondary) 42%, transparent), transparent 23rem),
+      radial-gradient(circle at 23% 36%, color-mix(in oklab, var(--brand-soft) 78%, transparent), transparent 30rem),
+      radial-gradient(circle at 53% 115%, color-mix(in oklab, var(--accent) 68%, transparent), transparent 22rem),
+      linear-gradient(135deg, color-mix(in oklab, var(--card) 48%, var(--background)), color-mix(in oklab, var(--muted) 70%, var(--background)));
+  }
+
+  .dark .yumi-page {
+    background:
+      radial-gradient(circle at 7% 0%, rgb(94 63 128 / 0.22), transparent 28rem),
+      radial-gradient(circle at 88% 2%, rgb(201 168 242 / 0.16), transparent 30rem),
+      radial-gradient(circle at 54% 72%, rgb(59 45 85 / 0.26), transparent 34rem),
+      linear-gradient(180deg, #0d0a16 0%, var(--background) 36%, #100c19 100%);
+  }
+
+  .dark .yumi-hero {
+    background:
+      radial-gradient(circle at 78% 45%, rgb(201 168 242 / 0.18), transparent 23rem),
+      radial-gradient(circle at 24% 35%, rgb(59 45 85 / 0.26), transparent 28rem),
+      radial-gradient(circle at 53% 118%, rgb(80 53 115 / 0.5), transparent 22rem),
+      linear-gradient(135deg, #151020 0%, #181223 48%, #120f1c 100%);
+  }
+
+  .yumi-logo-orbit {
+    box-shadow:
+      0 28px 80px color-mix(in oklab, var(--primary) 18%, transparent),
+      inset 0 0 0 22px color-mix(in oklab, var(--background) 18%, transparent);
+  }
+
+  .yumi-wave {
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--accent) 84%, transparent),
+      color-mix(in oklab, var(--accent) 58%, var(--background))
+    );
+    clip-path: polygon(
+      0 58%,
+      4% 47%,
+      8% 61%,
+      13% 42%,
+      18% 57%,
+      23% 40%,
+      29% 58%,
+      35% 45%,
+      41% 62%,
+      47% 41%,
+      54% 56%,
+      61% 38%,
+      68% 59%,
+      75% 43%,
+      82% 60%,
+      89% 41%,
+      95% 56%,
+      100% 44%,
+      100% 100%,
+      0 100%
+    );
+    opacity: 0.62;
+  }
+}

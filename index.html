@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Catálogo público provisório da Yumi Studio com produtos de impressão 3D sob encomenda."
+    />
+    <title>Yumi Studio - Catálogo</title>
+    <script>
+      (() => {
+        try {
+          const storedTheme = localStorage.getItem("yumi-theme");
+          const theme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : "dark";
+          document.documentElement.classList.toggle("dark", theme === "dark");
+          document.documentElement.style.colorScheme = theme;
+        } catch {
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
