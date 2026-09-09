@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { publicAssetUrl } from "@/utils/publicAssetUrl";
 
 type ProductImageGalleryProps = {
   images: string[];
@@ -23,8 +24,18 @@ export function ProductImageGallery({
     );
   }
 
-  const hasMultipleImages = images.length > 1;
   const activeImage = images[activeImageIndex] ?? images[0];
+
+  if (!activeImage) {
+    return (
+      <div className="grid aspect-square place-items-center rounded-[1.5rem] border bg-muted text-muted-foreground">
+        Imagem indisponível
+      </div>
+    );
+  }
+
+  const hasMultipleImages = images.length > 1;
+  const activeImageUrl = publicAssetUrl(activeImage);
 
   const showPreviousImage = () => {
     setActiveImageIndex((currentIndex) =>
@@ -42,7 +53,7 @@ export function ProductImageGallery({
     <div className="grid gap-3">
       <div className="relative aspect-square overflow-hidden rounded-[1.5rem] border bg-muted shadow-xl shadow-primary/8">
         <img
-          src={activeImage}
+          src={activeImageUrl}
           alt={`${productName} - imagem ${activeImageIndex + 1}`}
           className="block size-full object-cover"
         />
@@ -99,7 +110,7 @@ export function ProductImageGallery({
               onClick={() => setActiveImageIndex(index)}
             >
               <img
-                src={image}
+                src={publicAssetUrl(image)}
                 alt=""
                 className="block size-full object-cover"
                 aria-hidden="true"

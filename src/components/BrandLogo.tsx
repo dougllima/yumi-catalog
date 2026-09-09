@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import { publicAssetUrl } from "@/utils/publicAssetUrl";
+
 export function BrandLogo() {
   return (
     <Link
@@ -9,7 +11,7 @@ export function BrandLogo() {
     >
       <span className="block h-16 overflow-hidden rounded-2xl sm:h-[4.5rem]">
         <img
-          src="/brand/yumi-logo.png"
+          src={publicAssetUrl("/brand/yumi-logo.png")}
           alt="Yumi Studio Impressão 3D"
           className="size-full object-contain"
         />

@@ -1,6 +1,7 @@
 import { Gift, Heart, Sparkles } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { publicAssetUrl } from "@/utils/publicAssetUrl";
 
 const highlights = [
   {
@@ -85,7 +86,7 @@ export function Hero() {
             <div className="absolute inset-5 rounded-full border border-primary/25" />
             <div className="absolute -inset-9 rounded-full border border-primary/10" />
             <img
-              src="/brand/yumi-logo.png"
+              src={publicAssetUrl("/brand/yumi-logo.png")}
               alt="Logo da Yumi Studio com mascote gatinho"
               className="relative z-10 size-[88%] rounded-full object-contain shadow-lg"
             />

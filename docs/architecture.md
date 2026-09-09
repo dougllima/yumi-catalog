@@ -158,6 +158,39 @@ pelo admin.
 O app continua sendo uma SPA Vite. Pode ser hospedado como arquivos estáticos
 em qualquer provedor.
 
+### GitHub Pages
+
+O projeto está configurado para publicar em:
+
+```text
+https://dougllima.github.io/yumi-catalog/
+```
+
+Configuração aplicada:
+
+- `vite.config.ts` usa `base: "/yumi-catalog/"`;
+- `BrowserRouter` usa `basename={import.meta.env.BASE_URL}`;
+- o workflow `.github/workflows/deploy.yml` cria `dist/404.html` a partir de
+  `dist/index.html` para suportar rotas diretas da SPA.
+
+No GitHub, configure:
+
+```text
+Settings > Pages > Source > GitHub Actions
+```
+
+E adicione em:
+
+```text
+Settings > Secrets and variables > Actions > Variables
+```
+
+```env
+VITE_DATA_PROVIDER=supabase
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+```
+
 No ambiente de deploy, configure apenas:
 
 ```env
