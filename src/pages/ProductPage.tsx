@@ -12,14 +12,37 @@ import { ProductImageGallery } from "@/components/ProductImageGallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { contactUrl } from "@/config/contact";
-import { products } from "@/data/products";
+import { useProduct } from "@/hooks/useProducts";
 import { formatCurrency } from "@/utils/formatters";
 
 export function ProductPage() {
   const { id } = useParams<{ id: string }>();
-  const product = products.find((item) => item.id === id);
+  const { product, loading, error } = useProduct(id);
 
-  if (!product) {
+  if (loading) {
+    return (
+      <>
+        <main className="mx-auto grid min-h-[48vh] w-full max-w-[1360px] place-items-center px-4 py-10 sm:px-7">
+          <section className="grid w-full max-w-md gap-5 rounded-[1.5rem] border bg-card/72 p-7 text-center shadow-xl shadow-primary/8 backdrop-blur">
+            <div className="mx-auto grid size-12 place-items-center rounded-full bg-accent text-primary">
+              <Sparkles aria-hidden="true" />
+            </div>
+            <div className="grid gap-2">
+              <h1 className="font-display text-3xl font-semibold">
+                Carregando produto
+              </h1>
+              <p className="text-muted-foreground">
+                Só um instante enquanto buscamos as informações.
+              </p>
+            </div>
+          </section>
+        </main>
+        <FeatureStrip />
+      </>
+    );
+  }
+
+  if (!product || error) {
     return (
       <>
         <main className="mx-auto grid min-h-[48vh] w-full max-w-[1360px] place-items-center px-4 py-10 sm:px-7">
@@ -29,10 +52,11 @@ export function ProductPage() {
             </div>
             <div className="grid gap-2">
               <h1 className="font-display text-3xl font-semibold">
-                Produto não encontrado
+                {error ? "Não foi possível carregar" : "Produto não encontrado"}
               </h1>
               <p className="text-muted-foreground">
-                Esse item não está disponível no catálogo atual.
+                {error ??
+                  "Esse item não está disponível no catálogo atual."}
               </p>
             </div>
             <Button asChild className="mx-auto rounded-full">

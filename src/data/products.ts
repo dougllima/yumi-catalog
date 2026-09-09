@@ -1,14 +1,10 @@
-export type Product = {
-  id: string;
-  name: string;
-  description?: string;
-  weight?: number;
-  price?: number;
-  images: string[];
-};
+import type { Product } from "../domain/product";
 
-type ProductSeed = Omit<Product, "images"> & {
+export type { Product } from "../domain/product";
+
+type ProductSeed = Omit<Product, "images" | "imageRecords" | "isActive"> & {
   imageFolder?: string;
+  isActive?: boolean;
 };
 
 const img = (folder: string, ...files: string[]) =>
@@ -454,6 +450,13 @@ const productSeeds: ProductSeed[] = [
 export const products: Product[] = productSeeds.map(
   ({ imageFolder, ...product }) => ({
     ...product,
+    isActive: product.isActive ?? true,
     images: productImages(imageFolder ?? product.id),
+    imageRecords: productImages(imageFolder ?? product.id).map((url, index) => ({
+      id: `${product.id}-${index}`,
+      url,
+      altText: product.name,
+      sortOrder: index,
+    })),
   }),
 );

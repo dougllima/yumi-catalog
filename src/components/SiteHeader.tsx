@@ -1,17 +1,17 @@
-import { Heart, MessageCircle } from "lucide-react";
+import { Camera, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { BrandLogo } from "@/components/BrandLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { contactUrl } from "@/config/contact";
+import { contactUrl, instagramUrl } from "@/config/contact";
 
 type SiteHeaderProps = {
   theme: "light" | "dark";
   onToggleTheme: () => void;
 };
 
-const navItems = ["Início", "Produtos", "Decoração", "Geek", "Presentes"];
+const navItems = ["Início", "Produtos"];
 
 export function SiteHeader({ theme, onToggleTheme }: SiteHeaderProps) {
   return (
@@ -26,7 +26,7 @@ export function SiteHeader({ theme, onToggleTheme }: SiteHeaderProps) {
           {navItems.map((item) => (
             <Link
               key={item}
-              to={item === "Produtos" ? "/#produtos" : "/"}
+              to={item === "Produtos" ? "/produtos" : "/"}
               className="transition hover:text-primary focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
               {item}
@@ -37,22 +37,46 @@ export function SiteHeader({ theme, onToggleTheme }: SiteHeaderProps) {
         <div className="flex items-center gap-2">
           <Button
             asChild
-            className="hidden rounded-full px-5 shadow-md shadow-primary/10 sm:inline-flex"
+            variant="outline"
+            className="hidden rounded-full bg-card/70 px-4 shadow-sm backdrop-blur sm:inline-flex"
           >
             <a
-              href={contactUrl}
+              href={instagramUrl}
               target="_blank"
               rel="noreferrer"
             >
+              <Camera aria-hidden="true" />
+              Instagram
+            </a>
+          </Button>
+          <Button
+            asChild
+            className="hidden rounded-full px-4 shadow-md shadow-primary/10 sm:inline-flex"
+          >
+            <a href={contactUrl} target="_blank" rel="noreferrer">
               <MessageCircle aria-hidden="true" />
-              Instagram & Contato
+              Contato
             </a>
           </Button>
           <Button
             asChild
             variant="outline"
             size="icon"
-            className="rounded-full bg-card/70 backdrop-blur"
+            className="rounded-full bg-card/70 backdrop-blur sm:hidden"
+          >
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Abrir Instagram da Yumi Studio"
+            >
+              <Camera aria-hidden="true" />
+            </a>
+          </Button>
+          <Button
+            asChild
+            size="icon"
+            className="rounded-full shadow-md shadow-primary/10 sm:hidden"
           >
             <a
               href={contactUrl}
@@ -60,7 +84,7 @@ export function SiteHeader({ theme, onToggleTheme }: SiteHeaderProps) {
               rel="noreferrer"
               aria-label="Abrir contato da Yumi Studio"
             >
-              <Heart aria-hidden="true" />
+              <MessageCircle aria-hidden="true" />
             </a>
           </Button>
           <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />

@@ -1,12 +1,18 @@
 import { ArrowRight, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { FeatureStrip } from "@/components/FeatureStrip";
 import { Hero } from "@/components/Hero";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { products } from "@/data/products";
+import { usePublishedProducts } from "@/hooks/useProducts";
+
+const productSkeletons = Array.from({ length: 6 }, (_, index) => index);
 
 export function HomePage() {
+  const { products, loading, error } = usePublishedProducts();
+  const featuredProducts = products.slice(0, 6);
+
   return (
     <>
       <Hero />
@@ -36,10 +42,10 @@ export function HomePage() {
             </div>
 
             <Button asChild variant="outline" className="w-fit rounded-full px-5">
-              <a href="#produtos">
+              <Link to="/produtos">
                 Ver todos os produtos
                 <ArrowRight aria-hidden="true" />
-              </a>
+              </Link>
             </Button>
           </div>
 
@@ -47,10 +53,23 @@ export function HomePage() {
             className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
             aria-label="Produtos disponíveis"
           >
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {loading
+              ? productSkeletons.map((item) => (
+                  <div
+                    key={item}
+                    className="min-h-[310px] animate-pulse rounded-[1rem] border bg-card/50 shadow-lg shadow-primary/5"
+                  />
+                ))
+              : featuredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
           </div>
+
+          {error && (
+            <p className="rounded-2xl border bg-card/70 px-4 py-3 text-sm font-semibold text-destructive shadow-sm">
+              {error}
+            </p>
+          )}
         </section>
 
         <FeatureStrip />

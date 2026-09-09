@@ -1,6 +1,7 @@
-# Yumi Studio - Catálogo público provisório
+# Yumi Studio - Catálogo público
 
-Catálogo simples em React + Vite para publicar produtos e preços de forma temporária.
+Catálogo React + Vite para publicar produtos da Yumi Studio, agora com primeira
+estrutura persistente para administração interna.
 
 Estilização com Tailwind CSS v4 e componentes locais no padrão shadcn/ui.
 
@@ -17,29 +18,33 @@ npm run dev
 npm run build
 ```
 
-## Adicionar um produto
+## Testes
 
-1. Coloque as imagens em `public/products/nome-do-produto/`.
-2. Cadastre o produto em `src/data/products.ts`.
-3. Preencha `id`, `name`, `description`, `weight`, `price` e `images`.
-
-Exemplo:
-
-```ts
-{
-  id: "porta-retrato-gengar",
-  name: "Porta-retrato Gengar",
-  description: "Porta-retrato impresso em 3D.",
-  weight: 150,
-  price: 49.9,
-  images: [
-    "/products/porta-retrato-gengar/01.webp",
-    "/products/porta-retrato-gengar/02.webp",
-  ],
-}
+```bash
+npm run test
 ```
 
-Um produto novo não exige alterar componentes React: basta adicionar imagens e um novo objeto no array `products`.
+## Administração persistente
+
+A área administrativa fica em `/admin` e usa Supabase quando configurada.
+
+1. Copie `.env.example` para `.env.local`.
+2. Preencha as variáveis do Supabase.
+3. Aplique a migration em `supabase/migrations`.
+4. Crie manualmente o usuário no Supabase Auth.
+5. Adicione o usuário à tabela `admin_users`.
+6. Importe o catálogo atual:
+
+```bash
+npm run seed:products
+```
+
+Veja os detalhes em `docs/architecture.md`.
+
+## Fallback estático
+
+Sem variáveis Supabase, o catálogo continua usando `src/data/products.ts` como
+fallback local. Isso facilita desenvolvimento e permite migrar gradualmente.
 
 ## Estilo
 

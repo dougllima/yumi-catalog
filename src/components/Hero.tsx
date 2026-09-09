@@ -85,18 +85,10 @@ export function Hero() {
             <div className="absolute inset-5 rounded-full border border-primary/25" />
             <div className="absolute -inset-9 rounded-full border border-primary/10" />
             <img
-              src="/brand/yumi-cat.png"
-              alt="Mascote gatinho da Yumi Studio"
-              className="relative z-10 size-[64%] rounded-full object-cover shadow-lg"
+              src="/brand/yumi-logo.png"
+              alt="Logo da Yumi Studio com mascote gatinho"
+              className="relative z-10 size-[88%] rounded-full object-contain shadow-lg"
             />
-            <div className="absolute bottom-10 z-20 text-center">
-              <div className="font-display text-6xl font-bold leading-none text-primary drop-shadow-sm sm:text-7xl">
-                YUMI
-              </div>
-              <div className="text-xs font-extrabold uppercase tracking-[0.48em] text-foreground">
-                Studio
-              </div>
-            </div>
           </div>
         </div>
       </div>
