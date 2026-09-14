@@ -192,6 +192,13 @@ Não contorne erros de TypeScript com `any`, `@ts-ignore` ou desativação de li
 Antes de concluir mudanças relevantes, execute os checks aplicáveis existentes no projeto. Quando disponíveis:
 
 ```bash
+npm run check
+```
+
+Quando for útil executar etapas isoladas:
+
+```bash
+npm run format:check
 npm run lint
 npm run test
 npm run build

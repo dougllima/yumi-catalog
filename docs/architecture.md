@@ -15,17 +15,20 @@ O repositório é a fonte de verdade. Antes de alterar arquitetura, schema ou in
 
 Não documente arquitetura especulativa como se já estivesse implementada.
 
-> **Status desta consolidação:** os detalhes concretos abaixo foram preservados do `architecture.md` que já existia no projeto. Eles ainda devem ser auditados contra o repositório pelo Codex no primeiro bootstrap para confirmar que a documentação corresponde ao código atual.
+> **Status desta consolidação:** auditado contra o repositório em 2026-09-14.
+> Este documento descreve o estado técnico versionado conhecido. Configurações
+> externas de Supabase e GitHub são registradas como expectativas operacionais
+> quando não puderem ser comprovadas pelo repositório.
 
 ---
 
-## Estado atual documentado
+## Estado atual implementado
 
 O projeto começou como um catálogo público temporário com frontend React/Vite e produtos definidos localmente.
 
 A primeira estrutura persistente foi criada para utilizar Supabase e manter compatibilidade com o catálogo estático durante a transição.
 
-O estado documentado inclui:
+O estado implementado e versionado inclui:
 
 - SPA React/Vite;
 - Supabase como provider de banco, Auth e Storage;
@@ -36,6 +39,9 @@ O estado documentado inclui:
 - seed dos produtos estáticos existentes;
 - fallback estático para desenvolvimento sem configuração Supabase;
 - deploy via GitHub Pages.
+- Vitest com Testing Library para testes de domínio, hooks, componentes e fluxos
+  críticos;
+- ESLint, Prettier, Husky e lint-staged como ferramentas de padronização local.
 
 Configurações que vivem fora do repositório, como opções no Dashboard do Supabase ou GitHub, não devem ser assumidas como confirmadas somente porque estão documentadas aqui.
 
@@ -56,6 +62,88 @@ A aplicação permanece uma SPA hospedável como arquivos estáticos.
 Não introduzir SSR ou backend Node próprio sem necessidade concreta.
 
 Preservar stack, padrões e comportamento existentes salvo motivo técnico ou funcional explícito para mudança.
+
+---
+
+## Estrutura real do repositório
+
+Estrutura versionada relevante no checkpoint atual:
+
+```text
+src/
+  application/
+    contracts.ts
+    dependencies.ts
+  components/
+    ui/
+    *.tsx
+    *.tests.tsx
+  config/
+  data/
+    products.ts
+  domain/
+    product.ts
+    product.tests.ts
+  hooks/
+    *.ts
+    *.tests.tsx
+  infrastructure/
+    staticAuthService.ts
+    staticMediaStorage.ts
+    staticProductRepository.ts
+    supabase/
+      authService.ts
+      client.ts
+      mediaStorage.ts
+      productMapper.ts
+      productMapper.tests.ts
+      productRepository.ts
+  pages/
+    admin/
+    *.tsx
+  test/
+    setup.ts
+  App.tsx
+  main.tsx
+supabase/
+  migrations/
+scripts/
+  seed-products.ts
+public/
+  brand/yumi-logo.png
+```
+
+O repositório atualmente não contém arquivos em `public/products/`. A fonte
+estática `src/data/products.ts` referencia caminhos sob `/products/...`; esses
+arquivos precisam existir no ambiente publicado ou serem migrados para o
+Storage para que as imagens correspondentes renderizem.
+
+Scripts npm versionados:
+
+```text
+npm run dev
+npm run build
+npm run lint
+npm run lint:fix
+npm run format
+npm run format:check
+npm run check
+npm run test
+npm run test:coverage
+npm run lint-staged
+npm run prepare
+npm run preview
+npm run seed:products
+```
+
+`npm run check` executa, em sequência:
+
+```text
+npm run format:check
+npm run lint
+npm test
+npm run build
+```
 
 ---
 
@@ -120,6 +208,36 @@ Os componentes utilizam hooks e serviços compostos pela aplicação.
 
 Dependências específicas do Supabase ficam concentradas na infraestrutura e no ponto de composição.
 
+Contracts reais em `src/application/contracts.ts`:
+
+- `ProductRepository`;
+- `AuthService`;
+- `MediaStorage`;
+- `AdminSession`;
+- `UploadedMedia`;
+- `AuthStateUnsubscribe`.
+
+Composição real em `src/application/dependencies.ts`:
+
+- `mediaStorage`;
+- `productRepository`;
+- `authService`;
+- `runtimeBackend`.
+
+Adapters Supabase reais:
+
+- `SupabaseProductRepository`;
+- `SupabaseAuthService`;
+- `SupabaseMediaStorage`;
+- `getSupabaseClient`;
+- `isSupabaseConfigured`.
+
+Fallbacks estáticos reais:
+
+- `StaticProductRepository`;
+- `StaticAuthService`;
+- `StaticMediaStorage`.
+
 Não transformar essa separação em Clean Architecture cerimonial.
 
 Não introduzir sem necessidade concreta:
@@ -139,13 +257,22 @@ Prefira composição explícita e simples.
 
 Existe suporte documentado a provider configurável por ambiente.
 
-Para usar Supabase:
+O valor lido é:
 
 ```env
-VITE_DATA_PROVIDER=supabase
+VITE_DATA_PROVIDER
 ```
 
-Sem a configuração necessária, existe fallback estático utilizando:
+Comportamento real:
+
+- valor ausente: usa `"auto"`;
+- `"auto"`: usa Supabase quando `VITE_SUPABASE_URL` e
+  `VITE_SUPABASE_PUBLISHABLE_KEY` ou `VITE_SUPABASE_ANON_KEY` existem; caso
+  contrário usa fallback estático;
+- `"supabase"`: força Supabase e exige as variáveis de ambiente do frontend;
+- `"static"`: usa fallback estático.
+
+Sem a configuração necessária em modo `"auto"`, existe fallback estático utilizando:
 
 ```text
 src/data/products.ts
@@ -155,9 +282,17 @@ Esse fallback serve ao desenvolvimento e à transição.
 
 Ele não deve se tornar uma segunda fonte de verdade permanente para produção depois que a persistência estiver estabilizada.
 
+No fallback estático:
+
+- `listPublished`, `listAll` e `getById` leem `src/data/products.ts`;
+- produtos inativos são filtrados do catálogo público;
+- operações de escrita em produtos lançam erro de configuração;
+- login administrativo retorna erro de configuração;
+- upload/remoção de imagens retorna erro de configuração.
+
 ---
 
-## Modelo de dados atual documentado
+## Modelo de dados atual implementado
 
 ### `products`
 
@@ -179,6 +314,31 @@ Valores financeiros são persistidos em centavos inteiros para evitar problemas 
 
 A UI continua apresentando valores em Real brasileiro.
 
+Schema versionado em `202609080001_init_products_admin.sql`:
+
+```text
+id text primary key
+name text not null
+description text
+weight_grams numeric(10, 2)
+price_cents integer
+active boolean not null default true
+sort_order integer not null default 0
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+```
+
+Constraints versionadas:
+
+- `products_name_not_blank`: `length(trim(name)) > 0`;
+- `products_weight_positive`: `weight_grams is null or weight_grams > 0`;
+- `products_price_non_negative`: `price_cents is null or price_cents >= 0`.
+
+Trigger versionado:
+
+- `products_set_updated_at`, executado antes de `update`, chama
+  `public.set_updated_at()`.
+
 ### `product_images`
 
 Metadados das imagens associadas aos produtos.
@@ -194,6 +354,22 @@ URLs públicas são derivadas pelo adapter de Storage e não persistidas como da
 
 A imagem principal pode ser determinada pela ordenação enquanto não houver necessidade concreta de um campo dedicado.
 
+Schema versionado em `202609080001_init_products_admin.sql`:
+
+```text
+id uuid primary key default gen_random_uuid()
+product_id text not null references public.products(id) on delete cascade
+storage_path text not null unique
+alt_text text
+sort_order integer not null default 0
+created_at timestamptz not null default now()
+```
+
+Constraint versionada:
+
+- `product_images_storage_path_not_blank`:
+  `length(trim(storage_path)) > 0`.
+
 ### `admin_users`
 
 Lista explícita de usuários autorizados a administrar o sistema.
@@ -202,9 +378,34 @@ Não existe cadastro público de administradores.
 
 As contas são criadas no Supabase Auth e posteriormente autorizadas pela tabela `admin_users`.
 
+Schema versionado em `202609080001_init_products_admin.sql`:
+
+```text
+user_id uuid primary key references auth.users(id) on delete cascade
+created_at timestamptz not null default now()
+```
+
+### Tipos de domínio no frontend
+
+Tipos reais em `src/domain/product.ts`:
+
+- `ProductImage`: `id`, `url`, `storagePath?`, `altText?`, `sortOrder`;
+- `Product`: `id`, `name`, `description?`, `weight?`, `price?`, `images`,
+  `imageRecords?`, `isActive`, `sortOrder?`, `createdAt?`, `updatedAt?`;
+- `ProductInput`: `id?`, `name`, `description?`, `weight?`, `priceInCents?`,
+  `isActive`, `sortOrder?`;
+- `ProductImageInput`: `storagePath`, `altText?`, `sortOrder`.
+
+Conversões reais:
+
+- `reaisToCents`;
+- `centsToReais`;
+- `normalizeSearch`;
+- `onlyActiveProducts`.
+
 ---
 
-## Requisito funcional ainda não refletido no modelo documentado
+## Requisito funcional ainda não refletido no modelo implementado
 
 O contexto funcional possui o conceito de produto que **requer revisão** quando alterações em dados compartilhados impactarem sua precificação.
 
@@ -231,13 +432,56 @@ Migrations ficam em:
 supabase/migrations/
 ```
 
-A migration inicial documentada é:
+As migrations versionadas atuais são:
 
 ```text
 supabase/migrations/202609080001_init_products_admin.sql
+supabase/migrations/202609080002_seed_products_from_static_data.sql
 ```
 
-Ela estabelece a estrutura inicial de produtos/admin e habilita RLS nas tabelas públicas.
+A migration `202609080001_init_products_admin.sql` estabelece:
+
+- extensão `pgcrypto`;
+- tabelas `public.admin_users`, `public.products` e
+  `public.product_images`;
+- primary keys e foreign keys descritas no modelo de dados;
+- unique constraint em `product_images.storage_path`;
+- constraints de nome não vazio, peso positivo, preço não negativo e storage
+  path não vazio;
+- função `public.set_updated_at()`;
+- trigger `products_set_updated_at`;
+- função `public.is_admin()`;
+- RLS habilitado em `admin_users`, `products` e `product_images`;
+- revokes de permissões amplas para `anon` e `authenticated`;
+- grants mínimos para leitura pública/autenticada e escrita autenticada
+  protegida por policies;
+- bucket `storage.buckets` chamado `product-images`, público, com limite de
+  5 MB e MIME types `image/jpeg`, `image/png` e `image/webp`;
+- policies em `storage.objects` para leitura pública e escrita/alteração/remoção
+  apenas por administradores.
+
+Policies versionadas:
+
+- `admin_users_can_read_own_membership`;
+- `products_public_can_read_active`;
+- `products_admin_can_insert`;
+- `products_admin_can_update`;
+- `products_admin_can_delete`;
+- `product_images_public_can_read_active_products`;
+- `product_images_admin_can_insert`;
+- `product_images_admin_can_update`;
+- `product_images_admin_can_delete`;
+- `product_images_storage_public_read`;
+- `product_images_storage_admin_insert`;
+- `product_images_storage_admin_update`;
+- `product_images_storage_admin_delete`.
+
+A migration `202609080002_seed_products_from_static_data.sql` faz upsert de
+produtos em `public.products`. Ela não registra metadados em `product_images` e
+não envia arquivos ao Storage.
+
+Não há índices explícitos versionados além dos índices criados implicitamente
+por primary keys, unique constraints e foreign keys.
 
 Quando aplicável, alterações futuras devem versionar por migration:
 
@@ -367,20 +611,37 @@ Não implementar pipeline sofisticado de resize/compressão sem necessidade conc
 
 Os produtos existentes não devem ser recadastrados manualmente.
 
-O projeto documenta o comando:
+O projeto possui duas formas versionadas relacionadas a seed/import:
+
+- `supabase/migrations/202609080002_seed_products_from_static_data.sql`;
+- `scripts/seed-products.ts`, executado por `npm run seed:products`.
+
+A migration SQL faz upsert apenas dos registros de produto em
+`public.products`.
+
+O script local documentado pelo comando:
 
 ```bash
 npm run seed:products
 ```
 
-O seed:
+O script:
 
 - importa `src/data/products.ts`;
 - faz upsert por `id`;
 - converte `price` em reais para `price_cents`;
-- envia imagens de `public/products` para o bucket `product-images`;
+- tenta enviar imagens locais referenciadas em `src/data/products.ts` para o
+  bucket `product-images`;
 - registra imagens por `storage_path`;
 - evita duplicação em reexecuções.
+- lê variáveis de `.env`, `.env.local` e `process.env`;
+- aceita `SUPABASE_URL` ou `VITE_SUPABASE_URL` para a URL;
+- exige `SUPABASE_SERVICE_ROLE_KEY`;
+- usa `SUPABASE_PRODUCT_IMAGES_BUCKET` ou `product-images`.
+
+Quando uma imagem local não existe, o script registra um warning e continua.
+No checkpoint atual do repositório, não há arquivos versionados em
+`public/products/`.
 
 O processo não apaga automaticamente produtos ou imagens que já existam no Supabase e tenham sido removidos da fonte estática.
 
@@ -394,12 +655,14 @@ O fallback estático e o seed são mecanismos de transição. Quando a persistê
 
 Manter `.env.example` atualizado.
 
-Variáveis documentadas para desenvolvimento e seed:
+Variáveis versionadas em `.env.example`:
 
 ```env
-VITE_DATA_PROVIDER=supabase
+VITE_DATA_PROVIDER=auto
 VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
+
+# Usado somente por scripts locais de migração/seed. Nunca exponha no browser.
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_PRODUCT_IMAGES_BUCKET=product-images
@@ -456,12 +719,17 @@ URL documentada:
 https://dougllima.github.io/yumi-catalog/
 ```
 
-Configuração documentada:
+Configuração versionada:
 
 - `vite.config.ts` usa `base: "/yumi-catalog/"`;
 - `BrowserRouter` usa `basename={import.meta.env.BASE_URL}`;
-- `.github/workflows/deploy.yml` gera `dist`;
+- `.github/workflows/deploy.yml` roda em push para `main` e
+  `workflow_dispatch`;
+- o workflow usa Node 24, executa `npm ci`, `npm run lint`, `npm run test` e
+  `npm run build`;
 - o workflow cria `dist/404.html` a partir de `dist/index.html` para suportar rotas diretas da SPA no GitHub Pages.
+- o workflow publica `dist` com `actions/upload-pages-artifact@v3` e
+  `actions/deploy-pages@v4`.
 
 No GitHub, Pages deve usar:
 
@@ -506,6 +774,18 @@ A separação por contracts deve permitir testar lógica da aplicação sem depe
 
 Mocks, fakes ou implementação in-memory podem ser utilizados quando trouxerem benefício concreto.
 
+Setup real atual:
+
+- Vitest configurado em `vite.config.ts`;
+- ambiente `jsdom`;
+- setup em `src/test/setup.ts`;
+- Testing Library e `@testing-library/jest-dom`;
+- arquivos de teste com sufixo `.tests.ts` ou `.tests.tsx`;
+- coverage com provider `v8`;
+- relatórios `text`, `html` e `lcov` em `coverage/`;
+- thresholds globais iniciais: 45% para statements, functions e lines; 35%
+  para branches.
+
 Priorizar testes para:
 
 - regras de negócio;
@@ -515,6 +795,30 @@ Priorizar testes para:
 - regressões.
 
 Não testar detalhes internos do SDK do Supabase.
+
+---
+
+## Padronização de desenvolvimento
+
+Configurações versionadas:
+
+- TypeScript estrito em `tsconfig.app.json` e `tsconfig.node.json`;
+- ESLint flat config em `eslint.config.js`;
+- Prettier em `.prettierrc.json`;
+- `.prettierignore`;
+- `.editorconfig`;
+- `.gitattributes` com LF e imagens como binárias;
+- Husky em `.husky/`;
+- pre-commit executando `npm run lint-staged`;
+- `lint-staged` aplicando ESLint/Prettier em arquivos staged.
+
+Regras técnicas relevantes:
+
+- `eslint-config-prettier` desativa conflitos entre ESLint e Prettier;
+- `eslint-plugin-simple-import-sort` exige ordenação de imports e exports;
+- `eslint-plugin-react-hooks` aplica regras de hooks;
+- `eslint-plugin-react-refresh` protege o padrão esperado de exports em
+  componentes React.
 
 ---
 
