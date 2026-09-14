@@ -406,7 +406,7 @@ Conversões reais:
 
 ---
 
-## Requisito funcional ainda não refletido no modelo implementado
+## Requisitos funcionais ainda não refletidos no modelo implementado
 
 O contexto funcional possui o conceito de produto que **requer revisão** quando alterações em dados compartilhados impactarem sua precificação.
 
@@ -420,6 +420,41 @@ Quando essa feature for implementada, documentar aqui:
 - eventos que ativam a flag;
 - forma de conclusão da revisão;
 - impacto em queries e listagens administrativas.
+
+O contexto funcional também possui o conceito de categorias de produto.
+
+Esse conceito ainda não aparece no modelo persistente, nos contracts, nos
+adapters ou na UI documentados acima.
+
+Decisão técnica consolidada para a futura implementação:
+
+- produto poderá ter zero, uma ou múltiplas categorias;
+- categorias serão modeladas de forma normalizada, com entidade própria e tabela
+  de associação entre produtos e categorias;
+- a categoria terá nome exibido e slug normalizado;
+- o slug será único e deve ser derivado de forma estável para evitar duplicatas
+  evidentes por variação de acento, caixa ou espaçamento;
+- exemplos como `Decoração`, `decoração` e `decoracao` devem resolver para a
+  mesma categoria técnica;
+- a UI administrativa poderá criar categorias a partir do formulário de produto,
+  mas não haverá tela dedicada de gestão de categorias nesta etapa;
+- o autocomplete administrativo deve listar todas as categorias existentes,
+  inclusive categorias associadas apenas a produtos inativos;
+- o catálogo público deve listar como filtro apenas categorias associadas a
+  produtos ativos;
+- a busca pública de produtos deve considerar categorias além dos demais textos
+  relevantes do produto;
+- categorias não participam de precificação, materiais, componentes de custo ou
+  criação/fabricação de peças.
+
+Quando essa feature for implementada, documentar aqui:
+
+- migrations reais criadas para categorias e associações;
+- constraints, índices, RLS e policies;
+- representação adotada nos tipos de domínio;
+- alterações reais nos contracts e adapters;
+- comportamento real do fallback estático;
+- impacto em seed/import.
 
 ---
 

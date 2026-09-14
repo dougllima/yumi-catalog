@@ -92,7 +92,8 @@ O catálogo trabalha com informações de produto como:
 - descrição;
 - peso;
 - preço público/final;
-- imagens.
+- imagens;
+- categorias.
 
 O conceito de produto também inclui:
 
@@ -108,6 +109,47 @@ Retirar um produto do catálogo não implica apagar o cadastro.
 Quando houver valor operacional em manter o registro, utilizar inativação lógica.
 
 Produtos inativos não aparecem no catálogo público.
+
+---
+
+## Categorias de produto
+
+Produtos podem possuir zero, uma ou múltiplas categorias.
+
+Categorias são uma forma de organização e descoberta do catálogo. Elas ajudam o
+cliente a encontrar produtos, mas não fazem parte das regras de precificação,
+materiais, componentes de custo ou criação/fabricação de peças.
+
+As categorias são texto livre, mas devem ser reutilizáveis para evitar cadastros
+duplicados desnecessários.
+
+Ao cadastrar ou editar um produto, a interface administrativa deve permitir:
+
+- selecionar categorias existentes;
+- buscar categorias existentes enquanto o usuário digita;
+- criar uma nova categoria quando ela ainda não existir;
+- evitar duplicatas evidentes causadas por variações de acento, caixa ou
+  espaçamento, como `Decoração`, `decoração` e `decoracao`.
+
+Não haverá gestão dedicada de categorias nesta etapa.
+
+Renomeação, correção ou limpeza de categorias existentes pode ser feita
+diretamente no banco enquanto não houver necessidade real de uma tela própria.
+
+No catálogo público:
+
+- a página do produto deve exibir as categorias associadas;
+- a listagem de produtos pode exibir categorias se isso não prejudicar a
+  clareza visual;
+- a página de produtos deve permitir filtro por categoria;
+- a busca da página de produtos deve ser genérica, considerando categorias além
+  dos demais textos relevantes do produto;
+- a lista pública de filtros deve exibir apenas categorias associadas a produtos
+  ativos.
+
+Na administração, a lista de categorias disponíveis para seleção deve considerar
+todas as categorias existentes, mesmo que estejam associadas apenas a produtos
+inativos.
 
 ---
 
