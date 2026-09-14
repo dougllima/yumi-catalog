@@ -4,9 +4,9 @@
 
 Este documento registra a arquitetura e as decisões técnicas consolidadas do projeto.
 
-Ele deve representar o estado atual da implementação e as decisões técnicas vigentes, não funcionar como histórico de discussão.
+Ele deve representar o estado técnico atual e as decisões vigentes, não funcionar como histórico de discussão.
 
-O repositório é a fonte de verdade. Antes de alterar arquitetura, schema ou integrações:
+O repositório é a fonte de verdade. Antes de alterar arquitetura, schema ou integrations:
 
 1. inspecione o código atual;
 2. verifique as migrations existentes;
@@ -15,15 +15,17 @@ O repositório é a fonte de verdade. Antes de alterar arquitetura, schema ou in
 
 Não documente arquitetura especulativa como se já estivesse implementada.
 
+> **Status desta consolidação:** os detalhes concretos abaixo foram preservados do `architecture.md` que já existia no projeto. Eles ainda devem ser auditados contra o repositório pelo Codex no primeiro bootstrap para confirmar que a documentação corresponde ao código atual.
+
 ---
 
-## Estado atual
+## Estado atual documentado
 
 O projeto começou como um catálogo público temporário com frontend React/Vite e produtos definidos localmente.
 
-A primeira estrutura persistente já foi desenhada para utilizar Supabase e mantém compatibilidade com o catálogo estático durante a transição.
+A primeira estrutura persistente foi criada para utilizar Supabase e manter compatibilidade com o catálogo estático durante a transição.
 
-O estado arquitetural documentado atualmente inclui:
+O estado documentado inclui:
 
 - SPA React/Vite;
 - Supabase como provider de banco, Auth e Storage;
@@ -33,15 +35,15 @@ O estado arquitetural documentado atualmente inclui:
 - autorização via RLS/policies;
 - seed dos produtos estáticos existentes;
 - fallback estático para desenvolvimento sem configuração Supabase;
-- deploy atual via GitHub Pages.
+- deploy via GitHub Pages.
 
-O código e as migrations devem ser consultados antes de assumir que uma etapa operacional externa, como configuração no Dashboard do Supabase ou GitHub, já foi concluída.
+Configurações que vivem fora do repositório, como opções no Dashboard do Supabase ou GitHub, não devem ser assumidas como confirmadas somente porque estão documentadas aqui.
 
 ---
 
 ## Frontend
 
-Stack atual/esperada:
+Stack documentada:
 
 - React;
 - TypeScript;
@@ -68,9 +70,9 @@ A primeira versão persistente utiliza Supabase para:
 - Storage de imagens;
 - autorização via RLS e policies.
 
-A escolha foi feita porque permite atender a aplicação React/Vite sem backend Node próprio e concentra as dependências específicas de infraestrutura em adapters.
+A escolha permite atender a SPA sem backend Node próprio e concentrar dependências específicas de infraestrutura em adapters.
 
-O Supabase deve continuar sendo tratado como detalhe de infraestrutura.
+O Supabase é detalhe de infraestrutura.
 
 Uma futura troca de provider pode exigir:
 
@@ -88,7 +90,7 @@ Na adoção inicial, o plano gratuito do Supabase foi considerado suficiente par
 
 Limites de free tier são dados externos e podem mudar. Não tratá-los como contrato arquitetural permanente.
 
-Antes de ativar funcionalidades que possam gerar cobrança ou tomar decisões baseadas em quota, verificar os limites atuais do provider.
+Antes de habilitar recursos que possam gerar cobrança ou tomar decisões baseadas em quota, verificar os limites atuais do provider.
 
 ---
 
@@ -96,7 +98,7 @@ Antes de ativar funcionalidades que possam gerar cobrança ou tomar decisões ba
 
 A UI e a lógica de negócio não devem importar diretamente o client do Supabase.
 
-A estrutura implementada/documentada segue a ideia:
+A estrutura documentada segue:
 
 ```text
 React UI / pages / hooks
@@ -135,7 +137,7 @@ Prefira composição explícita e simples.
 
 ## Seleção do provider de dados
 
-Existe suporte a provider configurável por ambiente.
+Existe suporte documentado a provider configurável por ambiente.
 
 Para usar Supabase:
 
@@ -149,13 +151,13 @@ Sem a configuração necessária, existe fallback estático utilizando:
 src/data/products.ts
 ```
 
-Esse fallback existe para facilitar desenvolvimento e transição.
+Esse fallback serve ao desenvolvimento e à transição.
 
-Ele não deve se tornar uma segunda fonte de verdade permanente para produção depois que a migração persistente estiver estabilizada.
+Ele não deve se tornar uma segunda fonte de verdade permanente para produção depois que a persistência estiver estabilizada.
 
 ---
 
-## Modelo de dados atual
+## Modelo de dados atual documentado
 
 ### `products`
 
@@ -188,7 +190,7 @@ Campos documentados:
 - `alt_text`: texto alternativo;
 - `sort_order`: ordem da galeria.
 
-URLs públicas são derivadas pelo adapter de storage e não persistidas como dado de domínio.
+URLs públicas são derivadas pelo adapter de Storage e não persistidas como dado de domínio.
 
 A imagem principal pode ser determinada pela ordenação enquanto não houver necessidade concreta de um campo dedicado.
 
@@ -202,13 +204,13 @@ As contas são criadas no Supabase Auth e posteriormente autorizadas pela tabela
 
 ---
 
-## Requisitos funcionais ainda não refletidos no modelo documentado
+## Requisito funcional ainda não refletido no modelo documentado
 
-O contexto funcional do projeto também possui o conceito de produto que **requer revisão** quando alterações em dados compartilhados impactarem sua precificação.
+O contexto funcional possui o conceito de produto que **requer revisão** quando alterações em dados compartilhados impactarem sua precificação.
 
 Esse conceito ainda não aparece no modelo persistente documentado acima.
 
-Não assumir uma implementação específica antes de verificar o código atual.
+Não assumir uma implementação técnica específica antes de verificar o código atual.
 
 Quando essa feature for implementada, documentar aqui:
 
@@ -253,15 +255,15 @@ Evitar alterações manuais no schema de produção quando uma migration for apr
 
 ## Integração Supabase + GitHub
 
-A configuração adotada para integração com o repositório deve manter:
+A configuração pretendida/documentada para integração com o repositório é:
 
 - working directory na raiz do repositório;
 - branch de produção `main`;
 - migrations em `supabase/migrations/`.
 
-Como parte dessa configuração existe fora do código, confirme no Supabase/GitHub antes de depender do deploy automático de migrations.
+Como parte dessa configuração vive fora do código, confirme no Supabase/GitHub antes de depender do deploy automático de migrations.
 
-O caminho `supabase/migrations/` é parte da convenção do projeto; o campo de working directory deve apontar para o diretório que contém a pasta `supabase/`, não para a pasta de migrations diretamente.
+O campo de working directory deve apontar para o diretório que contém a pasta `supabase/`, e não para `supabase/migrations/`.
 
 ---
 
@@ -277,7 +279,7 @@ Pode:
 
 - consultar apenas produtos com `active = true`;
 - consultar metadados/imagens necessárias desses produtos;
-- acessar arquivos públicos do bucket de imagens.
+- acessar arquivos públicos necessários ao catálogo.
 
 Não pode:
 
@@ -290,18 +292,13 @@ Não pode:
 
 ### Usuário autenticado não administrador
 
-Continua limitado à leitura pública de produtos ativos.
+Continua limitado às permissões públicas.
 
 Autenticação, por si só, não concede permissão administrativa.
 
 ### Administrador
 
-Somente usuários presentes em `admin_users` podem:
-
-- criar produtos;
-- editar produtos;
-- excluir/administrar registros conforme as policies;
-- gerenciar imagens.
+Somente usuários autorizados em `admin_users` podem executar operações administrativas permitidas pelas policies.
 
 ### Storage
 
@@ -319,7 +316,7 @@ Upload, update e delete exigem usuário autenticado e autorizado como administra
 
 Nunca utilizar `SUPABASE_SERVICE_ROLE_KEY` no frontend.
 
-Ela é permitida apenas em scripts/controladores executados em ambiente confiável.
+Ela é permitida apenas em scripts executados em ambiente confiável.
 
 ---
 
@@ -337,9 +334,11 @@ A aplicação deve tratar:
 - sessão inválida ou expirada;
 - proteção de rotas administrativas.
 
-A proteção da rota no frontend não substitui RLS/policies.
+A proteção de rota no frontend não substitui RLS/policies.
 
-Operacionalmente, o signup público deve permanecer desabilitado no Supabase enquanto esse modelo de administração for mantido.
+Enquanto esse modelo for mantido, o signup público deve permanecer desabilitado no Supabase.
+
+Como essa configuração vive no provider, ela precisa ser confirmada operacionalmente e não pode ser inferida apenas pelo repositório.
 
 ---
 
@@ -347,9 +346,9 @@ Operacionalmente, o signup público deve permanecer desabilitado no Supabase enq
 
 Imagens de produto devem ser administráveis sem alteração de código.
 
-O acesso ao Storage permanece atrás de `MediaStorage`/adapter equivalente.
+O acesso ao Storage permanece atrás de `MediaStorage` ou adapter equivalente.
 
-Requisitos atuais:
+Requisitos documentados:
 
 - múltiplas imagens por produto;
 - ordem definida;
@@ -368,24 +367,24 @@ Não implementar pipeline sofisticado de resize/compressão sem necessidade conc
 
 Os produtos existentes não devem ser recadastrados manualmente.
 
-O projeto possui o comando:
+O projeto documenta o comando:
 
 ```bash
 npm run seed:products
 ```
 
-O seed documentado:
+O seed:
 
 - importa `src/data/products.ts`;
 - faz upsert por `id`;
 - converte `price` em reais para `price_cents`;
 - envia imagens de `public/products` para o bucket `product-images`;
-- registra as imagens por `storage_path`;
+- registra imagens por `storage_path`;
 - evita duplicação em reexecuções.
 
 O processo não apaga automaticamente produtos ou imagens que já existam no Supabase e tenham sido removidos da fonte estática.
 
-Essa decisão é intencional para evitar perda acidental durante a migração.
+Essa decisão evita perda acidental durante a migração.
 
 O fallback estático e o seed são mecanismos de transição. Quando a persistência estiver consolidada, reavaliar sua necessidade antes de mantê-los indefinidamente.
 
@@ -395,7 +394,7 @@ O fallback estático e o seed são mecanismos de transição. Quando a persistê
 
 Manter `.env.example` atualizado.
 
-Variáveis documentadas para desenvolvimento/seed:
+Variáveis documentadas para desenvolvimento e seed:
 
 ```env
 VITE_DATA_PROVIDER=supabase
@@ -412,7 +411,7 @@ Variáveis frontend devem ser tratadas como públicas.
 
 `SUPABASE_SERVICE_ROLE_KEY` nunca deve ser configurada no frontend hospedado.
 
-O código ainda aceita `VITE_SUPABASE_ANON_KEY` para compatibilidade, mas a variável preferida é:
+O código documentado ainda aceita `VITE_SUPABASE_ANON_KEY` por compatibilidade, mas a variável preferida é:
 
 ```text
 VITE_SUPABASE_PUBLISHABLE_KEY
@@ -449,7 +448,7 @@ O e-mail acima é apenas exemplo e não deve ser tratado como configuração rea
 
 O frontend permanece desacoplado do provider de hosting no nível da aplicação.
 
-O provider atualmente configurado é **GitHub Pages**.
+O provider documentado atualmente é **GitHub Pages**.
 
 URL documentada:
 
@@ -457,14 +456,14 @@ URL documentada:
 https://dougllima.github.io/yumi-catalog/
 ```
 
-Configuração implementada/documentada:
+Configuração documentada:
 
 - `vite.config.ts` usa `base: "/yumi-catalog/"`;
 - `BrowserRouter` usa `basename={import.meta.env.BASE_URL}`;
-- `.github/workflows/deploy.yml` gera o build;
-- o workflow copia `dist/index.html` para `dist/404.html` para suportar rotas diretas da SPA no GitHub Pages.
+- `.github/workflows/deploy.yml` gera `dist`;
+- o workflow cria `dist/404.html` a partir de `dist/index.html` para suportar rotas diretas da SPA no GitHub Pages.
 
-No repositório GitHub, Pages deve usar:
+No GitHub, Pages deve usar:
 
 ```text
 Settings > Pages > Source > GitHub Actions
@@ -480,7 +479,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 
 Não configurar `SUPABASE_SERVICE_ROLE_KEY` no ambiente do frontend.
 
-GitHub Pages é o hosting atual, não uma dependência arquitetural do domínio.
+GitHub Pages é o hosting atual/documentado, não uma dependência arquitetural do domínio.
 
 Uma futura troca de hosting não deve exigir alteração de regras de negócio ou componentes centrais.
 
@@ -521,10 +520,10 @@ Não testar detalhes internos do SDK do Supabase.
 
 ## Decisões técnicas ainda abertas
 
-As seguintes decisões não devem ser preenchidas por hipótese; registrar somente quando forem efetivamente tomadas/implementadas:
+As decisões abaixo devem ser registradas somente quando forem efetivamente tomadas ou implementadas:
 
 - modelagem persistente da flag `requer revisão`;
-- modelagem futura de materiais;
+- modelagem de materiais;
 - modelagem de componentes de custo;
 - estratégia de precificação calculada;
 - necessidade real de resize/compressão de imagens no cliente;
@@ -532,4 +531,4 @@ As seguintes decisões não devem ser preenchidas por hipótese; registrar somen
 - eventual troca de provider de hosting;
 - eventual remoção do fallback estático após estabilização da persistência.
 
-Quando uma dessas decisões for consolidada, atualizar este documento removendo-a desta seção e descrevendo o estado efetivamente adotado.
+Quando uma dessas decisões for consolidada, atualizar este documento removendo-a desta seção e descrevendo o estado adotado.

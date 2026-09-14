@@ -1,14 +1,14 @@
 # Contexto do Projeto — Yumi Studio
 
-## Objetivo
+## Propósito
 
 A Yumi Studio trabalha com impressão 3D sob encomenda.
 
 O sistema deve centralizar informações hoje distribuídas em planilhas, reduzir trabalho operacional, automatizar cálculos e reutilizar dados compartilhados.
 
-A primeira entrega pública é um catálogo online de produtos.
+A primeira entrega pública é um catálogo online de produtos, mas o catálogo é apenas uma interface do sistema.
 
-Esse catálogo é apenas uma interface do sistema. A visão do projeto é evoluir gradualmente para uma plataforma interna de gestão, sem antecipar módulos que ainda não resolvem problemas reais.
+A visão é evoluir gradualmente para uma plataforma interna de gestão sem antecipar módulos que ainda não resolvem problemas reais.
 
 ---
 
@@ -33,9 +33,9 @@ Entre soluções válidas, priorizar a que simplifica a operação e reduz esfor
 
 ---
 
-## Escopo atual
+## Escopo da fase atual
 
-O foco atual é evoluir o catálogo temporário para uma aplicação persistente com administração.
+A fase atual é a evolução do catálogo temporário para uma aplicação persistente com administração.
 
 ### Em escopo
 
@@ -45,9 +45,9 @@ O foco atual é evoluir o catálogo temporário para uma aplicação persistente
 - autenticação de administradores;
 - gerenciamento de produtos;
 - gerenciamento de imagens;
-- ativação/inativação de produtos;
+- ativação e inativação de produtos;
 - identificação de produtos que precisam de revisão;
-- fundação necessária para futura precificação.
+- fundação necessária para evolução da precificação.
 
 ### Fora do escopo atual
 
@@ -85,7 +85,7 @@ As interfaces atuais são:
 
 ## Produtos
 
-O catálogo temporário já trabalha com informações equivalentes a:
+O catálogo trabalha com informações de produto como:
 
 - identificação;
 - nome;
@@ -94,12 +94,12 @@ O catálogo temporário já trabalha com informações equivalentes a:
 - preço público/final;
 - imagens.
 
-O modelo persistente deve suportar também:
+O conceito de produto também inclui:
 
 - ativo/visível no catálogo;
 - requer revisão.
 
-O código atual deve ser inspecionado antes de assumir nomes ou tipos exatos.
+A forma técnica de persistir esses conceitos pertence à arquitetura e pode evoluir sem alterar a regra funcional.
 
 ### Ativação e inativação
 
@@ -113,22 +113,20 @@ Produtos inativos não aparecem no catálogo público.
 
 ## Revisão de produto
 
-O sistema deve conseguir marcar produtos que precisam de revisão quando dados compartilhados relevantes forem alterados.
+Produtos podem precisar de revisão quando informações compartilhadas relevantes à precificação forem alteradas.
 
-Exemplos de eventos futuros que podem exigir revisão:
+Exemplos futuros de eventos que podem exigir revisão:
 
 - alteração de material;
 - alteração ou exclusão de componente de custo;
 - mudança de parâmetros de precificação.
 
-A implementação deve permanecer simples.
-
-Experiência desejada:
+A experiência deve permanecer simples:
 
 - o produto recebe uma flag de atenção;
-- a flag fica visível na listagem do admin;
+- a flag fica visível na listagem administrativa;
 - produtos podem ser filtrados por essa situação;
-- o usuário pode salvar o produto mesmo sem alterar outros campos;
+- o usuário pode concluir a revisão mesmo sem alterar outros campos;
 - enquanto a flag estiver ativa, a ação principal de salvar pode ser apresentada como `Concluir revisão`;
 - concluir a revisão limpa a flag.
 
@@ -147,7 +145,7 @@ O princípio central é separar dados primários de dados calculados.
 
 O usuário deve informar somente os dados realmente necessários.
 
-Valores derivados devem ser calculados automaticamente sempre que isso reduzir trabalho e evitar inconsistências.
+Valores derivados devem ser calculados automaticamente quando isso reduzir trabalho e evitar inconsistências.
 
 ### Valores derivados esperados
 
@@ -158,16 +156,16 @@ Valores derivados devem ser calculados automaticamente sempre que isso reduzir t
 - lucro;
 - margem.
 
-### Preço
+### Preço sugerido e preço final
 
-O sistema deve distinguir, quando o módulo correspondente for implementado:
+Quando o módulo correspondente estiver implementado, o sistema deve distinguir:
 
 - preço sugerido calculado;
 - preço final definido para venda.
 
 O preço final pode ser diferente do preço sugerido.
 
-No estágio atual, o preço público/final continua sendo um dado explícito do produto.
+Enquanto a lógica completa de precificação não estiver implementada, o preço público/final continua sendo um dado explícito do produto.
 
 ---
 
@@ -184,13 +182,15 @@ Dados já definidos para materiais incluem:
 
 O custo por grama deve ser derivado desses dados, não informado manualmente.
 
-Há uma referência operacional inicial de **R$ 28,00 de frete** para cálculo conservador. Isso não deve ser transformado em constante espalhada pelo código; quando o módulo for implementado, deve permanecer configurável conforme a modelagem adotada.
+Como referência operacional inicial, foi considerado frete de **R$ 28,00** para cálculo conservador.
+
+Esse valor não deve ser tratado como regra imutável. Quando o módulo de materiais for implementado, ele deve poder ser alterado de acordo com a modelagem adotada.
 
 ---
 
 ## Custos de impressão
 
-A precificação futura poderá considerar:
+A precificação poderá considerar, conforme necessidade real:
 
 - custo por hora da impressora;
 - energia;
@@ -198,7 +198,7 @@ A precificação futura poderá considerar:
 - perdas;
 - peso/material utilizado.
 
-A interface deve pedir somente os dados necessários para os cálculos realmente utilizados.
+A interface deve pedir somente os dados necessários para os cálculos efetivamente utilizados.
 
 Não exigir detalhes de produção sem impacto em cálculo, catálogo ou tomada de decisão.
 
@@ -229,7 +229,7 @@ O cadastro deve exigir o menor número possível de informações sem compromete
 
 Simplicidade operacional é mais importante do que representar perfeitamente todas as variações de fabricação.
 
-Quando a flexibilidade aumentar significativamente o esforço de cadastro, preferir opções explícitas mais simples.
+Quando flexibilidade aumentar significativamente o esforço de cadastro, preferir alternativas explícitas mais simples.
 
 ---
 
@@ -239,7 +239,7 @@ O catálogo existe para permitir que clientes consultem produtos e preços sem p
 
 Não é um e-commerce.
 
-O catálogo deve permanecer focado em:
+Deve permanecer focado em:
 
 - produtos;
 - imagens;
@@ -255,7 +255,7 @@ Não introduzir carrinho, checkout, pagamentos ou conta de cliente sem decisão 
 
 A área administrativa deve reduzir a necessidade de editar código ou planilhas para manter o catálogo.
 
-Objetivo imediato:
+Objetivos funcionais da fase atual:
 
 - criar produto;
 - editar produto;
@@ -263,63 +263,10 @@ Objetivo imediato:
 - alterar preço;
 - alterar peso;
 - ativar/inativar produto;
-- identificar e concluir revisão de produtos.
+- identificar produtos que precisam de revisão;
+- concluir revisão de produtos.
 
-Administradores não precisam de cadastro público.
-
-Inicialmente, contas administrativas podem ser criadas de forma controlada no provider de autenticação.
-
----
-
-## Stack conhecida
-
-O frontend atual foi concebido com:
-
-- React;
-- TypeScript;
-- Vite;
-- Tailwind CSS;
-- shadcn/ui;
-- tema escuro;
-- assets locais no catálogo temporário.
-
-O repositório atual é a fonte de verdade para versões, dependências e estrutura efetivamente implementadas.
-
----
-
-## Infraestrutura e custo
-
-Supabase foi escolhido como provider atual para a próxima fase, cobrindo persistência, autenticação e storage enquanto o plano gratuito for suficiente para a operação atual.
-
-O projeto deve evitar dependência estrutural do provider.
-
-Antes de habilitar recursos que possam gerar cobrança, verificar custos e limites atuais.
-
-A aplicação deve permanecer preparada para trocar, se necessário:
-
-- backend;
-- banco;
-- autenticação;
-- storage;
-- hosting.
-
-Essa portabilidade não elimina migração de schema, dados ou arquivos; ela deve evitar reescrever UI e regras de negócio.
-
----
-
-## Migrations e fonte de verdade
-
-A intenção atual é manter o Git como fonte de verdade da evolução do banco.
-
-Alterações de schema devem ser representadas por migrations em:
-
-```text
-supabase/migrations/
-```
-
-RLS, policies, funções e triggers relacionadas ao schema devem ser versionadas quando aplicável.
-
-Mudanças manuais no schema de produção devem ser evitadas quando uma migration for apropriada.
+Não deve existir cadastro público de administradores sem decisão explícita.
 
 ---
 

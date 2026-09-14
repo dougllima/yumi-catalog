@@ -11,24 +11,21 @@ Antes de alterações substanciais, leia:
 - `docs/project-context.md`
 - `docs/architecture.md`
 
-Esses documentos representam, respectivamente:
+Use:
 
-- contexto funcional e regras consolidadas do produto;
-- arquitetura e decisões técnicas vigentes.
+- `AGENTS.md` para regras permanentes de atuação;
+- `docs/project-context.md` para produto, regras de negócio, escopo e decisões funcionais;
+- `docs/architecture.md` para arquitetura e decisões técnicas vigentes.
 
 Quando uma decisão consolidada mudar, atualize o documento correspondente na mesma tarefa.
 
 ---
 
-## Objetivo do projeto
+## Objetivo de atuação
 
-A Yumi Studio trabalha com impressão 3D sob encomenda.
+O sistema da Yumi Studio existe para reduzir trabalho operacional, evitar erros, centralizar informações reutilizáveis e automatizar cálculos derivados.
 
-O sistema deve reduzir trabalho operacional, evitar erros, centralizar informações reutilizáveis e automatizar cálculos derivados.
-
-A primeira interface pública é um catálogo online, mas o sistema deve ser concebido como uma plataforma interna de gestão que evolui gradualmente.
-
-Antes de implementar uma funcionalidade, considere:
+Antes de propor ou implementar uma funcionalidade, considere:
 
 > Isso reduz trabalho, evita erros ou melhora a tomada de decisão?
 
@@ -70,310 +67,129 @@ Problemas adjacentes podem ser apontados, mas não devem ser corrigidos automati
 
 Conversas com o usuário podem envolver exploração de alternativas, hipóteses, brainstorming ou decisões ainda não consolidadas.
 
-Não trate automaticamente uma ideia discutida como decisão oficial.
+Não trate automaticamente uma possibilidade discutida como decisão oficial.
 
 Durante discussões:
 
 - analise alternativas e trade-offs;
-- diferencie fato, hipótese, interpretação e recomendação;
+- diferencie fatos, hipóteses, interpretações e recomendações;
 - não altere código apenas porque uma possibilidade foi mencionada;
 - não registre hipóteses como regras consolidadas.
 
 Quando a conversa resultar claramente em uma decisão que deve permanecer válida para tarefas futuras, registre-a no repositório antes de encerrar o assunto.
 
-Use:
-
-- `docs/project-context.md` para regras de negócio, escopo, conceitos e decisões funcionais;
-- `docs/architecture.md` para decisões técnicas, schema, boundaries, integrations e infraestrutura;
-- `AGENTS.md` somente para regras permanentes sobre como agentes devem atuar.
-
-Se não estiver claro se uma decisão foi realmente tomada, confirme com o usuário antes de registrá-la como fonte de verdade.
+Se não estiver claro se a decisão foi realmente tomada, confirme com o usuário antes de registrá-la como fonte de verdade.
 
 Ao registrar uma decisão:
 
 - represente o estado consolidado atual;
 - não transforme a documentação em histórico da conversa;
 - remova ou ajuste informações anteriores que tenham se tornado incorretas;
-- informe no relatório final qual documento foi atualizado e por quê.
+- informe ao usuário qual documento foi atualizado e por quê.
 
 ---
 
-## Princípios de produto
+## Princípios transversais
 
 ### Simplicidade operacional acima de flexibilidade
 
 Prefira fluxos simples mesmo quando forem menos genéricos.
 
-É aceitável cadastrar produtos separados em vez de criar um configurador complexo quando isso tornar a operação mais simples.
+É aceitável representar opções como produtos separados em vez de criar um configurador complexo quando isso reduzir trabalho e manutenção.
 
-### Informar somente dados primários
+### Dados primários e derivados
 
 O usuário deve informar somente os dados realmente necessários.
 
-Valores derivados devem ser calculados sempre que isso reduzir trabalho ou inconsistências.
-
-Exemplos:
-
-- custo por grama;
-- custo do material;
-- custo da impressão;
-- custo total;
-- lucro;
-- margem.
+Valores derivados devem ser calculados quando isso reduzir trabalho ou inconsistências.
 
 Não persista valores derivados sem necessidade concreta, exceto quando houver motivo como snapshot histórico imutável.
 
-### Centralizar informações reutilizáveis
+### Centralização
 
 Dados compartilhados por vários produtos devem possuir uma única fonte de verdade quando apropriado.
 
-Exemplos:
-
-- materiais;
-- componentes de custo;
-- categorias;
-- parâmetros de precificação.
-
-Evite copiar informações reutilizáveis para dentro de cada produto.
+Evite duplicar informações reutilizáveis.
 
 ### Complexidade somente quando necessária
 
-A arquitetura deve permitir evolução, mas módulos futuros não devem ser implementados antecipadamente.
+A arquitetura deve permitir evolução, mas funcionalidades e módulos futuros não devem ser implementados antecipadamente.
 
-Possíveis módulos futuros incluem:
+Não transforme o projeto em ERP ou sistema industrial sem necessidade real.
 
-- pedidos;
-- clientes;
-- fila de produção;
-- financeiro;
-- relatórios.
+### Produtividade
 
-A possibilidade de existirem no futuro não justifica infraestrutura sem uso atual.
+O cadastro e a manutenção devem exigir o menor esforço possível sem comprometer a confiabilidade das informações.
 
-### Priorizar produtividade
-
-O cadastro de produto deve exigir o menor número possível de informações sem comprometer a confiabilidade da precificação e do catálogo.
-
-Não exija detalhes de fabricação que não contribuam para cálculo, catálogo ou tomada de decisão.
+Não exija detalhes de produção que não contribuam para cálculo, catálogo ou tomada de decisão.
 
 ---
 
-## Escopo conceitual
+## Arquitetura e padrões existentes
 
-### Núcleo
+Antes de alterar arquitetura ou infraestrutura, leia `docs/architecture.md` e inspecione o código real.
 
-- produtos;
-- precificação;
-- materiais;
-- componentes de custo;
-- configurações.
+Respeite as boundaries e decisões técnicas já estabelecidas, salvo motivo explícito para mudá-las.
 
-### Interfaces
+Quando uma decisão arquitetural mudar:
 
-- catálogo público;
-- administração.
+1. justifique a mudança;
+2. avalie o impacto;
+3. atualize `docs/architecture.md`;
+4. preserve o mínimo de alteração necessário.
 
-O catálogo é uma interface do sistema, não o sistema inteiro.
+Não replique neste arquivo detalhes de schema, provider, deploy ou estrutura que pertencem a `docs/architecture.md`.
 
 ---
 
-## Catálogo público
+## Decisões funcionais
 
-O catálogo público não é um e-commerce.
+Antes de alterar regras de negócio, escopo, conceitos de produto ou fluxos operacionais, leia `docs/project-context.md`.
 
-Não introduza sem solicitação explícita:
+Quando uma decisão funcional mudar:
 
-- carrinho;
-- checkout;
-- pagamentos;
-- conta de cliente.
+1. confirme que ela está consolidada;
+2. atualize `docs/project-context.md`;
+3. ajuste ou remova regras anteriores que deixaram de ser válidas.
 
-Preserve o comportamento e o visual existentes quando a tarefa não exigir mudanças.
-
-Somente produtos destinados à exibição pública devem aparecer no catálogo.
+Não replique neste arquivo detalhes funcionais que pertencem a `docs/project-context.md`, exceto princípios transversais que orientam a implementação.
 
 ---
 
-## Administração
+## Segurança
 
-A área administrativa existe para reduzir manutenção manual do catálogo e dos dados operacionais.
+Não trate ocultação de UI como mecanismo de segurança.
 
-Prefira formulários e fluxos explícitos a mecanismos genéricos de configuração.
+Operações protegidas devem possuir autorização adequada na camada de infraestrutura correspondente.
 
-Operações administrativas devem ser protegidas por autenticação e também por autorização no backend, banco e storage.
-
-Não considere esconder elementos da UI como mecanismo de segurança.
+Nunca exponha secrets em código frontend ou arquivos versionados.
 
 ---
 
-## Revisão de produto
+## Qualidade e testes
 
-O projeto possui o conceito de produto que pode exigir revisão quando informações compartilhadas relevantes à precificação forem alteradas.
+Siga a estratégia existente no repositório.
 
-Mantenha o mecanismo simples.
+Para correções de bugs:
 
-Um produto pode possuir um estado equivalente a `requer revisão`.
-
-Quando esse estado estiver ativo:
-
-- ele deve ser facilmente identificável e filtrável no admin;
-- o fluxo normal de salvar pode assumir o papel de `Concluir revisão`;
-- concluir a revisão limpa a flag.
-
-Não crie workflow de aprovação, histórico de revisão ou justificativas sem necessidade explícita.
-
----
-
-## Arquitetura
-
-Antes de alterar arquitetura ou infraestrutura,
-leia `docs/architecture.md`.
-
-Respeite as boundaries e decisões técnicas ali documentadas.
-
-Não introduza abstrações, layers ou patterns adicionais
-sem necessidade concreta.
-
----
-
-## Portabilidade de provider
-
-O provider atual é Supabase, mas o código da aplicação não deve ficar desnecessariamente acoplado a ele.
-
-Uma futura troca deve impactar principalmente:
-
-- adapters;
-- configuração;
-- migrations;
-- migração de dados;
-- migração de arquivos;
-- regras específicas de segurança.
-
-Não tente abstrair todas as capacidades do banco.
-
-O objetivo é evitar reescrever UI e lógica de negócio, não tornar uma migração de provider sem custo.
-
----
-
-## Supabase
-
-Quando Supabase estiver sendo utilizado:
-
-- alterações de schema devem ser versionadas em migrations;
-- migrations devem ficar em `supabase/migrations/`;
-- RLS e policies devem ser versionadas quando aplicável;
-- evite mudanças manuais de schema em produção quando uma migration for apropriada;
-- nunca faça commit de secrets ou `service_role`;
-- chaves públicas usadas pela SPA não devem ser tratadas como segredo;
-- segurança deve depender de autenticação, RLS e policies, não de ocultar keys.
-
-O Git deve ser a fonte de verdade para a evolução do schema.
-
-Antes de assumir detalhes de configuração do projeto Supabase, verifique a configuração real do repositório e do ambiente.
-
----
-
-## Hosting
-
-Prefira manter o frontend como aplicação React/Vite capaz de ser hospedada como arquivos estáticos enquanto isso atender ao problema.
-
-Não introduza SSR ou backend Node próprio apenas para intermediar operações que o provider escolhido consegue executar com segurança.
-
-Hosting deve permanecer substituível sem redesenho da aplicação.
-
----
-
-## Frontend
-
-Preserve tecnologias e padrões existentes salvo motivo concreto para mudança.
-
-Stack esperada atualmente:
-
-- React;
-- TypeScript;
-- Vite;
-- Tailwind CSS;
-- shadcn/ui quando apropriado.
-
-Antes de assumir versões ou dependências, inspecione `package.json` e o código atual.
-
-Não substitua a stack apenas por preferência técnica.
-
----
-
-## Valores monetários
-
-Evite problemas de floating point.
-
-Quando apropriado, prefira valores monetários em unidade mínima inteira, como centavos.
-
-Na UI, valores devem permanecer naturais para Real brasileiro.
-
----
-
-## Imagens e mídia
-
-Imagens de produto devem ser administráveis sem alteração de código.
-
-O acesso ao storage deve permanecer atrás de uma boundary interna.
-
-Evite APIs específicas do provider espalhadas pela aplicação.
-
-Considere de forma prática:
-
-- múltiplas imagens;
-- ordenação;
-- imagem principal;
-- upload;
-- remoção;
-- validação;
-- prevenção razoável de arquivos órfãos.
-
-Não implemente pipeline complexo de mídia sem necessidade demonstrada.
-
----
-
-## Exclusão e inativação
-
-Prefira inativação lógica quando manter o registro tiver valor operacional.
-
-Não exclua permanentemente dados de negócio apenas para removê-los do catálogo, salvo quando exclusão definitiva for realmente a intenção.
-
----
-
-## Erros
-
-Não esconda erros operacionais silenciosamente.
-
-No admin, forneça feedback suficiente para:
-
-- falha ao carregar;
-- falha ao salvar;
-- falha em upload;
-- sessão expirada;
-- indisponibilidade do serviço.
-
-Não crie uma plataforma de observabilidade complexa sem necessidade.
-
----
-
-## Testes
-
-Siga a estratégia já existente no repositório.
-
-Em correções de bugs, reproduza o problema quando razoável e adicione proteção contra regressão quando isso trouxer valor.
+1. reproduza o problema quando razoável;
+2. identifique a causa;
+3. corrija pontualmente;
+4. adicione proteção contra regressão quando trouxer valor.
 
 Priorize testes para:
 
 - regras de negócio;
-- transformações e mapping;
+- transformações e mapping relevantes;
 - contracts independentes de provider;
-- comportamento importante do admin;
+- comportamento crítico do admin;
 - regressões.
 
 Não teste detalhes internos de SDKs de terceiros.
 
-Antes de concluir mudanças relevantes, execute os checks existentes. Quando disponíveis:
+Não contorne erros de TypeScript com `any`, `@ts-ignore` ou desativação de lint sem justificativa concreta.
+
+Antes de concluir mudanças relevantes, execute os checks aplicáveis existentes no projeto. Quando disponíveis:
 
 ```bash
 npm run lint
@@ -381,35 +197,7 @@ npm run test
 npm run build
 ```
 
-Relate somente resultados realmente executados.
-
-Nunca diga que um comando passou sem tê-lo executado com sucesso.
-
----
-
-## Qualidade TypeScript
-
-Não contorne erros usando:
-
-- `any`;
-- `@ts-ignore`;
-- desativação de lint;
-
-salvo justificativa concreta e documentada.
-
-Prefira corrigir o problema de typing.
-
----
-
-## Configuração de ambiente
-
-Mantenha configuração dependente de ambiente fora da lógica da aplicação.
-
-Atualize `.env.example` quando novas variáveis forem necessárias.
-
-Nunca faça commit de secrets.
-
-Lembre que variáveis incluídas no bundle da SPA são visíveis no navegador.
+Relate apenas resultados realmente executados.
 
 ---
 
@@ -422,24 +210,22 @@ Se encontrar technical debt não relacionado:
 - registre quando relevante;
 - não corrija automaticamente.
 
-Não use uma feature pequena como justificativa para refactor amplo.
+Não use uma feature localizada como justificativa para refactor amplo.
 
 ---
 
 ## Documentação como fonte de verdade
 
-Ao realizar uma mudança relevante, verifique explicitamente se ela altera alguma decisão documentada ou introduz uma nova decisão que tarefas futuras precisarão conhecer.
-
-Atualize `docs/project-context.md` quando houver mudança em:
+Atualize `docs/project-context.md` quando houver mudança consolidada em:
 
 - regra de negócio;
 - comportamento esperado;
 - escopo;
 - conceito de produto;
 - fluxo operacional;
-- requisito funcional consolidado.
+- requisito funcional.
 
-Atualize `docs/architecture.md` quando houver mudança em:
+Atualize `docs/architecture.md` quando houver mudança consolidada em:
 
 - estrutura técnica;
 - schema;
@@ -449,26 +235,23 @@ Atualize `docs/architecture.md` quando houver mudança em:
 - persistência;
 - autenticação;
 - storage;
-- integration;
+- integrations;
 - deployment;
-- decisão técnica relevante que afete futuras implementações.
+- decisão técnica relevante para tarefas futuras.
 
 Atualize `AGENTS.md` somente quando mudar:
 
-- a forma como os agentes devem trabalhar;
+- a forma como agentes devem trabalhar;
 - uma constraint permanente de implementação;
 - uma regra transversal válida para o projeto inteiro.
 
 Não documente:
 
-- detalhes triviais de implementação;
-- decisões locais facilmente compreendidas pelo código;
+- detalhes triviais facilmente compreendidos pelo código;
 - tentativas descartadas;
 - hipóteses não confirmadas;
 - histórico da discussão;
 - possibilidades futuras sem decisão tomada.
-
-A documentação deve representar o estado consolidado atual.
 
 ---
 
@@ -478,11 +261,9 @@ Verifique:
 
 1. a implementação ou discussão mudou alguma regra ou decisão permanente?
 2. `docs/project-context.md` ainda representa corretamente o produto?
-3. `docs/architecture.md` ainda representa corretamente o sistema e as decisões técnicas?
+3. `docs/architecture.md` ainda representa corretamente as decisões técnicas?
 4. alguma regra deste `AGENTS.md` ficou obsoleta?
-5. lint, testes e build aplicáveis foram executados?
-
-Se a resposta exigir atualização, faça-a antes de concluir a tarefa.
+5. os checks aplicáveis foram executados?
 
 No relatório final, informe:
 
