@@ -66,6 +66,7 @@ export function ProductsPage() {
                 />
                 <input
                   id="product-search"
+                  data-testid="products-search-input"
                   type="search"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}

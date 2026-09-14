@@ -136,7 +136,11 @@ export function AdminProductsPage() {
     setForm((current) => {
       const next = { ...current, [field]: value };
 
-      if (field === "name" && isCreating && !current.id.trim()) {
+      if (
+        field === "name" &&
+        isCreating &&
+        (!current.id.trim() || current.id === slugify(current.name))
+      ) {
         next.id = slugify(String(value));
       }
 
@@ -404,6 +408,7 @@ export function AdminProductsPage() {
             <label className="grid gap-2 text-sm font-extrabold">
               Buscar produto
               <input
+                data-testid="admin-products-search-input"
                 type="search"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
@@ -455,6 +460,7 @@ export function AdminProductsPage() {
               <label className="grid gap-2 text-sm font-extrabold">
                 Identificador
                 <input
+                  data-testid="admin-product-id-input"
                   value={form.id}
                   onChange={(event) => updateForm("id", slugify(event.target.value))}
                   disabled={!isCreating}
@@ -466,6 +472,7 @@ export function AdminProductsPage() {
               <label className="grid gap-2 text-sm font-extrabold">
                 Nome
                 <input
+                  data-testid="admin-product-name-input"
                   value={form.name}
                   onChange={(event) => updateForm("name", event.target.value)}
                   required
@@ -477,6 +484,7 @@ export function AdminProductsPage() {
             <label className="grid gap-2 text-sm font-extrabold">
               Descrição
               <textarea
+                data-testid="admin-product-description-input"
                 value={form.description}
                 onChange={(event) =>
                   updateForm("description", event.target.value)
@@ -490,6 +498,7 @@ export function AdminProductsPage() {
               <label className="grid gap-2 text-sm font-extrabold">
                 Peso (g)
                 <input
+                  data-testid="admin-product-weight-input"
                   inputMode="decimal"
                   value={form.weight}
                   onChange={(event) => updateForm("weight", event.target.value)}
@@ -500,6 +509,7 @@ export function AdminProductsPage() {
               <label className="grid gap-2 text-sm font-extrabold">
                 Preço (R$)
                 <input
+                  data-testid="admin-product-price-input"
                   inputMode="decimal"
                   value={form.price}
                   onChange={(event) => updateForm("price", event.target.value)}
@@ -509,6 +519,7 @@ export function AdminProductsPage() {
 
               <label className="flex items-center gap-3 rounded-2xl border bg-background/55 px-4 py-3 text-sm font-extrabold">
                 <input
+                  data-testid="admin-product-active-input"
                   type="checkbox"
                   checked={form.isActive}
                   onChange={(event) =>
@@ -534,6 +545,7 @@ export function AdminProductsPage() {
                   <Upload className="size-4" aria-hidden="true" />
                   Adicionar imagens
                   <input
+                    data-testid="admin-product-images-input"
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     multiple
@@ -618,6 +630,7 @@ export function AdminProductsPage() {
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
               <Button
                 type="button"
+                data-testid="admin-product-delete-button"
                 variant="outline"
                 className="rounded-full text-destructive"
                 disabled={!selectedProduct || saving}

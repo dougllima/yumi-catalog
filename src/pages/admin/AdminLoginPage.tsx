@@ -77,6 +77,7 @@ export function AdminLoginPage() {
           <label className="grid gap-2 text-sm font-extrabold">
             Email
             <input
+              data-testid="admin-login-email"
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -89,6 +90,7 @@ export function AdminLoginPage() {
           <label className="grid gap-2 text-sm font-extrabold">
             Senha
             <input
+              data-testid="admin-login-password"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
@@ -106,6 +108,7 @@ export function AdminLoginPage() {
 
           <Button
             type="submit"
+            data-testid="admin-login-submit"
             className="h-11 rounded-full"
             disabled={submitting}
           >

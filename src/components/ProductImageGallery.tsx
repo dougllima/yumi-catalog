@@ -53,6 +53,7 @@ export function ProductImageGallery({
     <div className="grid gap-3">
       <div className="relative aspect-square overflow-hidden rounded-[1.5rem] border bg-muted shadow-xl shadow-primary/8">
         <img
+          data-testid="product-image-gallery-active"
           src={activeImageUrl}
           alt={`${productName} - imagem ${activeImageIndex + 1}`}
           className="block size-full object-cover"
