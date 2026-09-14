@@ -28,11 +28,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run lint
-
-      - run: npm run test
-
-      - run: npm run build
+      - run: npm run check
         env:
           VITE_DATA_PROVIDER: ${{ vars.VITE_DATA_PROVIDER }}
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}

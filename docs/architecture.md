@@ -113,10 +113,11 @@ public/
   brand/yumi-logo.png
 ```
 
-O repositório atualmente não contém arquivos em `public/products/`. A fonte
-estática `src/data/products.ts` referencia caminhos sob `/products/...`; esses
-arquivos precisam existir no ambiente publicado ou serem migrados para o
-Storage para que as imagens correspondentes renderizem.
+O repositório atualmente não contém arquivos em `public/products/`. A decisão
+vigente é usar Supabase Storage como fonte oficial das imagens de produto. A
+fonte estática `src/data/products.ts` ainda referencia caminhos sob
+`/products/...` como legado/fallback local; esses caminhos não devem ser
+tratados como fonte oficial para produção persistente.
 
 Scripts npm versionados:
 
@@ -556,6 +557,10 @@ A leitura pública é permitida para suportar o catálogo.
 
 Upload, update e delete exigem usuário autenticado e autorizado como administrador.
 
+A fonte oficial das imagens de produto é o Supabase Storage. Arquivos locais em
+`public/products/`, quando existirem, devem ser tratados apenas como origem
+transitória para importação ou fallback local.
+
 ### Service role
 
 Nunca utilizar `SUPABASE_SERVICE_ROLE_KEY` no frontend.
@@ -641,7 +646,8 @@ O script:
 
 Quando uma imagem local não existe, o script registra um warning e continua.
 No checkpoint atual do repositório, não há arquivos versionados em
-`public/products/`.
+`public/products/`, e isso está alinhado à decisão de usar Supabase Storage como
+fonte oficial das imagens.
 
 O processo não apaga automaticamente produtos ou imagens que já existam no Supabase e tenham sido removidos da fonte estática.
 
@@ -725,8 +731,7 @@ Configuração versionada:
 - `BrowserRouter` usa `basename={import.meta.env.BASE_URL}`;
 - `.github/workflows/deploy.yml` roda em push para `main` e
   `workflow_dispatch`;
-- o workflow usa Node 24, executa `npm ci`, `npm run lint`, `npm run test` e
-  `npm run build`;
+- o workflow usa Node 24, executa `npm ci` e `npm run check`;
 - o workflow cria `dist/404.html` a partir de `dist/index.html` para suportar rotas diretas da SPA no GitHub Pages.
 - o workflow publica `dist` com `actions/upload-pages-artifact@v3` e
   `actions/deploy-pages@v4`.
@@ -783,7 +788,7 @@ Setup real atual:
 - arquivos de teste com sufixo `.tests.ts` ou `.tests.tsx`;
 - coverage com provider `v8`;
 - relatórios `text`, `html` e `lcov` em `coverage/`;
-- thresholds globais iniciais: 45% para statements, functions e lines; 35%
+- thresholds globais iniciais: 60% para statements, functions e lines; 50%
   para branches.
 
 Priorizar testes para:

@@ -18,6 +18,17 @@ npm run dev
 npm run build
 ```
 
+## Qualidade
+
+```bash
+npm run check
+npm run format
+npm run lint:fix
+npm run test:coverage
+```
+
+Use `npm run check` como validação principal antes de publicar alterações.
+
 ## Testes
 
 ```bash
@@ -39,13 +50,19 @@ A área administrativa fica em `/admin` e usa Supabase quando configurada.
 npm run seed:products
 ```
 
+As imagens dos produtos devem ficar no Supabase Storage, no bucket
+`product-images`. O script de seed tenta migrar imagens locais quando elas
+existirem, mas o repositório não trata `public/products` como fonte oficial.
+
 Veja os detalhes em `docs/architecture.md`.
 
 ## Fallback estático
 
 Sem variáveis Supabase, o catálogo continua usando `src/data/products.ts` como
-fallback local. Isso facilita desenvolvimento e permite migrar gradualmente.
+fallback local. Isso facilita desenvolvimento, mas a fonte oficial das imagens
+do catálogo persistente é o Supabase Storage.
 
 ## Estilo
 
-Os tokens visuais ficam em `src/index.css`. Componentes shadcn/ui locais ficam em `src/components/ui/`.
+Os tokens visuais ficam em `src/index.css`. Componentes shadcn/ui locais ficam
+em `src/components/ui/`.
