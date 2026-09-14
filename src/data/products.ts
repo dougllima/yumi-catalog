@@ -41,17 +41,8 @@ const productImagePaths: Record<string, string[]> = {
     "03.jpeg",
     "04.jpeg",
   ),
-  "figure-legolas-ogro": img(
-    "figure-legolas-ogro",
-    "01.jpeg",
-    "02.jpeg",
-  ),
-  "fruta-one-piece": img(
-    "fruta-one-piece",
-    "01.webp",
-    "02.webp",
-    "03.webp",
-  ),
+  "figure-legolas-ogro": img("figure-legolas-ogro", "01.jpeg", "02.jpeg"),
+  "fruta-one-piece": img("fruta-one-piece", "01.webp", "02.webp", "03.webp"),
   "kit-mecanismo-clicker": img("kit-mecanismo-clicker", "01.webp"),
   "kit-mini-prendedores-10": img("kit-mini-prendedores-10", "01.webp"),
   "kit-monster": img("kit-monster", "01.jpeg", "02.jpeg"),
@@ -64,11 +55,7 @@ const productImagePaths: Record<string, string[]> = {
     "01.jpeg",
   ),
   "lagarto-tom": img("lagarto-tom", "04.jpeg", "05.jpeg"),
-  "marca-pagina-gatinho": img(
-    "marca-pagina-gatinho",
-    "02.jpeg",
-    "03.jpeg",
-  ),
+  "marca-pagina-gatinho": img("marca-pagina-gatinho", "02.jpeg", "03.jpeg"),
   "porta-celular-stars": img(
     "porta-celular-stars",
     "01.jpeg",
@@ -115,13 +102,7 @@ const productImagePaths: Record<string, string[]> = {
     "04.jpeg",
     "05.jpeg",
   ),
-  "porta-joias": img(
-    "porta-joias",
-    "01.jpeg",
-    "02.jpeg",
-    "03.jpeg",
-    "04.jpeg",
-  ),
+  "porta-joias": img("porta-joias", "01.jpeg", "02.jpeg", "03.jpeg", "04.jpeg"),
   "porta-maquiagem": img(
     "porta-maquiagem",
     "01.jpeg",
@@ -169,16 +150,8 @@ const productImagePaths: Record<string, string[]> = {
     "03.jpeg",
     "04.jpeg",
   ),
-  "tampa-caneca-chapeu-seletor": img(
-    "tampa-caneca-chapel-seletor",
-    "01.jpeg",
-  ),
-  "trono-de-ferro": img(
-    "trono-de-ferro",
-    "01.jpeg",
-    "02.jpeg",
-    "03.jpeg",
-  ),
+  "tampa-caneca-chapeu-seletor": img("tampa-caneca-chapel-seletor", "01.jpeg"),
+  "trono-de-ferro": img("trono-de-ferro", "01.jpeg", "02.jpeg", "03.jpeg"),
   vaso: img("vaso", "01.jpeg", "02.jpeg"),
 };
 
@@ -452,11 +425,13 @@ export const products: Product[] = productSeeds.map(
     ...product,
     isActive: product.isActive ?? true,
     images: productImages(imageFolder ?? product.id),
-    imageRecords: productImages(imageFolder ?? product.id).map((url, index) => ({
-      id: `${product.id}-${index}`,
-      url,
-      altText: product.name,
-      sortOrder: index,
-    })),
+    imageRecords: productImages(imageFolder ?? product.id).map(
+      (url, index) => ({
+        id: `${product.id}-${index}`,
+        url,
+        altText: product.name,
+        sortOrder: index,
+      }),
+    ),
   }),
 );

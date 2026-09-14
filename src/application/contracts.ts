@@ -29,7 +29,10 @@ export interface AuthService {
 export interface ProductRepository {
   listPublished(): Promise<Product[]>;
   listAll(): Promise<Product[]>;
-  getById(id: string, options?: { includeInactive?: boolean }): Promise<Product | null>;
+  getById(
+    id: string,
+    options?: { includeInactive?: boolean },
+  ): Promise<Product | null>;
   create(input: ProductInput): Promise<Product>;
   update(id: string, input: ProductInput): Promise<Product>;
   delete(id: string): Promise<void>;

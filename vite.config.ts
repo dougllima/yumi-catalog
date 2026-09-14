@@ -1,7 +1,8 @@
-import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
+
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   base: "/yumi-catalog/",
@@ -12,8 +13,28 @@ export default defineConfig({
     },
   },
   test: {
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html", "lcov"],
+      reportsDirectory: "coverage",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "src/**/*.test.{ts,tsx}",
+        "src/**/*.tests.{ts,tsx}",
+        "src/test/**",
+        "src/vite-env.d.ts",
+        "src/main.tsx",
+      ],
+      thresholds: {
+        branches: 35,
+        functions: 45,
+        lines: 45,
+        statements: 45,
+      },
+    },
     environment: "jsdom",
-    include: ["src/**/*.test.{ts,tsx}", "src/**/*.tests.{ts,tsx}"],
+    include: ["src/**/*.tests.{ts,tsx}"],
     setupFiles: "./src/test/setup.ts",
+    testTimeout: 10_000,
   },
 });

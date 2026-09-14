@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -39,13 +39,13 @@ export function ProductImageGallery({
 
   const showPreviousImage = () => {
     setActiveImageIndex((currentIndex) =>
-      currentIndex === 0 ? images.length - 1 : currentIndex - 1
+      currentIndex === 0 ? images.length - 1 : currentIndex - 1,
     );
   };
 
   const showNextImage = () => {
     setActiveImageIndex((currentIndex) =>
-      currentIndex === images.length - 1 ? 0 : currentIndex + 1
+      currentIndex === images.length - 1 ? 0 : currentIndex + 1,
     );
   };
 
@@ -106,7 +106,7 @@ export function ProductImageGallery({
                 "size-18 shrink-0 overflow-hidden rounded-xl border-2 bg-card p-0 shadow-sm hover:bg-card",
                 index === activeImageIndex
                   ? "border-primary ring-2 ring-ring/45"
-                  : "border-border"
+                  : "border-border",
               )}
               onClick={() => setActiveImageIndex(index)}
             >

@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   mapProductRow,
-  toProductWriteRow,
   type SupabaseProductRow,
+  toProductWriteRow,
 } from "@/infrastructure/supabase/productMapper";
 
 describe("Supabase product mapper", () => {

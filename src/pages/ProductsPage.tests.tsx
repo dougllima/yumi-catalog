@@ -43,9 +43,7 @@ describe("ProductsPage", () => {
 
     renderProductsPage();
 
-    expect(
-      screen.getByLabelText("Carregando produtos"),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Carregando produtos")).toBeInTheDocument();
     expect(screen.getByText("Todos os produtos")).toBeInTheDocument();
   });
 
@@ -69,7 +67,9 @@ describe("ProductsPage", () => {
 
     await user.type(screen.getByTestId("products-search-input"), "vaso");
 
-    expect(within(productsGrid).queryByText("Porta Joias")).not.toBeInTheDocument();
+    expect(
+      within(productsGrid).queryByText("Porta Joias"),
+    ).not.toBeInTheDocument();
     expect(within(productsGrid).getByText("Vaso")).toBeInTheDocument();
     expect(screen.getByText("vaso")).toBeInTheDocument();
 
@@ -95,6 +95,8 @@ describe("ProductsPage", () => {
     await user.type(screen.getByTestId("products-search-input"), "porta");
 
     expect(screen.getByText("Nenhum produto encontrado")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Todos os produtos cadastrados")).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Todos os produtos cadastrados"),
+    ).not.toBeInTheDocument();
   });
 });

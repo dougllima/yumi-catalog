@@ -4,8 +4,8 @@ import {
   centsToReais,
   normalizeSearch,
   onlyActiveProducts,
-  reaisToCents,
   type Product,
+  reaisToCents,
 } from "@/domain/product";
 
 describe("product domain helpers", () => {

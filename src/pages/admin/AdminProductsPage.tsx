@@ -254,8 +254,9 @@ export function AdminProductsPage() {
       const storagePaths =
         selectedProduct.imageRecords
           ?.map((image) => image.storagePath)
-          .filter((storagePath): storagePath is string => Boolean(storagePath)) ??
-        [];
+          .filter((storagePath): storagePath is string =>
+            Boolean(storagePath),
+          ) ?? [];
 
       await productRepository.delete(selectedProduct.id);
       const failedStorageRemovals: string[] = [];
@@ -367,9 +368,7 @@ export function AdminProductsPage() {
       <section className="grid gap-5" aria-labelledby="admin-title">
         <div className="flex flex-col gap-4 rounded-[1.75rem] border bg-card/64 p-4 shadow-xl shadow-primary/8 backdrop-blur sm:p-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="grid gap-1.5">
-            <p className="text-sm font-extrabold text-primary">
-              Administração
-            </p>
+            <p className="text-sm font-extrabold text-primary">Administração</p>
             <h1
               id="admin-title"
               className="font-display text-3xl font-semibold tracking-normal sm:text-4xl"
@@ -377,7 +376,9 @@ export function AdminProductsPage() {
               Produtos da Yumi Studio
             </h1>
             <p className="text-sm text-muted-foreground">
-              Fonte ativa: {runtimeBackend === "supabase" ? "Supabase" : "fallback estático"}.
+              Fonte ativa:{" "}
+              {runtimeBackend === "supabase" ? "Supabase" : "fallback estático"}
+              .
             </p>
           </div>
 
@@ -462,7 +463,9 @@ export function AdminProductsPage() {
                 <input
                   data-testid="admin-product-id-input"
                   value={form.id}
-                  onChange={(event) => updateForm("id", slugify(event.target.value))}
+                  onChange={(event) =>
+                    updateForm("id", slugify(event.target.value))
+                  }
                   disabled={!isCreating}
                   required={isCreating}
                   className="h-10 rounded-full border bg-background/70 px-4 font-semibold outline-none transition disabled:opacity-60 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
@@ -563,55 +566,59 @@ export function AdminProductsPage() {
               )}
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {(selectedProduct?.imageRecords ?? []).map((image, index, list) => (
-                  <div
-                    key={image.id}
-                    className="overflow-hidden rounded-2xl border bg-card shadow-sm"
-                  >
-                    <img
-                      src={image.url}
-                      alt={image.altText ?? selectedProduct?.name ?? "Produto"}
-                      className="aspect-[4/3] w-full object-cover"
-                    />
-                    <div className="flex items-center justify-between gap-2 p-2">
-                      <div className="flex gap-1">
+                {(selectedProduct?.imageRecords ?? []).map(
+                  (image, index, list) => (
+                    <div
+                      key={image.id}
+                      className="overflow-hidden rounded-2xl border bg-card shadow-sm"
+                    >
+                      <img
+                        src={image.url}
+                        alt={
+                          image.altText ?? selectedProduct?.name ?? "Produto"
+                        }
+                        className="aspect-[4/3] w-full object-cover"
+                      />
+                      <div className="flex items-center justify-between gap-2 p-2">
+                        <div className="flex gap-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-full"
+                            disabled={index === 0 || saving}
+                            onClick={() => void moveImage(index, -1)}
+                            aria-label="Mover imagem para cima"
+                          >
+                            <ArrowUp aria-hidden="true" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-full"
+                            disabled={index === list.length - 1 || saving}
+                            onClick={() => void moveImage(index, 1)}
+                            aria-label="Mover imagem para baixo"
+                          >
+                            <ArrowDown aria-hidden="true" />
+                          </Button>
+                        </div>
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="size-8 rounded-full"
-                          disabled={index === 0 || saving}
-                          onClick={() => void moveImage(index, -1)}
-                          aria-label="Mover imagem para cima"
+                          className="size-8 rounded-full text-destructive"
+                          disabled={!image.storagePath || saving}
+                          onClick={() => void removeImage(image)}
+                          aria-label="Remover imagem"
                         >
-                          <ArrowUp aria-hidden="true" />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 rounded-full"
-                          disabled={index === list.length - 1 || saving}
-                          onClick={() => void moveImage(index, 1)}
-                          aria-label="Mover imagem para baixo"
-                        >
-                          <ArrowDown aria-hidden="true" />
+                          <Trash2 aria-hidden="true" />
                         </Button>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 rounded-full text-destructive"
-                        disabled={!image.storagePath || saving}
-                        onClick={() => void removeImage(image)}
-                        aria-label="Remover imagem"
-                      >
-                        <Trash2 aria-hidden="true" />
-                      </Button>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </section>
 

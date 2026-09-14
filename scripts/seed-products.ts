@@ -1,7 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
 import { existsSync, readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+
+import { createClient } from "@supabase/supabase-js";
 
 import { products } from "../src/data/products";
 import { reaisToCents } from "../src/domain/product";
@@ -105,17 +106,15 @@ for (const [sortOrder, product] of products.entries()) {
       );
     }
 
-    const { error: imageError } = await supabase
-      .from("product_images")
-      .upsert(
-        {
-          product_id: product.id,
-          storage_path: storagePath,
-          alt_text: product.name,
-          sort_order: index,
-        },
-        { onConflict: "storage_path" },
-      );
+    const { error: imageError } = await supabase.from("product_images").upsert(
+      {
+        product_id: product.id,
+        storage_path: storagePath,
+        alt_text: product.name,
+        sort_order: index,
+      },
+      { onConflict: "storage_path" },
+    );
 
     if (imageError) {
       throw new Error(

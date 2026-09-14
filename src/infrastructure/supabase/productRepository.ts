@@ -1,9 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import type {
-  MediaStorage,
-  ProductRepository,
-} from "@/application/contracts";
+import type { MediaStorage, ProductRepository } from "@/application/contracts";
 import type {
   Product,
   ProductImageInput,
@@ -11,9 +8,9 @@ import type {
 } from "@/domain/product";
 import {
   mapProductRow,
-  toProductWriteRow,
   type SupabaseProductImageRow,
   type SupabaseProductRow,
+  toProductWriteRow,
 } from "@/infrastructure/supabase/productMapper";
 
 const productSelect = `
@@ -77,10 +74,7 @@ export class SupabaseProductRepository implements ProductRepository {
   }
 
   async getById(id: string, options?: { includeInactive?: boolean }) {
-    let query = this.client
-      .from("products")
-      .select(productSelect)
-      .eq("id", id);
+    let query = this.client.from("products").select(productSelect).eq("id", id);
 
     if (!options?.includeInactive) {
       query = query.eq("active", true);

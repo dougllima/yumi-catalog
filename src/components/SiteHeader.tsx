@@ -40,11 +40,7 @@ export function SiteHeader({ theme, onToggleTheme }: SiteHeaderProps) {
             variant="outline"
             className="hidden rounded-full bg-card/70 px-4 shadow-sm backdrop-blur sm:inline-flex"
           >
-            <a
-              href={instagramUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href={instagramUrl} target="_blank" rel="noreferrer">
               <Camera aria-hidden="true" />
               Instagram
             </a>

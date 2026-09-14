@@ -6,8 +6,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Nunito Sans", ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans:
+    "Nunito Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
   --font-display: Fredoka, "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -95,9 +96,22 @@
 @layer components {
   .yumi-page {
     background:
-      radial-gradient(circle at 7% 8%, color-mix(in oklab, var(--brand-soft) 74%, transparent), transparent 28rem),
-      radial-gradient(circle at 93% 0%, color-mix(in oklab, var(--secondary) 36%, transparent), transparent 30rem),
-      linear-gradient(180deg, var(--background) 0%, color-mix(in oklab, var(--muted) 64%, var(--background)) 52%, var(--background) 100%);
+      radial-gradient(
+        circle at 7% 8%,
+        color-mix(in oklab, var(--brand-soft) 74%, transparent),
+        transparent 28rem
+      ),
+      radial-gradient(
+        circle at 93% 0%,
+        color-mix(in oklab, var(--secondary) 36%, transparent),
+        transparent 30rem
+      ),
+      linear-gradient(
+        180deg,
+        var(--background) 0%,
+        color-mix(in oklab, var(--muted) 64%, var(--background)) 52%,
+        var(--background) 100%
+      );
   }
 
   .yumi-header-surface {
@@ -106,25 +120,65 @@
 
   .yumi-hero {
     background:
-      radial-gradient(circle at 76% 42%, color-mix(in oklab, var(--secondary) 42%, transparent), transparent 23rem),
-      radial-gradient(circle at 23% 36%, color-mix(in oklab, var(--brand-soft) 78%, transparent), transparent 30rem),
-      radial-gradient(circle at 53% 115%, color-mix(in oklab, var(--accent) 68%, transparent), transparent 22rem),
-      linear-gradient(135deg, color-mix(in oklab, var(--card) 48%, var(--background)), color-mix(in oklab, var(--muted) 70%, var(--background)));
+      radial-gradient(
+        circle at 76% 42%,
+        color-mix(in oklab, var(--secondary) 42%, transparent),
+        transparent 23rem
+      ),
+      radial-gradient(
+        circle at 23% 36%,
+        color-mix(in oklab, var(--brand-soft) 78%, transparent),
+        transparent 30rem
+      ),
+      radial-gradient(
+        circle at 53% 115%,
+        color-mix(in oklab, var(--accent) 68%, transparent),
+        transparent 22rem
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in oklab, var(--card) 48%, var(--background)),
+        color-mix(in oklab, var(--muted) 70%, var(--background))
+      );
   }
 
   .dark .yumi-page {
     background:
-      radial-gradient(circle at 7% 0%, rgb(94 63 128 / 0.22), transparent 28rem),
-      radial-gradient(circle at 88% 2%, rgb(201 168 242 / 0.16), transparent 30rem),
-      radial-gradient(circle at 54% 72%, rgb(59 45 85 / 0.26), transparent 34rem),
+      radial-gradient(
+        circle at 7% 0%,
+        rgb(94 63 128 / 0.22),
+        transparent 28rem
+      ),
+      radial-gradient(
+        circle at 88% 2%,
+        rgb(201 168 242 / 0.16),
+        transparent 30rem
+      ),
+      radial-gradient(
+        circle at 54% 72%,
+        rgb(59 45 85 / 0.26),
+        transparent 34rem
+      ),
       linear-gradient(180deg, #0d0a16 0%, var(--background) 36%, #100c19 100%);
   }
 
   .dark .yumi-hero {
     background:
-      radial-gradient(circle at 78% 45%, rgb(201 168 242 / 0.18), transparent 23rem),
-      radial-gradient(circle at 24% 35%, rgb(59 45 85 / 0.26), transparent 28rem),
-      radial-gradient(circle at 53% 118%, rgb(80 53 115 / 0.5), transparent 22rem),
+      radial-gradient(
+        circle at 78% 45%,
+        rgb(201 168 242 / 0.18),
+        transparent 23rem
+      ),
+      radial-gradient(
+        circle at 24% 35%,
+        rgb(59 45 85 / 0.26),
+        transparent 28rem
+      ),
+      radial-gradient(
+        circle at 53% 118%,
+        rgb(80 53 115 / 0.5),
+        transparent 22rem
+      ),
       linear-gradient(135deg, #151020 0%, #181223 48%, #120f1c 100%);
   }
 

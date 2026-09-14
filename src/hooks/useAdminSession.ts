@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { authService } from "@/application/dependencies";
 import type { AdminSession } from "@/application/contracts";
+import { authService } from "@/application/dependencies";
 
 export function useAdminSession() {
   const [session, setSession] = useState<AdminSession | null>(null);

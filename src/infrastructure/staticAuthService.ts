@@ -1,4 +1,8 @@
-import type { AdminSession, AuthService, AuthStateUnsubscribe } from "@/application/contracts";
+import type {
+  AdminSession,
+  AuthService,
+  AuthStateUnsubscribe,
+} from "@/application/contracts";
 
 export class StaticAuthService implements AuthService {
   async getCurrentAdmin(): Promise<AdminSession | null> {

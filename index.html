@@ -12,7 +12,10 @@
       (() => {
         try {
           const storedTheme = localStorage.getItem("yumi-theme");
-          const theme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : "dark";
+          const theme =
+            storedTheme === "light" || storedTheme === "dark"
+              ? storedTheme
+              : "dark";
           document.documentElement.classList.toggle("dark", theme === "dark");
           document.documentElement.style.colorScheme = theme;
         } catch {

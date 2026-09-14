@@ -67,7 +67,9 @@ export function mapProductRow(
   };
 }
 
-export function toProductWriteRow(input: ProductInput): SupabaseProductWriteRow {
+export function toProductWriteRow(
+  input: ProductInput,
+): SupabaseProductWriteRow {
   return {
     id: input.id,
     name: input.name.trim(),

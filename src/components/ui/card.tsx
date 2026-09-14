@@ -1,5 +1,5 @@
-import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -15,7 +15,7 @@ function Card({
       data-slot="card"
       className={cn(
         "flex flex-col rounded-lg border bg-card text-card-foreground shadow-xs",
-        className
+        className,
       )}
       {...props}
     />

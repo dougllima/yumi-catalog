@@ -41,7 +41,11 @@ export function HomePage() {
               </p>
             </div>
 
-            <Button asChild variant="outline" className="w-fit rounded-full px-5">
+            <Button
+              asChild
+              variant="outline"
+              className="w-fit rounded-full px-5"
+            >
               <Link to="/produtos">
                 Ver todos os produtos
                 <ArrowRight aria-hidden="true" />

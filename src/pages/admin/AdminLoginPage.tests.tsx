@@ -72,6 +72,8 @@ describe("AdminLoginPage", () => {
     await user.type(screen.getByTestId("admin-login-password"), "wrong");
     await user.click(screen.getByTestId("admin-login-submit"));
 
-    expect(await screen.findByText("Credenciais invalidas.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Credenciais invalidas."),
+    ).toBeInTheDocument();
   });
 });

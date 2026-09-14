@@ -2,9 +2,9 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { act } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { productRepository } from "@/application/dependencies";
 import type { Product } from "@/domain/product";
 import { useProduct, usePublishedProducts } from "@/hooks/useProducts";
-import { productRepository } from "@/application/dependencies";
 
 vi.mock("@/application/dependencies", () => ({
   productRepository: {

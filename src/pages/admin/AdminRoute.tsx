@@ -28,11 +28,7 @@ export function AdminRoute({ children }: AdminRouteProps) {
 
   if (!session) {
     return (
-      <Navigate
-        to="/admin/login"
-        replace
-        state={{ from: location.pathname }}
-      />
+      <Navigate to="/admin/login" replace state={{ from: location.pathname }} />
     );
   }
 

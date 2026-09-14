@@ -1,4 +1,3 @@
-import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   Heart,
@@ -6,6 +5,7 @@ import {
   PackageCheck,
   Sparkles,
 } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 
 import { FeatureStrip } from "@/components/FeatureStrip";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
@@ -55,8 +55,7 @@ export function ProductPage() {
                 {error ? "Não foi possível carregar" : "Produto não encontrado"}
               </h1>
               <p className="text-muted-foreground">
-                {error ??
-                  "Esse item não está disponível no catálogo atual."}
+                {error ?? "Esse item não está disponível no catálogo atual."}
               </p>
             </div>
             <Button asChild className="mx-auto rounded-full">
@@ -109,7 +108,10 @@ export function ProductPage() {
                 variant="outline"
                 className="w-fit rounded-full bg-background/45 px-3 py-1 font-extrabold uppercase"
               >
-                <Heart className="size-3.5 fill-primary/20" aria-hidden="true" />
+                <Heart
+                  className="size-3.5 fill-primary/20"
+                  aria-hidden="true"
+                />
                 Impressão 3D
               </Badge>
 
@@ -150,7 +152,10 @@ export function ProductPage() {
 
             <div className="grid gap-4 border-t pt-5">
               <p className="flex items-center gap-2 text-sm font-bold text-muted-foreground">
-                <PackageCheck className="size-4 text-primary" aria-hidden="true" />
+                <PackageCheck
+                  className="size-4 text-primary"
+                  aria-hidden="true"
+                />
                 Produção sob encomenda
               </p>
               <Button asChild className="h-11 rounded-full text-base">

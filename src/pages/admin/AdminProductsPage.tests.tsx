@@ -118,9 +118,14 @@ describe("AdminProductsPage", () => {
     );
 
     await user.type(screen.getByTestId("admin-product-name-input"), "Mini Box");
-    expect(screen.getByTestId("admin-product-id-input")).toHaveValue("mini-box");
+    expect(screen.getByTestId("admin-product-id-input")).toHaveValue(
+      "mini-box",
+    );
 
-    await user.type(screen.getByTestId("admin-product-description-input"), "Caixa pequena");
+    await user.type(
+      screen.getByTestId("admin-product-description-input"),
+      "Caixa pequena",
+    );
     await user.type(screen.getByTestId("admin-product-weight-input"), "12,5");
     await user.type(screen.getByTestId("admin-product-price-input"), "19,90");
     await user.upload(screen.getByTestId("admin-product-images-input"), file);
@@ -145,6 +150,8 @@ describe("AdminProductsPage", () => {
       altText: "Mini Box",
       sortOrder: 0,
     });
-    expect(await screen.findByText("Produto salvo com sucesso.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Produto salvo com sucesso."),
+    ).toBeInTheDocument();
   });
 });

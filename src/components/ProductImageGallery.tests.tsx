@@ -23,10 +23,7 @@ describe("ProductImageGallery", () => {
 
     const activeImage = screen.getByTestId("product-image-gallery-active");
 
-    expect(activeImage).toHaveAttribute(
-      "alt",
-      "Produto teste - imagem 1",
-    );
+    expect(activeImage).toHaveAttribute("alt", "Produto teste - imagem 1");
     expect(activeImage).toHaveAttribute(
       "src",
       expect.stringContaining("/products/item/01.webp"),
@@ -38,10 +35,7 @@ describe("ProductImageGallery", () => {
       }),
     );
 
-    expect(activeImage).toHaveAttribute(
-      "alt",
-      "Produto teste - imagem 2",
-    );
+    expect(activeImage).toHaveAttribute("alt", "Produto teste - imagem 2");
     expect(
       screen.getByRole("button", { name: "Ver imagem 2 de Produto teste" }),
     ).toHaveAttribute("aria-pressed", "true");
@@ -52,9 +46,6 @@ describe("ProductImageGallery", () => {
       }),
     );
 
-    expect(activeImage).toHaveAttribute(
-      "alt",
-      "Produto teste - imagem 1",
-    );
+    expect(activeImage).toHaveAttribute("alt", "Produto teste - imagem 1");
   });
 });

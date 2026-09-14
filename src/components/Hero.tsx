@@ -45,8 +45,7 @@ export function Hero() {
               Peças únicas para decorar,
               <br className="hidden lg:block" />
               <span className="lg:hidden"> </span>
-              organizar e{" "}
-              <span className="text-primary">encantar!</span>
+              organizar e <span className="text-primary">encantar!</span>
             </h1>
             <p className="max-w-[560px] text-pretty text-base leading-7 text-muted-foreground sm:text-[1.05rem]">
               Criações autorais impressas em 3D com muito carinho para
@@ -77,10 +76,22 @@ export function Hero() {
         </div>
 
         <div className="relative mx-auto grid w-full max-w-sm place-items-center lg:max-w-[30rem]">
-          <Sparkles className="absolute left-2 top-12 size-7 text-primary/60" aria-hidden="true" />
-          <Heart className="absolute right-7 top-6 size-6 text-primary/70" aria-hidden="true" />
-          <Sparkles className="absolute bottom-24 right-1 size-9 text-accent-foreground/40" aria-hidden="true" />
-          <Heart className="absolute bottom-16 left-6 size-6 text-primary/65" aria-hidden="true" />
+          <Sparkles
+            className="absolute left-2 top-12 size-7 text-primary/60"
+            aria-hidden="true"
+          />
+          <Heart
+            className="absolute right-7 top-6 size-6 text-primary/70"
+            aria-hidden="true"
+          />
+          <Sparkles
+            className="absolute bottom-24 right-1 size-9 text-accent-foreground/40"
+            aria-hidden="true"
+          />
+          <Heart
+            className="absolute bottom-16 left-6 size-6 text-primary/65"
+            aria-hidden="true"
+          />
 
           <div className="yumi-logo-orbit relative grid aspect-square w-[min(76vw,21rem)] place-items-center rounded-full border-4 border-secondary/80 bg-secondary/70 shadow-2xl shadow-primary/20">
             <div className="absolute inset-5 rounded-full border border-primary/25" />
@@ -93,7 +104,10 @@ export function Hero() {
           </div>
         </div>
       </div>
-      <div className="yumi-wave absolute inset-x-0 bottom-0 h-9" aria-hidden="true" />
+      <div
+        className="yumi-wave absolute inset-x-0 bottom-0 h-9"
+        aria-hidden="true"
+      />
     </section>
   );
 }

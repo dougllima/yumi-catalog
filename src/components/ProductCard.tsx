@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
-import { ProductGallery } from '@/components/ProductGallery';
-import { Card, CardContent } from '@/components/ui/card';
-import type { Product } from '@/data/products';
-import { formatCurrency } from '@/utils/formatters';
+import { ProductGallery } from "@/components/ProductGallery";
+import { Card, CardContent } from "@/components/ui/card";
+import type { Product } from "@/data/products";
+import { formatCurrency } from "@/utils/formatters";
 
 type ProductCardProps = {
   product: Product;
@@ -12,7 +12,7 @@ type ProductCardProps = {
 export function ProductCard({ product }: ProductCardProps) {
   const hasDescription = Boolean(product.description?.trim());
   const price =
-    typeof product.price === 'number' && product.price > 0
+    typeof product.price === "number" && product.price > 0
       ? product.price
       : null;
   const hasFooterInfo = price !== null;

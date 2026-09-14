@@ -1,6 +1,11 @@
-import { products as staticProducts } from "@/data/products";
 import type { ProductRepository } from "@/application/contracts";
-import type { Product, ProductImage, ProductImageInput, ProductInput } from "@/domain/product";
+import { products as staticProducts } from "@/data/products";
+import type {
+  Product,
+  ProductImage,
+  ProductImageInput,
+  ProductInput,
+} from "@/domain/product";
 import { onlyActiveProducts } from "@/domain/product";
 
 const notConfigured = () =>
