@@ -26,6 +26,7 @@ describe("product domain helpers", () => {
         images: [],
         categories: [],
         isActive: true,
+        showOnHome: false,
       },
       {
         id: "inactive",
@@ -33,6 +34,7 @@ describe("product domain helpers", () => {
         images: [],
         categories: [],
         isActive: false,
+        showOnHome: false,
       },
     ];
 

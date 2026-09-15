@@ -13,9 +13,9 @@ describe("Supabase product mapper", () => {
         id: "porta-joias",
         name: "Porta Jóias",
         description: "Organizador delicado",
-        weight_grams: 392,
         price_cents: 13000,
         active: true,
+        show_on_home: true,
         sort_order: 2,
         product_images: [
           {
@@ -64,8 +64,8 @@ describe("Supabase product mapper", () => {
     );
 
     expect(product.price).toBe(130);
-    expect(product.weight).toBe(392);
     expect(product.isActive).toBe(true);
+    expect(product.showOnHome).toBe(true);
     expect(product.images).toEqual([
       "https://storage.local/porta-joias/01.jpeg",
       "https://storage.local/porta-joias/02.jpeg",
@@ -94,14 +94,15 @@ describe("Supabase product mapper", () => {
         description: "",
         priceInCents: 1990,
         isActive: false,
+        showOnHome: false,
       }),
     ).toEqual({
       id: "novo-produto",
       name: "Novo produto",
       description: null,
-      weight_grams: null,
       price_cents: 1990,
       active: false,
+      show_on_home: false,
       sort_order: null,
     });
   });

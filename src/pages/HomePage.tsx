@@ -11,7 +11,10 @@ const productSkeletons = Array.from({ length: 6 }, (_, index) => index);
 
 export function HomePage() {
   const { products, loading, error } = usePublishedProducts();
-  const featuredProducts = products.slice(0, 6);
+  const highlightedProducts = products.filter((product) => product.showOnHome);
+  const featuredProducts = (
+    highlightedProducts.length > 0 ? highlightedProducts : products
+  ).slice(0, 6);
 
   return (
     <>

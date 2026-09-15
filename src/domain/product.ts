@@ -23,12 +23,12 @@ export type Product = {
   id: string;
   name: string;
   description?: string;
-  weight?: number;
   price?: number;
   images: string[];
   imageRecords?: ProductImage[];
   categories: ProductCategory[];
   isActive: boolean;
+  showOnHome: boolean;
   sortOrder?: number;
   createdAt?: string;
   updatedAt?: string;
@@ -38,9 +38,9 @@ export type ProductInput = {
   id?: string;
   name: string;
   description?: string;
-  weight?: number;
   priceInCents?: number;
   isActive: boolean;
+  showOnHome: boolean;
   sortOrder?: number;
 };
 

@@ -19,6 +19,7 @@ const product: Product = {
     },
   ],
   isActive: true,
+  showOnHome: false,
 };
 
 describe("ProductCard", () => {

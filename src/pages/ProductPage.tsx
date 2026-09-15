@@ -70,10 +70,6 @@ export function ProductPage() {
   }
 
   const hasDescription = Boolean(product.description?.trim());
-  const weight =
-    typeof product.weight === "number" && product.weight > 0
-      ? product.weight
-      : null;
   const price =
     typeof product.price === "number" && product.price > 0
       ? product.price
@@ -156,20 +152,6 @@ export function ProductPage() {
                     </Badge>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {weight !== null && (
-              <div className="grid gap-2">
-                <span className="text-sm font-extrabold text-muted-foreground">
-                  Peso aproximado
-                </span>
-                <Badge
-                  variant="secondary"
-                  className="w-fit rounded-full px-3 py-1 text-sm font-extrabold"
-                >
-                  {weight} g
-                </Badge>
               </div>
             )}
 

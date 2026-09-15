@@ -90,7 +90,6 @@ O catálogo trabalha com informações de produto como:
 - identificação;
 - nome;
 - descrição;
-- peso;
 - preço público/final;
 - imagens;
 - categorias.
@@ -98,6 +97,7 @@ O catálogo trabalha com informações de produto como:
 O conceito de produto também inclui:
 
 - ativo/visível no catálogo;
+- exibir na home;
 - requer revisão.
 
 A forma técnica de persistir esses conceitos pertence à arquitetura e pode evoluir sem alterar a regra funcional.
@@ -109,6 +109,16 @@ Retirar um produto do catálogo não implica apagar o cadastro.
 Quando houver valor operacional em manter o registro, utilizar inativação lógica.
 
 Produtos inativos não aparecem no catálogo público.
+
+### Destaques da home
+
+Produtos podem ser marcados para exibição na seção de destaques da home.
+
+A marcação de destaque não substitui a ativação do produto: produtos inativos
+continuam fora do catálogo público mesmo quando marcados para home.
+
+Quando nenhum produto ativo estiver marcado para home, a home pode usar uma
+seleção simples dos primeiros produtos publicados para evitar uma seção vazia.
 
 ---
 
@@ -306,7 +316,7 @@ Objetivos funcionais da fase atual:
 - pré-visualizar imagens selecionadas antes de salvar o produto;
 - ajustar o enquadramento de imagens existentes sem alterar o arquivo original;
 - alterar preço;
-- alterar peso;
+- marcar/desmarcar exibição na home;
 - ativar/inativar produto;
 - identificar produtos que precisam de revisão;
 - concluir revisão de produtos.

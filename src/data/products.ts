@@ -5,10 +5,11 @@ export type { Product } from "../domain/product";
 
 type ProductSeed = Omit<
   Product,
-  "categories" | "images" | "imageRecords" | "isActive"
+  "categories" | "images" | "imageRecords" | "isActive" | "showOnHome"
 > & {
   imageFolder?: string;
   isActive?: boolean;
+  showOnHome?: boolean;
 };
 
 const img = (folder: string, ...files: string[]) =>
@@ -214,37 +215,31 @@ const productSeeds: ProductSeed[] = [
   {
     id: "aparador-de-livro-dragao",
     name: "Aparador de livro - Dragão",
-    weight: 150,
     price: 40,
   },
   {
     id: "caixa-de-dados-p",
     name: "Caixa de Dados P",
-    weight: 74,
     price: 30,
   },
   {
     id: "caixa-polaroid",
     name: "Caixa Polaroid",
-    weight: 100,
     price: 50,
   },
   {
     id: "chaveiro-calendario",
     name: "Chaveiro Calendário",
-    weight: 12,
     price: 15,
   },
   {
     id: "chaveiro-cartinha",
     name: "Chaveiro Cartinha",
-    weight: 16,
     price: 10,
   },
   {
     id: "chaveiro-yumi",
     name: "Chaveiro Yumi",
-    weight: 15,
     price: 10,
   },
   {
@@ -254,7 +249,6 @@ const productSeeds: ProductSeed[] = [
   {
     id: "enfeite-home-m",
     name: "Enfeite Home - M",
-    weight: 72,
     price: 20,
   },
   {
@@ -272,7 +266,6 @@ const productSeeds: ProductSeed[] = [
   {
     id: "fruta-one-piece",
     name: "Fruta One Piece",
-    weight: 85,
     price: 40,
   },
   {
@@ -284,20 +277,17 @@ const productSeeds: ProductSeed[] = [
   {
     id: "kit-monster-v1",
     name: "Kit Monster V1",
-    weight: 157,
     price: 50,
     imageFolder: "kit-monster",
   },
   {
     id: "kit-porta-copos-flor",
     name: "Kit Porta Copos Flor",
-    weight: 257,
     price: 100,
   },
   {
     id: "mecanismo-clicker",
     name: "Mecanismo Clicker",
-    weight: 3,
     price: 1.5,
     imageFolder: "kit-mecanismo-clicker",
   },
@@ -310,73 +300,61 @@ const productSeeds: ProductSeed[] = [
   {
     id: "lagarto-tom",
     name: "Lagarto Tom",
-    weight: 45,
     price: 20,
   },
   {
     id: "marca-pagina-gatinho",
     name: "Marca-página Gatinho",
-    weight: 2,
     price: 5,
   },
   {
     id: "organizador-magic",
     name: "Organizador Magic",
-    weight: 107,
     price: 35,
   },
   {
     id: "porta-celular-stars",
     name: "Porta Celular STARS",
-    weight: 121,
     price: 80,
   },
   {
     id: "porta-copo-gatinho-batman",
     name: "Porta copo - Gatinho Batman",
-    weight: 25,
     price: 10,
   },
   {
     id: "porta-copos-costela-de-adao",
     name: "Porta Copos - Costela de Adão",
-    weight: 170,
     price: 60,
   },
   {
     id: "porta-copos-planta",
     name: "Porta Copos - Planta",
-    weight: 206,
     price: 70,
   },
   {
     id: "porta-cotonete",
     name: "Porta Cotonete",
-    weight: 97,
     price: 40,
   },
   {
     id: "porta-guardanapo-costela-de-adao",
     name: "Porta Guardanapo - Costela de Adão",
-    weight: 73,
     price: 25,
   },
   {
     id: "porta-incenso-gato",
     name: "Porta Incenso Gato",
-    weight: 51,
     price: 25,
   },
   {
     id: "porta-joias",
     name: "Porta Jóias",
-    weight: 392,
     price: 130,
   },
   {
     id: "porta-maquiagem",
     name: "Porta Maquiagem",
-    weight: 580,
     price: 160,
   },
   {
@@ -384,7 +362,6 @@ const productSeeds: ProductSeed[] = [
     name: "Kit Porta Polaroid Coração - 5 unidades",
     description:
       "Kit com cinco suportes pequenos em formato de coração para fotos Polaroid.",
-    weight: 10,
     price: 10,
   },
   {
@@ -392,19 +369,16 @@ const productSeeds: ProductSeed[] = [
     name: "Kit Porta Polaroid Coração - 10 unidades",
     description:
       "Kit com dez suportes pequenos em formato de coração para fotos Polaroid.",
-    weight: 20,
     price: 20,
   },
   {
     id: "porta-remedios-umbrella",
     name: "Porta Remédios Umbrella",
-    weight: 20,
     price: 10,
   },
   {
     id: "separador-de-livro-dragao",
     name: "Separador de livro - Dragão",
-    weight: 212,
     price: 55,
   },
   {
@@ -412,7 +386,6 @@ const productSeeds: ProductSeed[] = [
     name: "Suporte para 2 controles",
     description:
       "Suporte para dois controles com encaixes à escolha entre PS3, PS4 e PS5.",
-    weight: 213,
     price: 60,
   },
   {
@@ -420,7 +393,6 @@ const productSeeds: ProductSeed[] = [
     name: "Suporte para 3 controles",
     description:
       "Suporte para três controles com encaixes à escolha entre PS3, PS4 e PS5.",
-    weight: 318,
     price: 85,
   },
   {
@@ -430,7 +402,6 @@ const productSeeds: ProductSeed[] = [
   {
     id: "suporte-de-chave-mario",
     name: "Suporte de chave - Mario",
-    weight: 230,
     price: 75,
   },
   {
@@ -440,7 +411,6 @@ const productSeeds: ProductSeed[] = [
   {
     id: "suporte-livro-darth-vader",
     name: "Suporte livro Darth Vader",
-    weight: 123.8,
     price: 45,
   },
   {
@@ -450,25 +420,21 @@ const productSeeds: ProductSeed[] = [
   {
     id: "trono-de-ferro",
     name: "Trono de Ferro",
-    weight: 33,
     price: 20,
   },
   {
     id: "vaso",
     name: "Vaso",
-    weight: 210,
     price: 60,
   },
   {
     id: "caixa-uno",
     name: "Caixa Uno",
-    weight: 91,
     price: 25,
   },
   {
     id: "quadro-reforco-infantil",
     name: "Quadro Reforço Infantil",
-    weight: 210,
     price: 50,
   },
 ];
@@ -477,6 +443,7 @@ export const products: Product[] = productSeeds.map(
   ({ imageFolder, ...product }) => ({
     ...product,
     isActive: product.isActive ?? true,
+    showOnHome: product.showOnHome ?? false,
     images: productImages(imageFolder ?? product.id),
     categories: productCategories(product.id),
     imageRecords: productImages(imageFolder ?? product.id).map(

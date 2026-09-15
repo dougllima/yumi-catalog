@@ -26,6 +26,7 @@ const product: Product = {
   images: ["/products/porta-joias/01.webp"],
   categories: [],
   isActive: true,
+  showOnHome: false,
 };
 
 describe("App", () => {

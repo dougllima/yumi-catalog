@@ -51,6 +51,7 @@ const makeProduct = (overrides: Partial<Product>): Product => ({
   imageRecords: [],
   categories: [],
   isActive: true,
+  showOnHome: false,
   ...overrides,
 });
 
@@ -91,8 +92,8 @@ describe("AdminProductsPage", () => {
         id: "vaso",
         name: "Vaso",
         isActive: false,
+        showOnHome: true,
         price: 60,
-        weight: 210,
       }),
       makeProduct({ id: "porta-joias", name: "Porta Joias", isActive: true }),
     ]);
@@ -106,7 +107,7 @@ describe("AdminProductsPage", () => {
       within(screen.getByTestId("admin-products-list"))
         .getAllByRole("button")
         .map((button) => button.textContent),
-    ).toEqual(["Porta JoiasAtivo", "VasoInativo"]);
+    ).toEqual(["Porta JoiasAtivo", "VasoInativoHome"]);
 
     await user.type(screen.getByTestId("admin-products-search-input"), "vaso");
 
@@ -116,9 +117,11 @@ describe("AdminProductsPage", () => {
 
     expect(screen.getByTestId("admin-product-id-input")).toHaveValue("vaso");
     expect(screen.getByTestId("admin-product-name-input")).toHaveValue("Vaso");
-    expect(screen.getByTestId("admin-product-weight-input")).toHaveValue("210");
     expect(screen.getByTestId("admin-product-price-input")).toHaveValue("60");
     expect(screen.getByTestId("admin-product-active-input")).not.toBeChecked();
+    expect(
+      screen.getByTestId("admin-product-show-on-home-input"),
+    ).toBeChecked();
   });
 
   it("creates a product, uploads selected images, and registers image metadata", async () => {
@@ -127,7 +130,6 @@ describe("AdminProductsPage", () => {
       id: "mini-box",
       name: "Mini Box",
       description: "",
-      weight: 12.5,
       price: 19.9,
       categories: [decoracaoCategory],
     });
@@ -172,8 +174,8 @@ describe("AdminProductsPage", () => {
       screen.getByTestId("admin-product-description-input"),
       "Caixa pequena",
     );
-    await user.type(screen.getByTestId("admin-product-weight-input"), "12,5");
     await user.type(screen.getByTestId("admin-product-price-input"), "19,90");
+    await user.click(screen.getByTestId("admin-product-show-on-home-input"));
     await user.type(
       screen.getByTestId("admin-product-category-input"),
       "decoracao{Enter}",
@@ -186,9 +188,9 @@ describe("AdminProductsPage", () => {
         id: "mini-box",
         name: "Mini Box",
         description: "Caixa pequena",
-        weight: 12.5,
         priceInCents: 1990,
         isActive: true,
+        showOnHome: true,
       }),
     );
     expect(

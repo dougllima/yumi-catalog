@@ -4,6 +4,7 @@ import {
   Crop,
   Eye,
   EyeOff,
+  Home as HomeIcon,
   LogOut,
   Plus,
   RotateCcw,
@@ -48,20 +49,20 @@ type ProductFormState = {
   id: string;
   name: string;
   description: string;
-  weight: string;
   price: string;
   categoryNames: string[];
   isActive: boolean;
+  showOnHome: boolean;
 };
 
 const emptyForm: ProductFormState = {
   id: "",
   name: "",
   description: "",
-  weight: "",
   price: "",
   categoryNames: [],
   isActive: true,
+  showOnHome: false,
 };
 
 const slugify = (value: string) =>
@@ -89,10 +90,10 @@ const toFormState = (product: Product): ProductFormState => ({
   id: product.id,
   name: product.name,
   description: product.description ?? "",
-  weight: formatNumberInput(product.weight),
   price: formatNumberInput(product.price),
   categoryNames: product.categories.map((category) => category.name),
   isActive: product.isActive,
+  showOnHome: product.showOnHome,
 });
 
 export function AdminProductsPage() {
@@ -355,7 +356,6 @@ export function AdminProductsPage() {
     setError(null);
 
     try {
-      const weight = parseNumberInput(form.weight);
       const price = parseNumberInput(form.price);
 
       if (!form.name.trim()) {
@@ -366,8 +366,8 @@ export function AdminProductsPage() {
         throw new Error("Informe o identificador do produto.");
       }
 
-      if (Number.isNaN(weight) || Number.isNaN(price)) {
-        throw new Error("Peso e preço precisam ser números válidos.");
+      if (Number.isNaN(price)) {
+        throw new Error("Preço precisa ser um número válido.");
       }
 
       const categoryNames = dedupeCategoryNames([
@@ -379,18 +379,18 @@ export function AdminProductsPage() {
         ? await productRepository.update(selectedProduct.id, {
             name: form.name,
             description: form.description,
-            weight,
             priceInCents: reaisToCents(price),
             isActive: form.isActive,
+            showOnHome: form.showOnHome,
             sortOrder: selectedProduct.sortOrder,
           })
         : await productRepository.create({
             id: slugify(form.id),
             name: form.name,
             description: form.description,
-            weight,
             priceInCents: reaisToCents(price),
             isActive: form.isActive,
+            showOnHome: form.showOnHome,
           });
 
       const savedCategories = await productRepository.replaceProductCategories(
@@ -713,6 +713,15 @@ export function AdminProductsPage() {
                         <EyeOff className="size-3.5" aria-hidden="true" />
                       )}
                       {product.isActive ? "Ativo" : "Inativo"}
+                      {product.showOnHome && (
+                        <>
+                          <HomeIcon
+                            className="ml-2 size-3.5"
+                            aria-hidden="true"
+                          />
+                          Home
+                        </>
+                      )}
                     </span>
                   </button>
                 ))
@@ -766,17 +775,6 @@ export function AdminProductsPage() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               <label className="grid gap-2 text-sm font-extrabold">
-                Peso (g)
-                <input
-                  data-testid="admin-product-weight-input"
-                  inputMode="decimal"
-                  value={form.weight}
-                  onChange={(event) => updateForm("weight", event.target.value)}
-                  className="h-10 rounded-full border bg-background/70 px-4 font-semibold outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                />
-              </label>
-
-              <label className="grid gap-2 text-sm font-extrabold">
                 Preço (R$)
                 <input
                   data-testid="admin-product-price-input"
@@ -798,6 +796,19 @@ export function AdminProductsPage() {
                   className="size-4 accent-primary"
                 />
                 Visível no catálogo
+              </label>
+
+              <label className="flex items-center gap-3 rounded-2xl border bg-background/55 px-4 py-3 text-sm font-extrabold">
+                <input
+                  data-testid="admin-product-show-on-home-input"
+                  type="checkbox"
+                  checked={form.showOnHome}
+                  onChange={(event) =>
+                    updateForm("showOnHome", event.target.checked)
+                  }
+                  className="size-4 accent-primary"
+                />
+                Exibir na home
               </label>
             </div>
 

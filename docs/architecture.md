@@ -319,9 +319,9 @@ Campos documentados:
 - `id`: slug textual estável;
 - `name`: nome exibido;
 - `description`: descrição opcional;
-- `weight_grams`: peso informado pelo usuário;
 - `price_cents`: preço em centavos;
 - `active`: controla visibilidade pública;
+- `show_on_home`: controla exibição na seção de destaques da home;
 - `sort_order`: ordenação simples;
 - `created_at`;
 - `updated_at`.
@@ -336,9 +336,9 @@ Schema versionado em `202609080001_init_products_admin.sql`:
 id text primary key
 name text not null
 description text
-weight_grams numeric(10, 2)
 price_cents integer
 active boolean not null default true
+show_on_home boolean not null default false
 sort_order integer not null default 0
 created_at timestamptz not null default now()
 updated_at timestamptz not null default now()
@@ -347,7 +347,6 @@ updated_at timestamptz not null default now()
 Constraints versionadas:
 
 - `products_name_not_blank`: `length(trim(name)) > 0`;
-- `products_weight_positive`: `weight_grams is null or weight_grams > 0`;
 - `products_price_non_negative`: `price_cents is null or price_cents >= 0`.
 
 Trigger versionado:
@@ -479,11 +478,11 @@ Tipos reais em `src/domain/product.ts`:
 
 - `ProductImage`: `id`, `url`, `storagePath?`, `altText?`, `sortOrder`,
   `crop?`;
-- `Product`: `id`, `name`, `description?`, `weight?`, `price?`, `images`,
-  `imageRecords?`, `categories`, `isActive`, `sortOrder?`, `createdAt?`,
-  `updatedAt?`;
-- `ProductInput`: `id?`, `name`, `description?`, `weight?`, `priceInCents?`,
-  `isActive`, `sortOrder?`;
+- `Product`: `id`, `name`, `description?`, `price?`, `images`,
+  `imageRecords?`, `categories`, `isActive`, `showOnHome`, `sortOrder?`,
+  `createdAt?`, `updatedAt?`;
+- `ProductInput`: `id?`, `name`, `description?`, `priceInCents?`,
+  `isActive`, `showOnHome`, `sortOrder?`;
 - `ProductImageInput`: `storagePath`, `altText?`, `sortOrder`, `crop?`;
 - `ProductImageCrop`: `xPercent`, `yPercent`, `zoom`.
 - `ProductCategory`: `id`, `name`, `slug`;
@@ -535,6 +534,7 @@ supabase/migrations/202609080001_init_products_admin.sql
 supabase/migrations/202609080002_seed_products_from_static_data.sql
 supabase/migrations/202609140001_add_product_categories.sql
 supabase/migrations/202609150001_add_product_image_crop_metadata.sql
+supabase/migrations/202609150002_remove_product_weight_add_home_highlight.sql
 ```
 
 A migration `202609080001_init_products_admin.sql` estabelece:
@@ -545,7 +545,7 @@ A migration `202609080001_init_products_admin.sql` estabelece:
 - primary keys e foreign keys descritas no modelo de dados;
 - unique constraint em `product_images.storage_path`;
 - constraints de nome não vazio, peso positivo, preço não negativo e storage
-  path não vazio;
+  path não vazio no schema inicial;
 - função `public.set_updated_at()`;
 - trigger `products_set_updated_at`;
 - função `public.is_admin()`;
@@ -612,6 +612,13 @@ metadados de enquadramento em `public.product_images`:
 - `crop_y`;
 - `crop_zoom`;
 - constraints de intervalo para manter posição entre 0 e 100 e zoom entre 1 e 3.
+
+A migration `202609150002_remove_product_weight_add_home_highlight.sql` atualiza
+`public.products` para o modelo atual:
+
+- adiciona `show_on_home boolean not null default false`;
+- remove a constraint `products_weight_positive`;
+- remove a coluna `weight_grams`.
 
 Quando aplicável, alterações futuras devem versionar por migration:
 

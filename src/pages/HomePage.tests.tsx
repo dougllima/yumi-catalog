@@ -20,6 +20,7 @@ const makeProduct = (index: number): Product => ({
   images: [`/products/product-${index}/01.webp`],
   categories: [],
   isActive: true,
+  showOnHome: index <= 2,
 });
 
 const renderHomePage = () =>
@@ -50,6 +51,27 @@ describe("HomePage", () => {
     expect(
       screen.getByRole("link", { name: "Ver todos os produtos" }),
     ).toHaveAttribute("href", "/produtos");
+
+    const productsRegion = screen.getByLabelText(/Produtos dispon.veis/i);
+    expect(within(productsRegion).getByText("Produto 1")).toBeInTheDocument();
+    expect(within(productsRegion).getByText("Produto 2")).toBeInTheDocument();
+    expect(
+      within(productsRegion).queryByText("Produto 3"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("falls back to the first products when none are highlighted for home", () => {
+    mockedUsePublishedProducts.mockReturnValue({
+      products: Array.from({ length: 7 }, (_, index) => ({
+        ...makeProduct(index + 1),
+        showOnHome: false,
+      })),
+      loading: false,
+      error: null,
+      reload: vi.fn(),
+    });
+
+    renderHomePage();
 
     const productsRegion = screen.getByLabelText(/Produtos dispon.veis/i);
     expect(within(productsRegion).getByText("Produto 1")).toBeInTheDocument();

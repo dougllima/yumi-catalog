@@ -19,6 +19,7 @@ const makeProduct = (overrides: Partial<Product>): Product => ({
   images: ["/products/produto/01.webp"],
   categories: [],
   isActive: true,
+  showOnHome: false,
   ...overrides,
 });
 

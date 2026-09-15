@@ -36,9 +36,9 @@ export type SupabaseProductRow = {
   id: string;
   name: string;
   description: string | null;
-  weight_grams: number | null;
   price_cents: number | null;
   active: boolean;
+  show_on_home: boolean;
   sort_order: number | null;
   created_at?: string;
   updated_at?: string;
@@ -50,9 +50,9 @@ export type SupabaseProductWriteRow = {
   id?: string;
   name: string;
   description: string | null;
-  weight_grams: number | null;
   price_cents: number | null;
   active: boolean;
+  show_on_home: boolean;
   sort_order?: number | null;
 };
 
@@ -94,12 +94,12 @@ export function mapProductRow(
     id: row.id,
     name: row.name,
     description: optionalText(row.description ?? undefined),
-    weight: row.weight_grams ?? undefined,
     price: centsToReais(row.price_cents),
     images: imageRecords.map((image) => image.url),
     imageRecords,
     categories,
     isActive: row.active,
+    showOnHome: row.show_on_home,
     sortOrder: row.sort_order ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -113,9 +113,9 @@ export function toProductWriteRow(
     id: input.id,
     name: input.name.trim(),
     description: input.description?.trim() || null,
-    weight_grams: input.weight ?? null,
     price_cents: input.priceInCents ?? null,
     active: input.isActive,
+    show_on_home: input.showOnHome,
     sort_order: input.sortOrder ?? null,
   };
 }
