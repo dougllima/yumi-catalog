@@ -632,6 +632,11 @@ Quando aplicável, alterações futuras devem versionar por migration:
 
 Evitar alterações manuais no schema de produção quando uma migration for apropriada.
 
+Alterações consolidadas de dados do catálogo que precisam ser reproduzíveis devem
+ser versionadas em migrations, em vez de aplicadas diretamente no banco remoto por
+MCP ou CLI. O acesso direto ao Supabase deve ser reservado para consultas de
+schema/diagnóstico e operações de Storage, como listagem ou upload de imagens.
+
 ---
 
 ## Integração Supabase + GitHub

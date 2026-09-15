@@ -49,18 +49,14 @@ const productImagePaths: Record<string, string[]> = {
   "figure-legolas-ogro": img("figure-legolas-ogro", "01.jpeg", "02.jpeg"),
   "fruta-one-piece": img("fruta-one-piece", "01.webp", "02.webp", "03.webp"),
   "kit-mecanismo-clicker": img("kit-mecanismo-clicker", "01.webp"),
-  "kit-mini-prendedores-10": img("kit-mini-prendedores-10", "01.webp"),
+  "mini-prendedores": img("kit-mini-prendedores-10", "01.webp"),
   "kit-monster": img("kit-monster", "01.jpeg", "02.jpeg"),
-  "kit-porta-polaroid-coracao-5": img(
-    "kit-porta-polaroid-coracao-5",
-    "01.webp",
-  ),
-  "kit-porta-polaroid-coracao-10": img(
-    "kit-porta-polaroid-coracao-10",
-    "01.jpeg",
-  ),
+  "porta-polaroid-coracao": [
+    ...img("kit-porta-polaroid-coracao-5", "01.webp"),
+    ...img("kit-porta-polaroid-coracao-10", "01.jpeg"),
+  ],
   "lagarto-tom": img("lagarto-tom", "04.jpeg", "05.jpeg"),
-  "marca-pagina-gatinho": img("marca-pagina-gatinho", "02.jpeg", "03.jpeg"),
+  "marca-pagina-gatinho": img("marca-pagina-pet", "02.jpeg", "03.jpeg"),
   "porta-celular-stars": img(
     "porta-celular-stars",
     "01.jpeg",
@@ -78,8 +74,8 @@ const productImagePaths: Record<string, string[]> = {
     "02.jpeg",
     "03.jpeg",
   ),
-  "porta-copos-planta": img(
-    "porta-copos-planta",
+  "porta-copos-vaso-costela-de-adao": img(
+    "porta-copos-vaso-planta",
     "01.jpeg",
     "02.jpeg",
     "03.jpeg",
@@ -173,22 +169,21 @@ const productCategoryNames: Record<string, string[]> = {
   "figure-legolas-ogro": ["Figures", "Geek"],
   "fruta-one-piece": ["Geek", "Decoração"],
   "jogo-equilibrio": ["Games", "Infantil"],
-  "kit-monster-v1": ["Geek", "Decoração"],
+  "kit-monster": ["Geek", "Decoração"],
   "kit-porta-copos-flor": ["Casa", "Porta-copos"],
-  "kit-mini-prendedores-10": ["Organização", "Casa"],
+  "mini-prendedores": ["Organização", "Casa"],
   "marca-pagina-gatinho": ["Livros", "Pets"],
   "organizador-magic": ["Games", "Organização"],
   "porta-celular-stars": ["Geek", "Organização"],
   "porta-copo-gatinho-batman": ["Porta-copos", "Geek"],
   "porta-copos-costela-de-adao": ["Porta-copos", "Casa"],
-  "porta-copos-planta": ["Porta-copos", "Casa"],
+  "porta-copos-vaso-costela-de-adao": ["Porta-copos", "Casa"],
   "porta-cotonete": ["Organização", "Casa"],
   "porta-guardanapo-costela-de-adao": ["Casa"],
   "porta-incenso-gato": ["Casa", "Pets"],
   "porta-joias": ["Organização", "Casa"],
   "porta-maquiagem": ["Organização", "Casa"],
-  "kit-porta-polaroid-coracao-5": ["Fotos"],
-  "kit-porta-polaroid-coracao-10": ["Fotos"],
+  "porta-polaroid-coracao": ["Fotos"],
   "porta-remedios-umbrella": ["Organização", "Geek"],
   "separador-de-livro-dragao": ["Livros", "Geek"],
   "suporte-para-2-controles": ["Games", "Organização"],
@@ -275,15 +270,15 @@ const productSeeds: ProductSeed[] = [
       "Jogo de equilíbrio com árvore, caixa e conjunto de peças temáticas à escolha.",
   },
   {
-    id: "kit-monster-v1",
-    name: "Kit Monster V1",
+    id: "kit-monster",
+    name: "Kit Monster",
     price: 50,
-    imageFolder: "kit-monster",
   },
   {
     id: "kit-porta-copos-flor",
     name: "Kit Porta Copos Flor",
-    price: 100,
+    price: 50,
+    isActive: false,
   },
   {
     id: "mecanismo-clicker",
@@ -292,10 +287,8 @@ const productSeeds: ProductSeed[] = [
     imageFolder: "kit-mecanismo-clicker",
   },
   {
-    id: "kit-mini-prendedores-10",
-    name: "Kit de Mini Prendedores - 10 unidades",
-    description:
-      "Kit com dez mini prendedores para fechar pacotes e embalagens abertas.",
+    id: "mini-prendedores",
+    name: "Mini prendedores",
   },
   {
     id: "lagarto-tom",
@@ -328,9 +321,11 @@ const productSeeds: ProductSeed[] = [
     price: 60,
   },
   {
-    id: "porta-copos-planta",
-    name: "Porta Copos - Planta",
-    price: 70,
+    id: "porta-copos-vaso-costela-de-adao",
+    name: "Porta Copos - Vaso Costela de Adão",
+    description:
+      "Porta-copos em formato de vaso com folhas de costela de adão removíveis para uso individual.",
+    price: 120,
   },
   {
     id: "porta-cotonete",
@@ -358,18 +353,8 @@ const productSeeds: ProductSeed[] = [
     price: 160,
   },
   {
-    id: "kit-porta-polaroid-coracao-5",
-    name: "Kit Porta Polaroid Coração - 5 unidades",
-    description:
-      "Kit com cinco suportes pequenos em formato de coração para fotos Polaroid.",
-    price: 10,
-  },
-  {
-    id: "kit-porta-polaroid-coracao-10",
-    name: "Kit Porta Polaroid Coração - 10 unidades",
-    description:
-      "Kit com dez suportes pequenos em formato de coração para fotos Polaroid.",
-    price: 20,
+    id: "porta-polaroid-coracao",
+    name: "Porta Polaroid - Coração",
   },
   {
     id: "porta-remedios-umbrella",
