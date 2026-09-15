@@ -246,6 +246,7 @@ O `ProductRepository` concentra as operações atuais de catálogo, incluindo:
 - leitura por identificador;
 - criação, edição e exclusão de produtos;
 - inclusão, remoção e ordenação de imagens;
+- atualização de enquadramento de imagem;
 - listagem de categorias existentes;
 - substituição das categorias associadas a um produto.
 
@@ -364,10 +365,16 @@ Campos documentados:
 - `storage_path`: caminho do arquivo no bucket;
 - `alt_text`: texto alternativo;
 - `sort_order`: ordem da galeria.
+- `crop_x`: posição horizontal do enquadramento em percentual;
+- `crop_y`: posição vertical do enquadramento em percentual;
+- `crop_zoom`: zoom aplicado ao enquadramento.
 
 URLs públicas são derivadas pelo adapter de Storage e não persistidas como dado de domínio.
 
 A imagem principal pode ser determinada pela ordenação enquanto não houver necessidade concreta de um campo dedicado.
+
+O enquadramento é não destrutivo. O arquivo original permanece no Supabase
+Storage e a aplicação aplica os metadados de crop ao renderizar a imagem.
 
 Schema versionado em `202609080001_init_products_admin.sql`:
 
@@ -377,6 +384,9 @@ product_id text not null references public.products(id) on delete cascade
 storage_path text not null unique
 alt_text text
 sort_order integer not null default 0
+crop_x numeric(5, 2) not null default 50
+crop_y numeric(5, 2) not null default 50
+crop_zoom numeric(4, 2) not null default 1
 created_at timestamptz not null default now()
 ```
 
@@ -384,6 +394,9 @@ Constraint versionada:
 
 - `product_images_storage_path_not_blank`:
   `length(trim(storage_path)) > 0`.
+- `product_images_crop_x_range`: `crop_x` entre 0 e 100;
+- `product_images_crop_y_range`: `crop_y` entre 0 e 100;
+- `product_images_crop_zoom_range`: `crop_zoom` entre 1 e 3.
 
 ### `categories`
 
@@ -464,13 +477,15 @@ created_at timestamptz not null default now()
 
 Tipos reais em `src/domain/product.ts`:
 
-- `ProductImage`: `id`, `url`, `storagePath?`, `altText?`, `sortOrder`;
+- `ProductImage`: `id`, `url`, `storagePath?`, `altText?`, `sortOrder`,
+  `crop?`;
 - `Product`: `id`, `name`, `description?`, `weight?`, `price?`, `images`,
   `imageRecords?`, `categories`, `isActive`, `sortOrder?`, `createdAt?`,
   `updatedAt?`;
 - `ProductInput`: `id?`, `name`, `description?`, `weight?`, `priceInCents?`,
   `isActive`, `sortOrder?`;
-- `ProductImageInput`: `storagePath`, `altText?`, `sortOrder`.
+- `ProductImageInput`: `storagePath`, `altText?`, `sortOrder`, `crop?`;
+- `ProductImageCrop`: `xPercent`, `yPercent`, `zoom`.
 - `ProductCategory`: `id`, `name`, `slug`;
 
 Conversões reais:
@@ -519,6 +534,7 @@ As migrations versionadas atuais são:
 supabase/migrations/202609080001_init_products_admin.sql
 supabase/migrations/202609080002_seed_products_from_static_data.sql
 supabase/migrations/202609140001_add_product_categories.sql
+supabase/migrations/202609150001_add_product_image_crop_metadata.sql
 ```
 
 A migration `202609080001_init_products_admin.sql` estabelece:
@@ -588,6 +604,14 @@ Policies versionadas para categorias:
 Índices explícitos versionados:
 
 - `product_categories_category_id_idx`.
+
+A migration `202609150001_add_product_image_crop_metadata.sql` adiciona
+metadados de enquadramento em `public.product_images`:
+
+- `crop_x`;
+- `crop_y`;
+- `crop_zoom`;
+- constraints de intervalo para manter posição entre 0 e 100 e zoom entre 1 e 3.
 
 Quando aplicável, alterações futuras devem versionar por migration:
 
@@ -723,6 +747,8 @@ Comportamento implementado:
 - o formulário administrativo permite selecionar categorias existentes por
   sugestão, criar novas categorias pelo campo de produto e remover categorias do
   produto;
+- a listagem administrativa de produtos é ordenada alfabeticamente por nome na
+  UI;
 - o admin lista todas as categorias existentes via `listCategories`, inclusive
   categorias associadas apenas a produtos inativos;
 - não existe tela dedicada para gestão, renomeação ou exclusão de categorias.
@@ -751,7 +777,9 @@ Requisitos documentados:
 
 - múltiplas imagens por produto;
 - ordem definida;
-- upload;
+- upload por seleção de arquivo e por arraste no formulário administrativo;
+- prévia local das imagens selecionadas antes de salvar;
+- enquadramento manual não destrutivo por imagem existente;
 - remoção;
 - `alt_text`;
 - validação razoável;
@@ -790,6 +818,7 @@ O script:
 - tenta enviar imagens locais referenciadas em `src/data/products.ts` para o
   bucket `product-images`;
 - registra imagens por `storage_path`;
+- registra imagens importadas com enquadramento central padrão;
 - evita duplicação em reexecuções.
 - lê variáveis de `.env`, `.env.local` e `process.env`;
 - aceita `SUPABASE_URL` ou `VITE_SUPABASE_URL` para a URL;

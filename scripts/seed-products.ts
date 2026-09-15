@@ -176,6 +176,9 @@ for (const [sortOrder, product] of products.entries()) {
         storage_path: storagePath,
         alt_text: product.name,
         sort_order: index,
+        crop_x: 50,
+        crop_y: 50,
+        crop_zoom: 1,
       },
       { onConflict: "storage_path" },
     );

@@ -4,6 +4,7 @@ import type {
   Product,
   ProductCategory,
   ProductImage,
+  ProductImageCropInput,
   ProductImageInput,
   ProductInput,
 } from "@/domain/product";
@@ -69,6 +70,15 @@ export class StaticProductRepository implements ProductRepository {
   ): Promise<void> {
     void productId;
     void orderedImageIds;
+    throw notConfigured();
+  }
+
+  async updateImageCrop(
+    imageId: string,
+    input: ProductImageCropInput,
+  ): Promise<ProductImage> {
+    void imageId;
+    void input;
     throw notConfigured();
   }
 

@@ -13,6 +13,16 @@ Object.defineProperty(Element.prototype, "scrollIntoView", {
   writable: true,
 });
 
+Object.defineProperty(URL, "createObjectURL", {
+  value: vi.fn(() => "blob:preview"),
+  writable: true,
+});
+
+Object.defineProperty(URL, "revokeObjectURL", {
+  value: vi.fn(),
+  writable: true,
+});
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();

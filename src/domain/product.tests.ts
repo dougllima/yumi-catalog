@@ -5,6 +5,7 @@ import {
   centsToReais,
   createProductCategory,
   dedupeCategoryNames,
+  normalizeProductImageCrop,
   normalizeSearch,
   onlyActiveProducts,
   type Product,
@@ -58,5 +59,24 @@ describe("product domain helpers", () => {
   it("does not create empty category records", () => {
     expect(createProductCategory("   ")).toBeNull();
     expect(createProductCategory("!!!")).toBeNull();
+  });
+
+  it("normalizes image crop metadata with centered defaults", () => {
+    expect(normalizeProductImageCrop()).toEqual({
+      xPercent: 50,
+      yPercent: 50,
+      zoom: 1,
+    });
+    expect(
+      normalizeProductImageCrop({
+        xPercent: -10,
+        yPercent: 120,
+        zoom: 5,
+      }),
+    ).toEqual({
+      xPercent: 0,
+      yPercent: 100,
+      zoom: 3,
+    });
   });
 });

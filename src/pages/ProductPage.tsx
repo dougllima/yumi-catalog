@@ -101,6 +101,7 @@ export function ProductPage() {
           <ProductImageGallery
             key={product.id}
             images={product.images}
+            imageRecords={product.imageRecords}
             productName={product.name}
           />
 

@@ -4,10 +4,16 @@ import type { MediaStorage, ProductRepository } from "@/application/contracts";
 import type {
   Product,
   ProductCategory,
+  ProductImage,
+  ProductImageCropInput,
   ProductImageInput,
   ProductInput,
 } from "@/domain/product";
-import { categorySlug, dedupeCategoryNames } from "@/domain/product";
+import {
+  categorySlug,
+  dedupeCategoryNames,
+  normalizeProductImageCrop,
+} from "@/domain/product";
 import {
   mapProductRow,
   type SupabaseCategoryRow,
@@ -32,6 +38,9 @@ const productSelect = `
     storage_path,
     alt_text,
     sort_order,
+    crop_x,
+    crop_y,
+    crop_zoom,
     created_at
   ),
   product_categories (
@@ -152,8 +161,13 @@ export class SupabaseProductRepository implements ProductRepository {
         storage_path: input.storagePath,
         alt_text: input.altText ?? null,
         sort_order: input.sortOrder,
+        crop_x: input.crop?.xPercent ?? 50,
+        crop_y: input.crop?.yPercent ?? 50,
+        crop_zoom: input.crop?.zoom ?? 1,
       })
-      .select("id, product_id, storage_path, alt_text, sort_order, created_at")
+      .select(
+        "id, product_id, storage_path, alt_text, sort_order, crop_x, crop_y, crop_zoom, created_at",
+      )
       .single<SupabaseProductImageRow>();
 
     if (error) {
@@ -166,6 +180,11 @@ export class SupabaseProductRepository implements ProductRepository {
       storagePath: data.storage_path,
       altText: data.alt_text ?? undefined,
       sortOrder: data.sort_order,
+      crop: normalizeProductImageCrop({
+        xPercent: data.crop_x ?? undefined,
+        yPercent: data.crop_y ?? undefined,
+        zoom: data.crop_zoom ?? undefined,
+      }),
     };
   }
 
@@ -194,6 +213,42 @@ export class SupabaseProductRepository implements ProductRepository {
         }
       }),
     );
+  }
+
+  async updateImageCrop(
+    imageId: string,
+    input: ProductImageCropInput,
+  ): Promise<ProductImage> {
+    const crop = normalizeProductImageCrop(input);
+    const { data, error } = await this.client
+      .from("product_images")
+      .update({
+        crop_x: crop.xPercent,
+        crop_y: crop.yPercent,
+        crop_zoom: crop.zoom,
+      })
+      .eq("id", imageId)
+      .select(
+        "id, product_id, storage_path, alt_text, sort_order, crop_x, crop_y, crop_zoom, created_at",
+      )
+      .single<SupabaseProductImageRow>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      id: data.id,
+      url: this.mediaStorage.getPublicUrl(data.storage_path),
+      storagePath: data.storage_path,
+      altText: data.alt_text ?? undefined,
+      sortOrder: data.sort_order,
+      crop: normalizeProductImageCrop({
+        xPercent: data.crop_x ?? undefined,
+        yPercent: data.crop_y ?? undefined,
+        zoom: data.crop_zoom ?? undefined,
+      }),
+    };
   }
 
   async listCategories() {

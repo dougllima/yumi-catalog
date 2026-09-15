@@ -24,6 +24,9 @@ describe("Supabase product mapper", () => {
             storage_path: "porta-joias/02.jpeg",
             alt_text: "Imagem 2",
             sort_order: 1,
+            crop_x: 20,
+            crop_y: 30,
+            crop_zoom: 1.5,
           },
           {
             id: "image-1",
@@ -31,6 +34,9 @@ describe("Supabase product mapper", () => {
             storage_path: "porta-joias/01.jpeg",
             alt_text: "Imagem 1",
             sort_order: 0,
+            crop_x: 60,
+            crop_y: 40,
+            crop_zoom: 1,
           },
         ],
         product_categories: [
@@ -64,6 +70,16 @@ describe("Supabase product mapper", () => {
       "https://storage.local/porta-joias/01.jpeg",
       "https://storage.local/porta-joias/02.jpeg",
     ]);
+    expect(product.imageRecords?.[0]?.crop).toEqual({
+      xPercent: 60,
+      yPercent: 40,
+      zoom: 1,
+    });
+    expect(product.imageRecords?.[1]?.crop).toEqual({
+      xPercent: 20,
+      yPercent: 30,
+      zoom: 1.5,
+    });
     expect(product.categories.map((category) => category.name)).toEqual([
       "Geek",
       "Organização",

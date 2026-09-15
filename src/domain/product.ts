@@ -1,9 +1,16 @@
+export type ProductImageCrop = {
+  xPercent: number;
+  yPercent: number;
+  zoom: number;
+};
+
 export type ProductImage = {
   id: string;
   url: string;
   storagePath?: string;
   altText?: string;
   sortOrder: number;
+  crop?: ProductImageCrop;
 };
 
 export type ProductCategory = {
@@ -41,7 +48,10 @@ export type ProductImageInput = {
   storagePath: string;
   altText?: string;
   sortOrder: number;
+  crop?: ProductImageCrop;
 };
+
+export type ProductImageCropInput = ProductImageCrop;
 
 export const centsToReais = (cents?: number | null) =>
   typeof cents === "number" ? cents / 100 : undefined;
@@ -50,6 +60,40 @@ export const reaisToCents = (value?: number | null) =>
   typeof value === "number" && Number.isFinite(value)
     ? Math.round(value * 100)
     : undefined;
+
+export const defaultProductImageCrop: ProductImageCrop = {
+  xPercent: 50,
+  yPercent: 50,
+  zoom: 1,
+};
+
+const clampNumber = (
+  value: number | undefined,
+  min: number,
+  max: number,
+  fallback: number,
+) =>
+  typeof value === "number" && Number.isFinite(value)
+    ? Math.min(Math.max(value, min), max)
+    : fallback;
+
+export const normalizeProductImageCrop = (
+  crop?: Partial<ProductImageCrop> | null,
+): ProductImageCrop => ({
+  xPercent: clampNumber(
+    crop?.xPercent,
+    0,
+    100,
+    defaultProductImageCrop.xPercent,
+  ),
+  yPercent: clampNumber(
+    crop?.yPercent,
+    0,
+    100,
+    defaultProductImageCrop.yPercent,
+  ),
+  zoom: clampNumber(crop?.zoom, 1, 3, defaultProductImageCrop.zoom),
+});
 
 export const normalizeSearch = (value: string) =>
   value

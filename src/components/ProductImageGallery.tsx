@@ -2,21 +2,33 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import type { ProductImage } from "@/domain/product";
 import { cn } from "@/lib/utils";
+import { productImageCropStyle } from "@/utils/productImageCropStyle";
 import { publicAssetUrl } from "@/utils/publicAssetUrl";
 
 type ProductImageGalleryProps = {
   images: string[];
+  imageRecords?: ProductImage[];
   productName: string;
 };
 
 export function ProductImageGallery({
   images,
+  imageRecords,
   productName,
 }: ProductImageGalleryProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const galleryImages: ProductImage[] =
+    imageRecords && imageRecords.length > 0
+      ? imageRecords
+      : images.map((url, index) => ({
+          id: url,
+          url,
+          sortOrder: index,
+        }));
 
-  if (images.length === 0) {
+  if (galleryImages.length === 0) {
     return (
       <div className="grid aspect-square place-items-center rounded-[1.5rem] border bg-muted text-muted-foreground">
         Imagem indisponível
@@ -24,7 +36,7 @@ export function ProductImageGallery({
     );
   }
 
-  const activeImage = images[activeImageIndex] ?? images[0];
+  const activeImage = galleryImages[activeImageIndex] ?? galleryImages[0];
 
   if (!activeImage) {
     return (
@@ -34,18 +46,18 @@ export function ProductImageGallery({
     );
   }
 
-  const hasMultipleImages = images.length > 1;
-  const activeImageUrl = publicAssetUrl(activeImage);
+  const hasMultipleImages = galleryImages.length > 1;
+  const activeImageUrl = publicAssetUrl(activeImage.url);
 
   const showPreviousImage = () => {
     setActiveImageIndex((currentIndex) =>
-      currentIndex === 0 ? images.length - 1 : currentIndex - 1,
+      currentIndex === 0 ? galleryImages.length - 1 : currentIndex - 1,
     );
   };
 
   const showNextImage = () => {
     setActiveImageIndex((currentIndex) =>
-      currentIndex === images.length - 1 ? 0 : currentIndex + 1,
+      currentIndex === galleryImages.length - 1 ? 0 : currentIndex + 1,
     );
   };
 
@@ -57,6 +69,7 @@ export function ProductImageGallery({
           src={activeImageUrl}
           alt={`${productName} - imagem ${activeImageIndex + 1}`}
           className="block size-full object-cover"
+          style={productImageCropStyle(activeImage.crop)}
         />
 
         {hasMultipleImages && (
@@ -95,10 +108,10 @@ export function ProductImageGallery({
           className="flex gap-2 overflow-x-auto pb-1"
           aria-label="Selecionar imagem do produto"
         >
-          {images.map((image, index) => (
+          {galleryImages.map((image, index) => (
             <Button
               type="button"
-              key={image}
+              key={image.id}
               variant="outline"
               aria-label={`Ver imagem ${index + 1} de ${productName}`}
               aria-pressed={index === activeImageIndex}
@@ -111,9 +124,10 @@ export function ProductImageGallery({
               onClick={() => setActiveImageIndex(index)}
             >
               <img
-                src={publicAssetUrl(image)}
+                src={publicAssetUrl(image.url)}
                 alt=""
                 className="block size-full object-cover"
+                style={productImageCropStyle(image.crop)}
                 aria-hidden="true"
               />
             </Button>

@@ -1,4 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -23,6 +29,7 @@ vi.mock("@/application/dependencies", () => ({
     addImage: vi.fn(),
     removeImage: vi.fn(),
     updateImageOrder: vi.fn(),
+    updateImageCrop: vi.fn(),
     replaceProductCategories: vi.fn(),
   },
   runtimeBackend: "supabase",
@@ -57,17 +64,29 @@ describe("AdminProductsPage", () => {
     mockedProductRepository.addImage.mockReset();
     mockedProductRepository.removeImage.mockReset();
     mockedProductRepository.updateImageOrder.mockReset();
+    mockedProductRepository.updateImageCrop.mockReset();
     mockedProductRepository.replaceProductCategories.mockReset();
     mockedMediaStorage.uploadProductImage.mockReset();
     mockedMediaStorage.remove.mockReset();
     mockedProductRepository.listCategories.mockResolvedValue([]);
+    mockedProductRepository.updateImageCrop.mockResolvedValue({
+      id: "image-1",
+      url: "https://storage.local/mini-box.webp",
+      storagePath: "mini-box/mini-box.webp",
+      altText: "Mini Box",
+      sortOrder: 0,
+      crop: {
+        xPercent: 50,
+        yPercent: 50,
+        zoom: 1,
+      },
+    });
     mockedProductRepository.replaceProductCategories.mockResolvedValue([]);
   });
 
   it("loads products, filters the admin list, and populates the edit form", async () => {
     const user = userEvent.setup();
     mockedProductRepository.listAll.mockResolvedValue([
-      makeProduct({ id: "porta-joias", name: "Porta Joias", isActive: true }),
       makeProduct({
         id: "vaso",
         name: "Vaso",
@@ -75,12 +94,19 @@ describe("AdminProductsPage", () => {
         price: 60,
         weight: 210,
       }),
+      makeProduct({ id: "porta-joias", name: "Porta Joias", isActive: true }),
     ]);
 
     render(<AdminProductsPage />);
 
     expect(await screen.findByText("Porta Joias")).toBeInTheDocument();
     expect(screen.getByText("Vaso")).toBeInTheDocument();
+
+    expect(
+      within(screen.getByTestId("admin-products-list"))
+        .getAllByRole("button")
+        .map((button) => button.textContent),
+    ).toEqual(["Porta JoiasAtivo", "VasoInativo"]);
 
     await user.type(screen.getByTestId("admin-products-search-input"), "vaso");
 
@@ -180,6 +206,125 @@ describe("AdminProductsPage", () => {
     expect(
       await screen.findByText("Produto salvo com sucesso."),
     ).toBeInTheDocument();
+  });
+
+  it("accepts image files dropped into the image field", async () => {
+    const user = userEvent.setup();
+    const savedProduct = makeProduct({
+      id: "mini-box",
+      name: "Mini Box",
+    });
+    const file = new File(["image"], "mini-box.webp", {
+      type: "image/webp",
+    });
+
+    mockedProductRepository.listAll
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([savedProduct]);
+    mockedProductRepository.create.mockResolvedValueOnce(savedProduct);
+    mockedMediaStorage.uploadProductImage.mockResolvedValueOnce({
+      storagePath: "mini-box/mini-box.webp",
+      publicUrl: "https://storage.local/mini-box.webp",
+    });
+    mockedProductRepository.addImage.mockResolvedValueOnce({
+      id: "image-1",
+      url: "https://storage.local/mini-box.webp",
+      storagePath: "mini-box/mini-box.webp",
+      altText: "Mini Box",
+      sortOrder: 0,
+    });
+
+    render(<AdminProductsPage />);
+
+    await waitFor(() =>
+      expect(mockedProductRepository.listAll).toHaveBeenCalledTimes(1),
+    );
+
+    await user.type(screen.getByTestId("admin-product-name-input"), "Mini Box");
+    fireEvent.drop(screen.getByTestId("admin-product-images-dropzone"), {
+      dataTransfer: {
+        files: [file],
+      },
+    });
+
+    expect(screen.getByAltText(/mini-box\.webp/)).toBeInTheDocument();
+    expect(
+      screen.getByTestId("admin-product-pending-image-preview"),
+    ).toHaveTextContent("mini-box.webp");
+
+    await user.click(screen.getByRole("button", { name: /Salvar produto/ }));
+
+    await waitFor(() =>
+      expect(mockedMediaStorage.uploadProductImage).toHaveBeenCalledWith(
+        "mini-box",
+        file,
+      ),
+    );
+    expect(mockedProductRepository.addImage).toHaveBeenCalledWith("mini-box", {
+      storagePath: "mini-box/mini-box.webp",
+      altText: "Mini Box",
+      sortOrder: 0,
+    });
+  });
+
+  it("updates crop metadata for an existing product image", async () => {
+    const user = userEvent.setup();
+    const productWithImage = makeProduct({
+      id: "mini-box",
+      name: "Mini Box",
+      imageRecords: [
+        {
+          id: "image-1",
+          url: "https://storage.local/mini-box.webp",
+          storagePath: "mini-box/mini-box.webp",
+          altText: "Mini Box",
+          sortOrder: 0,
+          crop: {
+            xPercent: 50,
+            yPercent: 50,
+            zoom: 1,
+          },
+        },
+      ],
+      images: ["https://storage.local/mini-box.webp"],
+    });
+
+    mockedProductRepository.listAll.mockResolvedValue([productWithImage]);
+
+    render(<AdminProductsPage />);
+
+    await user.click(await screen.findByRole("button", { name: /Mini Box/ }));
+    await user.click(screen.getByRole("button", { name: "Enquadrar imagem" }));
+
+    fireEvent.change(screen.getByTestId("admin-product-crop-x-input"), {
+      target: { value: "25" },
+    });
+    fireEvent.change(screen.getByTestId("admin-product-crop-y-input"), {
+      target: { value: "70" },
+    });
+    fireEvent.change(screen.getByTestId("admin-product-crop-zoom-input"), {
+      target: { value: "1.5" },
+    });
+
+    expect(screen.getByTestId("admin-product-crop-preview")).toHaveStyle({
+      objectPosition: "25% 70%",
+      transform: "scale(1.5)",
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Salvar enquadramento" }),
+    );
+
+    await waitFor(() =>
+      expect(mockedProductRepository.updateImageCrop).toHaveBeenCalledWith(
+        "image-1",
+        {
+          xPercent: 25,
+          yPercent: 70,
+          zoom: 1.5,
+        },
+      ),
+    );
   });
 
   it("shows existing categories and removes selected categories in the form", async () => {

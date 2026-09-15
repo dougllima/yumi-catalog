@@ -1,11 +1,14 @@
 import {
   ArrowDown,
   ArrowUp,
+  Crop,
   Eye,
   EyeOff,
   LogOut,
   Plus,
+  RotateCcw,
   Save,
+  SlidersHorizontal,
   Tag,
   Trash2,
   Upload,
@@ -13,6 +16,7 @@ import {
 } from "lucide-react";
 import {
   ChangeEvent,
+  DragEvent,
   FormEvent,
   KeyboardEvent,
   useEffect,
@@ -27,15 +31,18 @@ import {
   runtimeBackend,
 } from "@/application/dependencies";
 import { Button } from "@/components/ui/button";
-import type { Product, ProductImage } from "@/domain/product";
+import type { Product, ProductImage, ProductImageCrop } from "@/domain/product";
 import {
   categorySlug,
   createProductCategory,
   dedupeCategoryNames,
+  defaultProductImageCrop,
   normalizeCategoryName,
+  normalizeProductImageCrop,
   normalizeSearch,
   reaisToCents,
 } from "@/domain/product";
+import { productImageCropStyle } from "@/utils/productImageCropStyle";
 
 type ProductFormState = {
   id: string;
@@ -76,6 +83,8 @@ const parseNumberInput = (value: string) => {
   return Number.isFinite(parsed) ? parsed : Number.NaN;
 };
 
+const acceptedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+
 const toFormState = (product: Product): ProductFormState => ({
   id: product.id,
   name: product.name,
@@ -93,6 +102,13 @@ export function AdminProductsPage() {
   const [form, setForm] = useState<ProductFormState>(emptyForm);
   const [categoryDraft, setCategoryDraft] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [isDraggingImages, setIsDraggingImages] = useState(false);
+  const [editingCropImageId, setEditingCropImageId] = useState<string | null>(
+    null,
+  );
+  const [cropDraft, setCropDraft] = useState<ProductImageCrop>(
+    defaultProductImageCrop,
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -101,15 +117,40 @@ export function AdminProductsPage() {
 
   const selectedProduct = products.find((product) => product.id === selectedId);
   const isCreating = !selectedProduct;
+  const editingCropImage =
+    selectedProduct?.imageRecords?.find(
+      (image) => image.id === editingCropImageId,
+    ) ?? null;
+
+  const pendingImagePreviews = useMemo(
+    () =>
+      files.map((file, index) => ({
+        id: `${file.name}-${file.lastModified}-${file.size}-${index}`,
+        file,
+        url: URL.createObjectURL(file),
+      })),
+    [files],
+  );
+
+  useEffect(() => {
+    return () => {
+      pendingImagePreviews.forEach((preview) =>
+        URL.revokeObjectURL(preview.url),
+      );
+    };
+  }, [pendingImagePreviews]);
 
   const filteredProducts = useMemo(() => {
     const normalized = normalizeSearch(searchTerm);
+    const sortedProducts = [...products].sort((left, right) =>
+      left.name.localeCompare(right.name, "pt-BR"),
+    );
 
     if (!normalized) {
-      return products;
+      return sortedProducts;
     }
 
-    return products.filter((product) => {
+    return sortedProducts.filter((product) => {
       const searchable = [
         product.name,
         product.description,
@@ -193,6 +234,8 @@ export function AdminProductsPage() {
     setForm(emptyForm);
     setCategoryDraft("");
     setFiles([]);
+    setEditingCropImageId(null);
+    setCropDraft(defaultProductImageCrop);
     setMessage(null);
     setError(null);
   };
@@ -216,8 +259,48 @@ export function AdminProductsPage() {
     });
   };
 
+  const appendImageFiles = (nextFiles: File[]) => {
+    const acceptedFiles = nextFiles.filter((file) =>
+      acceptedImageTypes.has(file.type),
+    );
+
+    if (acceptedFiles.length === 0) {
+      return;
+    }
+
+    setFiles((current) => [...current, ...acceptedFiles]);
+  };
+
+  const removePendingImage = (imageIndex: number) => {
+    setFiles((current) =>
+      current.filter((_, currentIndex) => currentIndex !== imageIndex),
+    );
+  };
+
   const handleFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFiles(Array.from(event.target.files ?? []));
+    appendImageFiles(Array.from(event.target.files ?? []));
+    event.target.value = "";
+  };
+
+  const handleImagesDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    setIsDraggingImages(true);
+  };
+
+  const handleImagesDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      return;
+    }
+
+    setIsDraggingImages(false);
+  };
+
+  const handleImagesDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDraggingImages(false);
+
+    appendImageFiles(Array.from(event.dataTransfer.files));
   };
 
   const addCategory = (name: string) => {
@@ -434,12 +517,59 @@ export function AdminProductsPage() {
       await productRepository.removeImage(image.id);
       await mediaStorage.remove(image.storagePath);
       await loadProducts();
+      if (editingCropImageId === image.id) {
+        setEditingCropImageId(null);
+        setCropDraft(defaultProductImageCrop);
+      }
       setMessage("Imagem removida.");
     } catch (unknownError) {
       setError(
         unknownError instanceof Error
           ? unknownError.message
           : "Não foi possível remover a imagem.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const startImageCrop = (image: ProductImage) => {
+    setEditingCropImageId(image.id);
+    setCropDraft(normalizeProductImageCrop(image.crop));
+    setMessage(null);
+    setError(null);
+  };
+
+  const updateCropDraft = (field: keyof ProductImageCrop, value: string) => {
+    const parsed = Number(value);
+
+    setCropDraft((current) =>
+      normalizeProductImageCrop({
+        ...current,
+        [field]: Number.isFinite(parsed) ? parsed : current[field],
+      }),
+    );
+  };
+
+  const saveImageCrop = async () => {
+    if (!editingCropImage) {
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      await productRepository.updateImageCrop(editingCropImage.id, cropDraft);
+      await loadProducts();
+      setEditingCropImageId(null);
+      setMessage("Enquadramento da imagem atualizado.");
+    } catch (unknownError) {
+      setError(
+        unknownError instanceof Error
+          ? unknownError.message
+          : "Não foi possível salvar o enquadramento da imagem.",
       );
     } finally {
       setSaving(false);
@@ -549,7 +679,10 @@ export function AdminProductsPage() {
               />
             </label>
 
-            <div className="grid max-h-[62vh] gap-2 overflow-auto pr-1">
+            <div
+              data-testid="admin-products-list"
+              className="grid max-h-[62vh] gap-2 overflow-auto pr-1"
+            >
               {loading ? (
                 <p className="rounded-2xl bg-muted/70 px-4 py-3 text-sm font-semibold text-muted-foreground">
                   Carregando produtos...
@@ -566,6 +699,8 @@ export function AdminProductsPage() {
                       setForm(toFormState(product));
                       setCategoryDraft("");
                       setFiles([]);
+                      setEditingCropImageId(null);
+                      setCropDraft(defaultProductImageCrop);
                       setMessage(null);
                       setError(null);
                     }}
@@ -746,18 +881,30 @@ export function AdminProductsPage() {
             </section>
 
             <section className="grid gap-3 rounded-2xl border bg-background/45 p-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div
+                data-testid="admin-product-images-dropzone"
+                className={[
+                  "grid gap-3 rounded-2xl border border-dashed bg-card/45 p-4 transition sm:grid-cols-[1fr_auto] sm:items-center",
+                  isDraggingImages
+                    ? "border-primary bg-accent/45 ring-[3px] ring-ring/30"
+                    : "border-border",
+                ].join(" ")}
+                onDragOver={handleImagesDragOver}
+                onDragLeave={handleImagesDragLeave}
+                onDrop={handleImagesDrop}
+              >
                 <div>
                   <h2 className="font-display text-2xl font-semibold">
                     Imagens
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    JPEG, PNG ou WebP, até 5 MB por arquivo.
+                    Arraste imagens aqui ou selecione arquivos JPEG, PNG ou
+                    WebP, até 5 MB por arquivo.
                   </p>
                 </div>
                 <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-secondary px-4 text-sm font-extrabold text-secondary-foreground shadow-sm transition hover:bg-secondary/80">
                   <Upload className="size-4" aria-hidden="true" />
-                  Adicionar imagens
+                  Selecionar imagens
                   <input
                     data-testid="admin-product-images-input"
                     type="file"
@@ -776,6 +923,154 @@ export function AdminProductsPage() {
                 </p>
               )}
 
+              {pendingImagePreviews.length > 0 && (
+                <div
+                  className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+                  aria-label="Prévia das imagens selecionadas"
+                >
+                  {pendingImagePreviews.map((preview, index) => (
+                    <div
+                      key={preview.id}
+                      data-testid="admin-product-pending-image-preview"
+                      className="overflow-hidden rounded-2xl border bg-card shadow-sm"
+                    >
+                      <img
+                        src={preview.url}
+                        alt={`Prévia de ${preview.file.name}`}
+                        className="aspect-square w-full object-cover"
+                      />
+                      <div className="flex items-center justify-between gap-2 p-2">
+                        <span className="truncate text-xs font-semibold text-muted-foreground">
+                          {preview.file.name}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 shrink-0 rounded-full text-destructive"
+                          onClick={() => removePendingImage(index)}
+                          aria-label={`Remover ${preview.file.name}`}
+                        >
+                          <X aria-hidden="true" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {editingCropImage && (
+                <div className="grid gap-4 rounded-2xl border bg-card/70 p-4 shadow-sm lg:grid-cols-[minmax(220px,360px)_1fr]">
+                  <div className="overflow-hidden rounded-2xl border bg-muted">
+                    <img
+                      data-testid="admin-product-crop-preview"
+                      src={editingCropImage.url}
+                      alt={`Prévia do enquadramento de ${
+                        editingCropImage.altText ??
+                        selectedProduct?.name ??
+                        "Produto"
+                      }`}
+                      className="aspect-square w-full object-cover"
+                      style={productImageCropStyle(cropDraft)}
+                    />
+                  </div>
+
+                  <div className="grid content-start gap-4">
+                    <div className="flex items-start gap-2">
+                      <SlidersHorizontal
+                        className="mt-1 size-4 text-primary"
+                        aria-hidden="true"
+                      />
+                      <div className="grid gap-1">
+                        <h3 className="font-display text-xl font-semibold">
+                          Enquadrar imagem
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Ajuste o recorte usado no card e na página do produto.
+                        </p>
+                      </div>
+                    </div>
+
+                    <label className="grid gap-2 text-sm font-extrabold">
+                      Posição horizontal
+                      <input
+                        data-testid="admin-product-crop-x-input"
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={cropDraft.xPercent}
+                        onChange={(event) =>
+                          updateCropDraft("xPercent", event.target.value)
+                        }
+                        className="w-full accent-primary"
+                      />
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-extrabold">
+                      Posição vertical
+                      <input
+                        data-testid="admin-product-crop-y-input"
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={cropDraft.yPercent}
+                        onChange={(event) =>
+                          updateCropDraft("yPercent", event.target.value)
+                        }
+                        className="w-full accent-primary"
+                      />
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-extrabold">
+                      Zoom
+                      <input
+                        data-testid="admin-product-crop-zoom-input"
+                        type="range"
+                        min="1"
+                        max="3"
+                        step="0.05"
+                        value={cropDraft.zoom}
+                        onChange={(event) =>
+                          updateCropDraft("zoom", event.target.value)
+                        }
+                        className="w-full accent-primary"
+                      />
+                    </label>
+
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="rounded-full"
+                        onClick={() => setCropDraft(defaultProductImageCrop)}
+                      >
+                        <RotateCcw aria-hidden="true" />
+                        Centralizar
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="rounded-full"
+                        onClick={() => setEditingCropImageId(null)}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        type="button"
+                        className="rounded-full"
+                        disabled={saving}
+                        onClick={() => void saveImageCrop()}
+                      >
+                        <Save aria-hidden="true" />
+                        Salvar enquadramento
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {(selectedProduct?.imageRecords ?? []).map(
                   (image, index, list) => (
@@ -788,10 +1083,21 @@ export function AdminProductsPage() {
                         alt={
                           image.altText ?? selectedProduct?.name ?? "Produto"
                         }
-                        className="aspect-[4/3] w-full object-cover"
+                        className="aspect-square w-full object-cover"
+                        style={productImageCropStyle(image.crop)}
                       />
                       <div className="flex items-center justify-between gap-2 p-2">
                         <div className="flex gap-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-full"
+                            onClick={() => startImageCrop(image)}
+                            aria-label="Enquadrar imagem"
+                          >
+                            <Crop aria-hidden="true" />
+                          </Button>
                           <Button
                             type="button"
                             variant="ghost"

@@ -29,7 +29,11 @@ export function ProductCard({ product }: ProductCardProps) {
           className="absolute inset-0 z-10 rounded-lg focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/60"
           aria-label={`Ver detalhes de ${product.name}`}
         />
-        <ProductGallery images={product.images} productName={product.name} />
+        <ProductGallery
+          image={product.imageRecords?.[0]}
+          images={product.images}
+          productName={product.name}
+        />
 
         <CardContent className="grid min-h-[126px] gap-2.5 p-3.5">
           <div className="grid gap-1.5">

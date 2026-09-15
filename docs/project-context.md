@@ -302,11 +302,17 @@ Objetivos funcionais da fase atual:
 - criar produto;
 - editar produto;
 - gerenciar imagens;
+- adicionar imagens por seleção de arquivo ou arraste no formulário do produto;
+- pré-visualizar imagens selecionadas antes de salvar o produto;
+- ajustar o enquadramento de imagens existentes sem alterar o arquivo original;
 - alterar preço;
 - alterar peso;
 - ativar/inativar produto;
 - identificar produtos que precisam de revisão;
 - concluir revisão de produtos.
+
+A listagem administrativa de produtos deve ser ordenada alfabeticamente pelo
+nome para facilitar localização manual.
 
 Não deve existir cadastro público de administradores sem decisão explícita.
 

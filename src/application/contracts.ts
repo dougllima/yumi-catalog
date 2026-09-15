@@ -2,6 +2,7 @@ import type {
   Product,
   ProductCategory,
   ProductImage,
+  ProductImageCropInput,
   ProductImageInput,
   ProductInput,
 } from "@/domain/product";
@@ -40,6 +41,10 @@ export interface ProductRepository {
   addImage(productId: string, input: ProductImageInput): Promise<ProductImage>;
   removeImage(imageId: string): Promise<void>;
   updateImageOrder(productId: string, orderedImageIds: string[]): Promise<void>;
+  updateImageCrop(
+    imageId: string,
+    input: ProductImageCropInput,
+  ): Promise<ProductImage>;
   listCategories(): Promise<ProductCategory[]>;
   replaceProductCategories(
     productId: string,

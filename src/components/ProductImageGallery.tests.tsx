@@ -48,4 +48,30 @@ describe("ProductImageGallery", () => {
 
     expect(activeImage).toHaveAttribute("alt", "Produto teste - imagem 1");
   });
+
+  it("applies saved crop metadata to rendered images", () => {
+    render(
+      <ProductImageGallery
+        images={["/products/item/01.webp"]}
+        imageRecords={[
+          {
+            id: "image-1",
+            url: "/products/item/01.webp",
+            sortOrder: 0,
+            crop: {
+              xPercent: 35,
+              yPercent: 70,
+              zoom: 1.4,
+            },
+          },
+        ]}
+        productName="Produto teste"
+      />,
+    );
+
+    expect(screen.getByTestId("product-image-gallery-active")).toHaveStyle({
+      objectPosition: "35% 70%",
+      transform: "scale(1.4)",
+    });
+  });
 });

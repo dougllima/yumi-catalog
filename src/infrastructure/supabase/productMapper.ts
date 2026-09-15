@@ -4,7 +4,7 @@ import type {
   ProductImage,
   ProductInput,
 } from "@/domain/product";
-import { centsToReais } from "@/domain/product";
+import { centsToReais, normalizeProductImageCrop } from "@/domain/product";
 
 export type SupabaseProductImageRow = {
   id: string;
@@ -12,6 +12,9 @@ export type SupabaseProductImageRow = {
   storage_path: string;
   alt_text: string | null;
   sort_order: number;
+  crop_x?: number | null;
+  crop_y?: number | null;
+  crop_zoom?: number | null;
   created_at?: string;
 };
 
@@ -70,6 +73,11 @@ export function mapProductRow(
       storagePath: image.storage_path,
       altText: image.alt_text ?? undefined,
       sortOrder: image.sort_order,
+      crop: normalizeProductImageCrop({
+        xPercent: image.crop_x ?? undefined,
+        yPercent: image.crop_y ?? undefined,
+        zoom: image.crop_zoom ?? undefined,
+      }),
     }));
 
   const categories: ProductCategory[] = [...(row.product_categories ?? [])]
