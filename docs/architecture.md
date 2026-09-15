@@ -914,6 +914,8 @@ Configuração versionada:
 - `.github/workflows/deploy.yml` roda em push para `main` e
   `workflow_dispatch`;
 - o workflow usa Node 24, executa `npm ci` e `npm run check`;
+- o job de build usa o environment `github-pages` para acessar as variáveis
+  `VITE_*` necessárias ao bundle publicado;
 - o workflow cria `dist/404.html` a partir de `dist/index.html` para suportar rotas diretas da SPA no GitHub Pages.
 - o workflow publica `dist` com `actions/upload-pages-artifact@v3` e
   `actions/deploy-pages@v4`.
