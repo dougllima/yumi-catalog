@@ -4,6 +4,7 @@ import {
   MessageCircle,
   PackageCheck,
   Sparkles,
+  Tag,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
@@ -77,6 +78,7 @@ export function ProductPage() {
     typeof product.price === "number" && product.price > 0
       ? product.price
       : null;
+  const categories = product.categories;
 
   return (
     <>
@@ -134,6 +136,26 @@ export function ProductPage() {
               <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
                 {product.description}
               </p>
+            )}
+
+            {categories.length > 0 && (
+              <div className="grid gap-2">
+                <span className="flex items-center gap-2 text-sm font-extrabold text-muted-foreground">
+                  <Tag className="size-4 text-primary" aria-hidden="true" />
+                  Categorias
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((category) => (
+                    <Badge
+                      key={category.slug}
+                      variant="secondary"
+                      className="rounded-full px-3 py-1 text-sm font-extrabold"
+                    >
+                      {category.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
             )}
 
             {weight !== null && (

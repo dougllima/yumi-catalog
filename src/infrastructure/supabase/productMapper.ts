@@ -1,4 +1,9 @@
-import type { Product, ProductImage, ProductInput } from "@/domain/product";
+import type {
+  Product,
+  ProductCategory,
+  ProductImage,
+  ProductInput,
+} from "@/domain/product";
 import { centsToReais } from "@/domain/product";
 
 export type SupabaseProductImageRow = {
@@ -8,6 +13,20 @@ export type SupabaseProductImageRow = {
   alt_text: string | null;
   sort_order: number;
   created_at?: string;
+};
+
+export type SupabaseCategoryRow = {
+  id: string;
+  name: string;
+  slug: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type SupabaseProductCategoryRow = {
+  product_id: string;
+  category_id: string;
+  categories: SupabaseCategoryRow | null;
 };
 
 export type SupabaseProductRow = {
@@ -21,6 +40,7 @@ export type SupabaseProductRow = {
   created_at?: string;
   updated_at?: string;
   product_images?: SupabaseProductImageRow[] | null;
+  product_categories?: SupabaseProductCategoryRow[] | null;
 };
 
 export type SupabaseProductWriteRow = {
@@ -52,6 +72,16 @@ export function mapProductRow(
       sortOrder: image.sort_order,
     }));
 
+  const categories: ProductCategory[] = [...(row.product_categories ?? [])]
+    .map((item) => item.categories)
+    .filter((category): category is SupabaseCategoryRow => Boolean(category))
+    .sort((left, right) => left.name.localeCompare(right.name, "pt-BR"))
+    .map((category) => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+    }));
+
   return {
     id: row.id,
     name: row.name,
@@ -60,6 +90,7 @@ export function mapProductRow(
     price: centsToReais(row.price_cents),
     images: imageRecords.map((image) => image.url),
     imageRecords,
+    categories,
     isActive: row.active,
     sortOrder: row.sort_order ?? undefined,
     createdAt: row.created_at,

@@ -24,6 +24,7 @@ const product: Product = {
   id: "porta-joias",
   name: "Porta Joias",
   images: ["/products/porta-joias/01.webp"],
+  categories: [],
   isActive: true,
 };
 

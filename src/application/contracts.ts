@@ -1,5 +1,6 @@
 import type {
   Product,
+  ProductCategory,
   ProductImage,
   ProductImageInput,
   ProductInput,
@@ -39,6 +40,11 @@ export interface ProductRepository {
   addImage(productId: string, input: ProductImageInput): Promise<ProductImage>;
   removeImage(imageId: string): Promise<void>;
   updateImageOrder(productId: string, orderedImageIds: string[]): Promise<void>;
+  listCategories(): Promise<ProductCategory[]>;
+  replaceProductCategories(
+    productId: string,
+    categoryNames: string[],
+  ): Promise<ProductCategory[]>;
 }
 
 export interface MediaStorage {

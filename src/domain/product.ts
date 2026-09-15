@@ -6,6 +6,12 @@ export type ProductImage = {
   sortOrder: number;
 };
 
+export type ProductCategory = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -14,6 +20,7 @@ export type Product = {
   price?: number;
   images: string[];
   imageRecords?: ProductImage[];
+  categories: ProductCategory[];
   isActive: boolean;
   sortOrder?: number;
   createdAt?: string;
@@ -50,6 +57,43 @@ export const normalizeSearch = (value: string) =>
     .replace(/\p{Diacritic}/gu, "")
     .toLowerCase()
     .trim();
+
+export const normalizeCategoryName = (value: string) =>
+  value.trim().replace(/\s+/g, " ");
+
+export const categorySlug = (value: string) =>
+  normalizeSearch(value)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+export const createProductCategory = (name: string): ProductCategory | null => {
+  const normalizedName = normalizeCategoryName(name);
+  const slug = categorySlug(normalizedName);
+
+  if (!normalizedName || !slug) {
+    return null;
+  }
+
+  return {
+    id: slug,
+    name: normalizedName,
+    slug,
+  };
+};
+
+export const dedupeCategoryNames = (names: string[]) => {
+  const deduped = new Map<string, string>();
+
+  names.forEach((name) => {
+    const category = createProductCategory(name);
+
+    if (category && !deduped.has(category.slug)) {
+      deduped.set(category.slug, category.name);
+    }
+  });
+
+  return [...deduped.values()];
+};
 
 export const onlyActiveProducts = (products: Product[]) =>
   products.filter((product) => product.isActive);

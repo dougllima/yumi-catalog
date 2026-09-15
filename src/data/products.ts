@@ -1,8 +1,12 @@
-import type { Product } from "../domain/product";
+import type { Product, ProductCategory } from "../domain/product";
+import { createProductCategory } from "../domain/product";
 
 export type { Product } from "../domain/product";
 
-type ProductSeed = Omit<Product, "images" | "imageRecords" | "isActive"> & {
+type ProductSeed = Omit<
+  Product,
+  "categories" | "images" | "imageRecords" | "isActive"
+> & {
   imageFolder?: string;
   isActive?: boolean;
 };
@@ -155,7 +159,56 @@ const productImagePaths: Record<string, string[]> = {
   vaso: img("vaso", "01.jpeg", "02.jpeg"),
 };
 
+const productCategoryNames: Record<string, string[]> = {
+  "aparador-de-livro-dragao": ["Livros", "Geek", "Decoração"],
+  "caixa-de-dados-p": ["Games", "Organização"],
+  "caixa-polaroid": ["Fotos", "Organização"],
+  "chaveiro-calendario": ["Chaveiros"],
+  "chaveiro-cartinha": ["Chaveiros"],
+  "chaveiro-yumi": ["Chaveiros"],
+  "enfeite-home-m": ["Casa", "Decoração"],
+  "figure-balrog": ["Figures", "Geek"],
+  "figure-frieren": ["Figures", "Geek"],
+  "figure-legolas-ogro": ["Figures", "Geek"],
+  "fruta-one-piece": ["Geek", "Decoração"],
+  "jogo-equilibrio": ["Games", "Infantil"],
+  "kit-monster-v1": ["Geek", "Decoração"],
+  "kit-porta-copos-flor": ["Casa", "Porta-copos"],
+  "kit-mini-prendedores-10": ["Organização", "Casa"],
+  "marca-pagina-gatinho": ["Livros", "Pets"],
+  "organizador-magic": ["Games", "Organização"],
+  "porta-celular-stars": ["Geek", "Organização"],
+  "porta-copo-gatinho-batman": ["Porta-copos", "Geek"],
+  "porta-copos-costela-de-adao": ["Porta-copos", "Casa"],
+  "porta-copos-planta": ["Porta-copos", "Casa"],
+  "porta-cotonete": ["Organização", "Casa"],
+  "porta-guardanapo-costela-de-adao": ["Casa"],
+  "porta-incenso-gato": ["Casa", "Pets"],
+  "porta-joias": ["Organização", "Casa"],
+  "porta-maquiagem": ["Organização", "Casa"],
+  "kit-porta-polaroid-coracao-5": ["Fotos"],
+  "kit-porta-polaroid-coracao-10": ["Fotos"],
+  "porta-remedios-umbrella": ["Organização", "Geek"],
+  "separador-de-livro-dragao": ["Livros", "Geek"],
+  "suporte-para-2-controles": ["Games", "Organização"],
+  "suporte-para-3-controles": ["Games", "Organização"],
+  "suporte-controle-gengar": ["Games", "Geek"],
+  "suporte-de-chave-mario": ["Geek", "Casa"],
+  "suporte-oculos-gatinho": ["Organização", "Pets"],
+  "suporte-livro-darth-vader": ["Livros", "Geek"],
+  "tampa-caneca-chapeu-seletor": ["Geek", "Casa"],
+  "trono-de-ferro": ["Geek", "Decoração"],
+  vaso: ["Casa", "Decoração"],
+  "caixa-uno": ["Games", "Organização"],
+  "quadro-reforco-infantil": ["Infantil"],
+};
+
 const productImages = (folder: string) => productImagePaths[folder] ?? [];
+
+const productCategories = (productId: string): ProductCategory[] =>
+  (productCategoryNames[productId] ?? [])
+    .map(createProductCategory)
+    .filter((category): category is ProductCategory => Boolean(category));
 
 const productSeeds: ProductSeed[] = [
   {
@@ -425,6 +478,7 @@ export const products: Product[] = productSeeds.map(
     ...product,
     isActive: product.isActive ?? true,
     images: productImages(imageFolder ?? product.id),
+    categories: productCategories(product.id),
     imageRecords: productImages(imageFolder ?? product.id).map(
       (url, index) => ({
         id: `${product.id}-${index}`,

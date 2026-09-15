@@ -18,6 +18,7 @@ const makeProduct = (index: number): Product => ({
   description: `Descricao ${index}`,
   price: index,
   images: [`/products/product-${index}/01.webp`],
+  categories: [],
   isActive: true,
 });
 

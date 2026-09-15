@@ -6,10 +6,19 @@ import {
   LogOut,
   Plus,
   Save,
+  Tag,
   Trash2,
   Upload,
+  X,
 } from "lucide-react";
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  KeyboardEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import {
   authService,
@@ -19,7 +28,14 @@ import {
 } from "@/application/dependencies";
 import { Button } from "@/components/ui/button";
 import type { Product, ProductImage } from "@/domain/product";
-import { normalizeSearch, reaisToCents } from "@/domain/product";
+import {
+  categorySlug,
+  createProductCategory,
+  dedupeCategoryNames,
+  normalizeCategoryName,
+  normalizeSearch,
+  reaisToCents,
+} from "@/domain/product";
 
 type ProductFormState = {
   id: string;
@@ -27,6 +43,7 @@ type ProductFormState = {
   description: string;
   weight: string;
   price: string;
+  categoryNames: string[];
   isActive: boolean;
 };
 
@@ -36,6 +53,7 @@ const emptyForm: ProductFormState = {
   description: "",
   weight: "",
   price: "",
+  categoryNames: [],
   isActive: true,
 };
 
@@ -64,13 +82,16 @@ const toFormState = (product: Product): ProductFormState => ({
   description: product.description ?? "",
   weight: formatNumberInput(product.weight),
   price: formatNumberInput(product.price),
+  categoryNames: product.categories.map((category) => category.name),
   isActive: product.isActive,
 });
 
 export function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [allCategories, setAllCategories] = useState<Product["categories"]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [form, setForm] = useState<ProductFormState>(emptyForm);
+  const [categoryDraft, setCategoryDraft] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -88,18 +109,64 @@ export function AdminProductsPage() {
       return products;
     }
 
-    return products.filter((product) =>
-      normalizeSearch(product.name).includes(normalized),
-    );
+    return products.filter((product) => {
+      const searchable = [
+        product.name,
+        product.description,
+        ...product.categories.map((category) => category.name),
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      return normalizeSearch(searchable).includes(normalized);
+    });
   }, [products, searchTerm]);
+
+  const selectedCategorySlugs = useMemo(
+    () => new Set(form.categoryNames.map(categorySlug).filter(Boolean)),
+    [form.categoryNames],
+  );
+
+  const categorySuggestions = useMemo(() => {
+    const normalizedDraft = normalizeSearch(categoryDraft);
+    const draftSlug = categorySlug(categoryDraft);
+
+    return allCategories
+      .filter((category) => !selectedCategorySlugs.has(category.slug))
+      .filter((category) => {
+        if (!normalizedDraft && !draftSlug) {
+          return true;
+        }
+
+        return (
+          normalizeSearch(category.name).includes(normalizedDraft) ||
+          category.slug.includes(draftSlug)
+        );
+      })
+      .slice(0, 6);
+  }, [allCategories, categoryDraft, selectedCategorySlugs]);
+
+  const categoryDraftValue = normalizeCategoryName(categoryDraft);
+  const categoryDraftSlug = categorySlug(categoryDraftValue);
+  const existingCategoryForDraft = allCategories.find(
+    (category) => category.slug === categoryDraftSlug,
+  );
+  const canCreateCategory =
+    Boolean(categoryDraftSlug) &&
+    !existingCategoryForDraft &&
+    !selectedCategorySlugs.has(categoryDraftSlug);
 
   const loadProducts = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const loadedProducts = await productRepository.listAll();
+      const [loadedProducts, loadedCategories] = await Promise.all([
+        productRepository.listAll(),
+        productRepository.listCategories(),
+      ]);
       setProducts(loadedProducts);
+      setAllCategories(loadedCategories);
       return loadedProducts;
     } catch (unknownError) {
       setError(
@@ -124,6 +191,7 @@ export function AdminProductsPage() {
   const startNewProduct = () => {
     setSelectedId(null);
     setForm(emptyForm);
+    setCategoryDraft("");
     setFiles([]);
     setMessage(null);
     setError(null);
@@ -152,6 +220,51 @@ export function AdminProductsPage() {
     setFiles(Array.from(event.target.files ?? []));
   };
 
+  const addCategory = (name: string) => {
+    const category = createProductCategory(name);
+
+    if (!category || selectedCategorySlugs.has(category.slug)) {
+      setCategoryDraft("");
+      return;
+    }
+
+    const existingCategory =
+      allCategories.find((item) => item.slug === category.slug) ?? category;
+
+    setForm((current) => ({
+      ...current,
+      categoryNames: dedupeCategoryNames([
+        ...current.categoryNames,
+        existingCategory.name,
+      ]),
+    }));
+    setCategoryDraft("");
+  };
+
+  const removeCategory = (slug: string) => {
+    setForm((current) => ({
+      ...current,
+      categoryNames: current.categoryNames.filter(
+        (categoryName) => categorySlug(categoryName) !== slug,
+      ),
+    }));
+  };
+
+  const handleCategoryKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    event.preventDefault();
+
+    const categoryToAdd =
+      categorySuggestions[0]?.name ??
+      existingCategoryForDraft?.name ??
+      categoryDraftValue;
+
+    addCategory(categoryToAdd);
+  };
+
   const handleSave = async (event: FormEvent) => {
     event.preventDefault();
     setSaving(true);
@@ -174,6 +287,11 @@ export function AdminProductsPage() {
         throw new Error("Peso e preço precisam ser números válidos.");
       }
 
+      const categoryNames = dedupeCategoryNames([
+        ...form.categoryNames,
+        existingCategoryForDraft?.name ?? categoryDraftValue,
+      ]);
+
       const savedProduct = selectedProduct
         ? await productRepository.update(selectedProduct.id, {
             name: form.name,
@@ -191,6 +309,11 @@ export function AdminProductsPage() {
             priceInCents: reaisToCents(price),
             isActive: form.isActive,
           });
+
+      const savedCategories = await productRepository.replaceProductCategories(
+        savedProduct.id,
+        categoryNames,
+      );
 
       if (files.length > 0) {
         const initialSortOrder =
@@ -212,6 +335,7 @@ export function AdminProductsPage() {
 
       const reloadedProducts = await loadProducts();
       setSelectedId(savedProduct.id);
+      setCategoryDraft("");
       setFiles([]);
       setMessage("Produto salvo com sucesso.");
 
@@ -219,9 +343,16 @@ export function AdminProductsPage() {
         (product) => product.id === savedProduct.id,
       );
 
-      if (reloadedProduct) {
-        setForm(toFormState(reloadedProduct));
-      }
+      setForm(
+        toFormState(
+          reloadedProduct
+            ? reloadedProduct
+            : {
+                ...savedProduct,
+                categories: savedCategories,
+              },
+        ),
+      );
     } catch (unknownError) {
       setError(
         unknownError instanceof Error
@@ -433,6 +564,7 @@ export function AdminProductsPage() {
                     onClick={() => {
                       setSelectedId(product.id);
                       setForm(toFormState(product));
+                      setCategoryDraft("");
                       setFiles([]);
                       setMessage(null);
                       setError(null);
@@ -533,6 +665,85 @@ export function AdminProductsPage() {
                 Visível no catálogo
               </label>
             </div>
+
+            <section className="grid gap-3 rounded-2xl border bg-background/45 p-4">
+              <div className="flex items-center gap-2">
+                <Tag className="size-4 text-primary" aria-hidden="true" />
+                <h2 className="font-display text-2xl font-semibold">
+                  Categorias
+                </h2>
+              </div>
+
+              {form.categoryNames.length > 0 && (
+                <div
+                  className="flex flex-wrap gap-2"
+                  aria-label="Categorias selecionadas"
+                >
+                  {form.categoryNames.map((categoryName) => {
+                    const slug = categorySlug(categoryName);
+
+                    return (
+                      <span
+                        key={slug}
+                        className="inline-flex min-h-8 items-center gap-1 rounded-full border bg-card px-3 py-1 text-sm font-extrabold"
+                      >
+                        {categoryName}
+                        <button
+                          type="button"
+                          className="grid size-5 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/12 hover:text-destructive focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                          onClick={() => removeCategory(slug)}
+                          aria-label={`Remover categoria ${categoryName}`}
+                        >
+                          <X className="size-3.5" aria-hidden="true" />
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+
+              <label className="grid gap-2 text-sm font-extrabold">
+                Adicionar categoria
+                <input
+                  data-testid="admin-product-category-input"
+                  value={categoryDraft}
+                  onChange={(event) => setCategoryDraft(event.target.value)}
+                  onKeyDown={handleCategoryKeyDown}
+                  placeholder="Digite e pressione Enter..."
+                  className="h-10 rounded-full border bg-background/70 px-4 font-semibold outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                />
+              </label>
+
+              {(categorySuggestions.length > 0 || canCreateCategory) && (
+                <div className="flex flex-wrap gap-2">
+                  {categorySuggestions.map((category) => (
+                    <Button
+                      key={category.id}
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="rounded-full"
+                      onClick={() => addCategory(category.name)}
+                    >
+                      <Tag aria-hidden="true" />
+                      {category.name}
+                    </Button>
+                  ))}
+                  {canCreateCategory && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full"
+                      onClick={() => addCategory(categoryDraftValue)}
+                    >
+                      <Plus aria-hidden="true" />
+                      Criar "{categoryDraftValue}"
+                    </Button>
+                  )}
+                </div>
+              )}
+            </section>
 
             <section className="grid gap-3 rounded-2xl border bg-background/45 p-4">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

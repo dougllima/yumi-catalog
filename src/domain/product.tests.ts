@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  categorySlug,
   centsToReais,
+  createProductCategory,
+  dedupeCategoryNames,
   normalizeSearch,
   onlyActiveProducts,
   type Product,
@@ -20,12 +23,14 @@ describe("product domain helpers", () => {
         id: "active",
         name: "Produto ativo",
         images: [],
+        categories: [],
         isActive: true,
       },
       {
         id: "inactive",
         name: "Produto inativo",
         images: [],
+        categories: [],
         isActive: false,
       },
     ];
@@ -36,5 +41,22 @@ describe("product domain helpers", () => {
 
   it("normalizes searches with accents", () => {
     expect(normalizeSearch("Porta Jóias")).toContain("joias");
+  });
+
+  it("creates stable category slugs from accents, casing, and spacing", () => {
+    expect(categorySlug(" Decoração ")).toBe("decoracao");
+    expect(categorySlug("decoracao")).toBe("decoracao");
+    expect(categorySlug("DECORAÇÃO")).toBe("decoracao");
+  });
+
+  it("deduplicates category names by normalized slug", () => {
+    expect(
+      dedupeCategoryNames([" Decoração ", "decoracao", "Geek", "geek"]),
+    ).toEqual(["Decoração", "Geek"]);
+  });
+
+  it("does not create empty category records", () => {
+    expect(createProductCategory("   ")).toBeNull();
+    expect(createProductCategory("!!!")).toBeNull();
   });
 });

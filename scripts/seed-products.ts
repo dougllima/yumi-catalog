@@ -82,6 +82,70 @@ for (const [sortOrder, product] of products.entries()) {
     throw new Error(`Erro ao salvar ${product.id}: ${productError.message}`);
   }
 
+  if (product.categories.length > 0) {
+    const { error: categoryError } = await supabase.from("categories").upsert(
+      product.categories.map((category) => ({
+        name: category.name,
+        slug: category.slug,
+      })),
+      {
+        onConflict: "slug",
+        ignoreDuplicates: true,
+      },
+    );
+
+    if (categoryError) {
+      throw new Error(
+        `Erro ao salvar categorias de ${product.id}: ${categoryError.message}`,
+      );
+    }
+
+    const { data: categoryRows, error: categoryListError } = await supabase
+      .from("categories")
+      .select("id, slug")
+      .in(
+        "slug",
+        product.categories.map((category) => category.slug),
+      );
+
+    if (categoryListError) {
+      throw new Error(
+        `Erro ao listar categorias de ${product.id}: ${categoryListError.message}`,
+      );
+    }
+
+    const categoryIdBySlug = new Map(
+      (categoryRows ?? []).map((category) => [category.slug, category.id]),
+    );
+
+    const { error: productCategoryError } = await supabase
+      .from("product_categories")
+      .upsert(
+        product.categories.flatMap((category) => {
+          const categoryId = categoryIdBySlug.get(category.slug);
+
+          return categoryId
+            ? [
+                {
+                  product_id: product.id,
+                  category_id: categoryId,
+                },
+              ]
+            : [];
+        }),
+        {
+          onConflict: "product_id,category_id",
+          ignoreDuplicates: true,
+        },
+      );
+
+    if (productCategoryError) {
+      throw new Error(
+        `Erro ao associar categorias de ${product.id}: ${productCategoryError.message}`,
+      );
+    }
+  }
+
   for (const [index, imageUrl] of product.images.entries()) {
     const localPath = path.join(process.cwd(), "public", imageUrl);
 

@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mediaStorage, productRepository } from "@/application/dependencies";
-import type { Product } from "@/domain/product";
+import type { Product, ProductCategory } from "@/domain/product";
 import { AdminProductsPage } from "@/pages/admin/AdminProductsPage";
 
 vi.mock("@/application/dependencies", () => ({
@@ -16,12 +16,14 @@ vi.mock("@/application/dependencies", () => ({
   },
   productRepository: {
     listAll: vi.fn(),
+    listCategories: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
     addImage: vi.fn(),
     removeImage: vi.fn(),
     updateImageOrder: vi.fn(),
+    replaceProductCategories: vi.fn(),
   },
   runtimeBackend: "supabase",
 }));
@@ -29,11 +31,18 @@ vi.mock("@/application/dependencies", () => ({
 const mockedProductRepository = vi.mocked(productRepository);
 const mockedMediaStorage = vi.mocked(mediaStorage);
 
+const decoracaoCategory: ProductCategory = {
+  id: "category-decoracao",
+  name: "Decoração",
+  slug: "decoracao",
+};
+
 const makeProduct = (overrides: Partial<Product>): Product => ({
   id: "produto",
   name: "Produto",
   images: [],
   imageRecords: [],
+  categories: [],
   isActive: true,
   ...overrides,
 });
@@ -41,14 +50,18 @@ const makeProduct = (overrides: Partial<Product>): Product => ({
 describe("AdminProductsPage", () => {
   beforeEach(() => {
     mockedProductRepository.listAll.mockReset();
+    mockedProductRepository.listCategories.mockReset();
     mockedProductRepository.create.mockReset();
     mockedProductRepository.update.mockReset();
     mockedProductRepository.delete.mockReset();
     mockedProductRepository.addImage.mockReset();
     mockedProductRepository.removeImage.mockReset();
     mockedProductRepository.updateImageOrder.mockReset();
+    mockedProductRepository.replaceProductCategories.mockReset();
     mockedMediaStorage.uploadProductImage.mockReset();
     mockedMediaStorage.remove.mockReset();
+    mockedProductRepository.listCategories.mockResolvedValue([]);
+    mockedProductRepository.replaceProductCategories.mockResolvedValue([]);
   });
 
   it("loads products, filters the admin list, and populates the edit form", async () => {
@@ -90,6 +103,7 @@ describe("AdminProductsPage", () => {
       description: "",
       weight: 12.5,
       price: 19.9,
+      categories: [decoracaoCategory],
     });
     const file = new File(["image"], "mini-box.webp", {
       type: "image/webp",
@@ -98,7 +112,13 @@ describe("AdminProductsPage", () => {
     mockedProductRepository.listAll
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([savedProduct]);
+    mockedProductRepository.listCategories.mockResolvedValue([
+      decoracaoCategory,
+    ]);
     mockedProductRepository.create.mockResolvedValueOnce(savedProduct);
+    mockedProductRepository.replaceProductCategories.mockResolvedValueOnce([
+      decoracaoCategory,
+    ]);
     mockedMediaStorage.uploadProductImage.mockResolvedValueOnce({
       storagePath: "mini-box/mini-box.webp",
       publicUrl: "https://storage.local/mini-box.webp",
@@ -128,6 +148,10 @@ describe("AdminProductsPage", () => {
     );
     await user.type(screen.getByTestId("admin-product-weight-input"), "12,5");
     await user.type(screen.getByTestId("admin-product-price-input"), "19,90");
+    await user.type(
+      screen.getByTestId("admin-product-category-input"),
+      "decoracao{Enter}",
+    );
     await user.upload(screen.getByTestId("admin-product-images-input"), file);
     await user.click(screen.getByRole("button", { name: /Salvar produto/ }));
 
@@ -141,6 +165,9 @@ describe("AdminProductsPage", () => {
         isActive: true,
       }),
     );
+    expect(
+      mockedProductRepository.replaceProductCategories,
+    ).toHaveBeenCalledWith("mini-box", ["Decoração"]);
     expect(mockedMediaStorage.uploadProductImage).toHaveBeenCalledWith(
       "mini-box",
       file,
@@ -153,5 +180,49 @@ describe("AdminProductsPage", () => {
     expect(
       await screen.findByText("Produto salvo com sucesso."),
     ).toBeInTheDocument();
+  });
+
+  it("shows existing categories and removes selected categories in the form", async () => {
+    const user = userEvent.setup();
+    mockedProductRepository.listAll.mockResolvedValue([
+      makeProduct({
+        id: "porta-joias",
+        name: "Porta Joias",
+        categories: [decoracaoCategory],
+      }),
+    ]);
+    mockedProductRepository.listCategories.mockResolvedValue([
+      decoracaoCategory,
+      {
+        id: "category-geek",
+        name: "Geek",
+        slug: "geek",
+      },
+    ]);
+
+    render(<AdminProductsPage />);
+
+    await user.click(
+      await screen.findByRole("button", { name: /Porta Joias/ }),
+    );
+
+    expect(screen.getByLabelText("Categorias selecionadas")).toHaveTextContent(
+      "Decoração",
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Remover categoria Decoração" }),
+    );
+
+    expect(
+      screen.queryByLabelText("Categorias selecionadas"),
+    ).not.toBeInTheDocument();
+
+    await user.type(screen.getByTestId("admin-product-category-input"), "gee");
+    await user.click(screen.getByRole("button", { name: /Geek/ }));
+
+    expect(screen.getByLabelText("Categorias selecionadas")).toHaveTextContent(
+      "Geek",
+    );
   });
 });

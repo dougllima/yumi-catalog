@@ -34,6 +34,7 @@ O estado implementado e versionado inclui:
 - Supabase como provider de banco, Auth e Storage;
 - abstrações internas para evitar dependência direta do provider na UI;
 - persistência de produtos e imagens;
+- persistência de categorias e associações produto-categoria;
 - autenticação administrativa;
 - autorização via RLS/policies;
 - seed dos produtos estáticos existentes;
@@ -239,6 +240,15 @@ Fallbacks estáticos reais:
 - `StaticAuthService`;
 - `StaticMediaStorage`.
 
+O `ProductRepository` concentra as operações atuais de catálogo, incluindo:
+
+- listagem pública e administrativa de produtos;
+- leitura por identificador;
+- criação, edição e exclusão de produtos;
+- inclusão, remoção e ordenação de imagens;
+- listagem de categorias existentes;
+- substituição das categorias associadas a um produto.
+
 Não transformar essa separação em Clean Architecture cerimonial.
 
 Não introduzir sem necessidade concreta:
@@ -286,8 +296,12 @@ Ele não deve se tornar uma segunda fonte de verdade permanente para produção 
 No fallback estático:
 
 - `listPublished`, `listAll` e `getById` leem `src/data/products.ts`;
+- produtos estáticos incluem categorias derivadas do mapa
+  `productCategoryNames`;
+- `listCategories` deduplica e ordena as categorias presentes no fallback;
 - produtos inativos são filtrados do catálogo público;
 - operações de escrita em produtos lançam erro de configuração;
+- alteração de categorias de produto lança erro de configuração;
 - login administrativo retorna erro de configuração;
 - upload/remoção de imagens retorna erro de configuração.
 
@@ -371,6 +385,66 @@ Constraint versionada:
 - `product_images_storage_path_not_blank`:
   `length(trim(storage_path)) > 0`.
 
+### `categories`
+
+Cadastro leve das categorias reutilizáveis de produto.
+
+Campos documentados:
+
+- `id`: UUID gerado no banco;
+- `name`: nome exibido na UI;
+- `slug`: chave normalizada e única;
+- `created_at`;
+- `updated_at`.
+
+O slug é gerado pela aplicação a partir do nome, removendo acentos, normalizando
+caixa e substituindo separadores por hífen. Exemplos como `Decoração`,
+`decoração` e `decoracao` devem resolver para o mesmo slug `decoracao`.
+
+Schema versionado em `202609140001_add_product_categories.sql`:
+
+```text
+id uuid primary key default gen_random_uuid()
+name text not null
+slug text not null unique
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+```
+
+Constraints versionadas:
+
+- `categories_name_not_blank`: `length(trim(name)) > 0`;
+- `categories_slug_not_blank`: `length(trim(slug)) > 0`;
+- `categories_slug_format`: slug em letras minúsculas, números e hífens.
+
+Trigger versionado:
+
+- `categories_set_updated_at`, executado antes de `update`, chama
+  `public.set_updated_at()`.
+
+### `product_categories`
+
+Associação many-to-many entre produtos e categorias.
+
+Campos documentados:
+
+- `product_id`: produto associado;
+- `category_id`: categoria associada;
+- `created_at`.
+
+Schema versionado em `202609140001_add_product_categories.sql`:
+
+```text
+product_id text not null references public.products(id) on delete cascade
+category_id uuid not null references public.categories(id) on delete cascade
+created_at timestamptz not null default now()
+primary key (product_id, category_id)
+```
+
+Índice versionado:
+
+- `product_categories_category_id_idx` em `category_id`.
+
 ### `admin_users`
 
 Lista explícita de usuários autorizados a administrar o sistema.
@@ -392,16 +466,22 @@ Tipos reais em `src/domain/product.ts`:
 
 - `ProductImage`: `id`, `url`, `storagePath?`, `altText?`, `sortOrder`;
 - `Product`: `id`, `name`, `description?`, `weight?`, `price?`, `images`,
-  `imageRecords?`, `isActive`, `sortOrder?`, `createdAt?`, `updatedAt?`;
+  `imageRecords?`, `categories`, `isActive`, `sortOrder?`, `createdAt?`,
+  `updatedAt?`;
 - `ProductInput`: `id?`, `name`, `description?`, `weight?`, `priceInCents?`,
   `isActive`, `sortOrder?`;
 - `ProductImageInput`: `storagePath`, `altText?`, `sortOrder`.
+- `ProductCategory`: `id`, `name`, `slug`;
 
 Conversões reais:
 
 - `reaisToCents`;
 - `centsToReais`;
 - `normalizeSearch`;
+- `normalizeCategoryName`;
+- `categorySlug`;
+- `createProductCategory`;
+- `dedupeCategoryNames`;
 - `onlyActiveProducts`.
 
 ---
@@ -421,41 +501,6 @@ Quando essa feature for implementada, documentar aqui:
 - forma de conclusão da revisão;
 - impacto em queries e listagens administrativas.
 
-O contexto funcional também possui o conceito de categorias de produto.
-
-Esse conceito ainda não aparece no modelo persistente, nos contracts, nos
-adapters ou na UI documentados acima.
-
-Decisão técnica consolidada para a futura implementação:
-
-- produto poderá ter zero, uma ou múltiplas categorias;
-- categorias serão modeladas de forma normalizada, com entidade própria e tabela
-  de associação entre produtos e categorias;
-- a categoria terá nome exibido e slug normalizado;
-- o slug será único e deve ser derivado de forma estável para evitar duplicatas
-  evidentes por variação de acento, caixa ou espaçamento;
-- exemplos como `Decoração`, `decoração` e `decoracao` devem resolver para a
-  mesma categoria técnica;
-- a UI administrativa poderá criar categorias a partir do formulário de produto,
-  mas não haverá tela dedicada de gestão de categorias nesta etapa;
-- o autocomplete administrativo deve listar todas as categorias existentes,
-  inclusive categorias associadas apenas a produtos inativos;
-- o catálogo público deve listar como filtro apenas categorias associadas a
-  produtos ativos;
-- a busca pública de produtos deve considerar categorias além dos demais textos
-  relevantes do produto;
-- categorias não participam de precificação, materiais, componentes de custo ou
-  criação/fabricação de peças.
-
-Quando essa feature for implementada, documentar aqui:
-
-- migrations reais criadas para categorias e associações;
-- constraints, índices, RLS e policies;
-- representação adotada nos tipos de domínio;
-- alterações reais nos contracts e adapters;
-- comportamento real do fallback estático;
-- impacto em seed/import.
-
 ---
 
 ## Banco e migrations
@@ -473,6 +518,7 @@ As migrations versionadas atuais são:
 ```text
 supabase/migrations/202609080001_init_products_admin.sql
 supabase/migrations/202609080002_seed_products_from_static_data.sql
+supabase/migrations/202609140001_add_product_categories.sql
 ```
 
 A migration `202609080001_init_products_admin.sql` estabelece:
@@ -516,8 +562,32 @@ A migration `202609080002_seed_products_from_static_data.sql` faz upsert de
 produtos em `public.products`. Ela não registra metadados em `product_images` e
 não envia arquivos ao Storage.
 
-Não há índices explícitos versionados além dos índices criados implicitamente
-por primary keys, unique constraints e foreign keys.
+A migration `202609140001_add_product_categories.sql` estabelece:
+
+- tabelas `public.categories` e `public.product_categories`;
+- primary keys, foreign keys e unique constraint descritas no modelo de dados;
+- índice `product_categories_category_id_idx`;
+- constraints de nome, slug obrigatório e formato do slug;
+- trigger `categories_set_updated_at`;
+- RLS habilitado em `categories` e `product_categories`;
+- grants mínimos para leitura pública/autenticada e escrita autenticada
+  protegida por policies;
+- seed inicial das categorias e associações equivalentes ao fallback estático.
+
+Policies versionadas para categorias:
+
+- `categories_public_can_read_active_product_categories`;
+- `categories_admin_can_insert`;
+- `categories_admin_can_update`;
+- `categories_admin_can_delete`;
+- `product_categories_public_can_read_active_products`;
+- `product_categories_admin_can_insert`;
+- `product_categories_admin_can_update`;
+- `product_categories_admin_can_delete`.
+
+Índices explícitos versionados:
+
+- `product_categories_category_id_idx`.
 
 Quando aplicável, alterações futuras devem versionar por migration:
 
@@ -559,13 +629,17 @@ Pode:
 
 - consultar apenas produtos com `active = true`;
 - consultar metadados/imagens necessárias desses produtos;
+- consultar categorias associadas a produtos ativos;
 - acessar arquivos públicos necessários ao catálogo.
 
 Não pode:
 
 - criar produtos;
+- criar categorias;
 - editar produtos;
+- editar categorias;
 - excluir produtos;
+- excluir categorias;
 - realizar upload;
 - alterar ou remover mídia;
 - executar operações administrativas.
@@ -579,6 +653,10 @@ Autenticação, por si só, não concede permissão administrativa.
 ### Administrador
 
 Somente usuários autorizados em `admin_users` podem executar operações administrativas permitidas pelas policies.
+
+Administradores podem listar todas as categorias existentes, inclusive categorias
+associadas apenas a produtos inativos, para evitar recadastro desnecessário no
+formulário de produto.
 
 ### Storage
 
@@ -626,6 +704,43 @@ Como essa configuração vive no provider, ela precisa ser confirmada operaciona
 
 ---
 
+## Categorias de produto
+
+Categorias são persistidas como entidade própria e associadas aos produtos por
+`product_categories`.
+
+A aplicação usa `ProductCategory` no modelo de domínio e sempre entrega
+`categories` dentro de `Product`.
+
+Comportamento implementado:
+
+- o catálogo público deriva a lista de filtros a partir dos produtos publicados,
+  portanto exibe apenas categorias de produtos ativos;
+- a busca pública em `/produtos` considera nome, descrição, nome de categoria e
+  slug de categoria;
+- a página de produto exibe as categorias associadas;
+- os cards de listagem exibem até duas categorias de forma discreta;
+- o formulário administrativo permite selecionar categorias existentes por
+  sugestão, criar novas categorias pelo campo de produto e remover categorias do
+  produto;
+- o admin lista todas as categorias existentes via `listCategories`, inclusive
+  categorias associadas apenas a produtos inativos;
+- não existe tela dedicada para gestão, renomeação ou exclusão de categorias.
+
+A substituição das categorias de um produto ocorre por
+`replaceProductCategories(productId, categoryNames)`. O adapter Supabase:
+
+1. normaliza e deduplica nomes por slug;
+2. cria categorias ausentes com `upsert` por `slug`;
+3. busca as categorias efetivas;
+4. remove as associações atuais do produto;
+5. insere o novo conjunto de associações.
+
+O slug é a barreira técnica contra duplicatas evidentes como `Decoração`,
+`decoração` e `decoracao`.
+
+---
+
 ## Imagens e Storage
 
 Imagens de produto devem ser administráveis sem alteração de código.
@@ -670,6 +785,8 @@ O script:
 - importa `src/data/products.ts`;
 - faz upsert por `id`;
 - converte `price` em reais para `price_cents`;
+- cria categorias ausentes a partir de `product.categories`;
+- associa categorias aos produtos sem duplicar associações já existentes;
 - tenta enviar imagens locais referenciadas em `src/data/products.ts` para o
   bucket `product-images`;
 - registra imagens por `storage_path`;
@@ -684,7 +801,8 @@ No checkpoint atual do repositório, não há arquivos versionados em
 `public/products/`, e isso está alinhado à decisão de usar Supabase Storage como
 fonte oficial das imagens.
 
-O processo não apaga automaticamente produtos ou imagens que já existam no Supabase e tenham sido removidos da fonte estática.
+O processo não apaga automaticamente produtos, categorias, associações ou imagens
+que já existam no Supabase e tenham sido removidos da fonte estática.
 
 Essa decisão evita perda acidental durante a migração.
 

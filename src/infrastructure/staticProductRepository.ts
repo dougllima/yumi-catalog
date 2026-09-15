@@ -2,6 +2,7 @@ import type { ProductRepository } from "@/application/contracts";
 import { products as staticProducts } from "@/data/products";
 import type {
   Product,
+  ProductCategory,
   ProductImage,
   ProductImageInput,
   ProductInput,
@@ -68,6 +69,29 @@ export class StaticProductRepository implements ProductRepository {
   ): Promise<void> {
     void productId;
     void orderedImageIds;
+    throw notConfigured();
+  }
+
+  async listCategories(): Promise<ProductCategory[]> {
+    const categories = new Map<string, ProductCategory>();
+
+    staticProducts.forEach((product) => {
+      product.categories.forEach((category) => {
+        categories.set(category.slug, category);
+      });
+    });
+
+    return [...categories.values()].sort((left, right) =>
+      left.name.localeCompare(right.name, "pt-BR"),
+    );
+  }
+
+  async replaceProductCategories(
+    productId: string,
+    categoryNames: string[],
+  ): Promise<ProductCategory[]> {
+    void productId;
+    void categoryNames;
     throw notConfigured();
   }
 }

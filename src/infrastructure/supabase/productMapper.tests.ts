@@ -33,6 +33,26 @@ describe("Supabase product mapper", () => {
             sort_order: 0,
           },
         ],
+        product_categories: [
+          {
+            product_id: "porta-joias",
+            category_id: "category-geek",
+            categories: {
+              id: "category-geek",
+              name: "Geek",
+              slug: "geek",
+            },
+          },
+          {
+            product_id: "porta-joias",
+            category_id: "category-organizacao",
+            categories: {
+              id: "category-organizacao",
+              name: "Organização",
+              slug: "organizacao",
+            },
+          },
+        ],
       } satisfies SupabaseProductRow,
       (path) => `https://storage.local/${path}`,
     );
@@ -43,6 +63,10 @@ describe("Supabase product mapper", () => {
     expect(product.images).toEqual([
       "https://storage.local/porta-joias/01.jpeg",
       "https://storage.local/porta-joias/02.jpeg",
+    ]);
+    expect(product.categories.map((category) => category.name)).toEqual([
+      "Geek",
+      "Organização",
     ]);
   });
 

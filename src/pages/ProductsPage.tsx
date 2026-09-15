@@ -12,19 +12,67 @@ const productSkeletons = Array.from({ length: 12 }, (_, index) => index);
 export function ProductsPage() {
   const { products, loading, error } = usePublishedProducts();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState("");
   const normalizedSearchTerm = normalizeSearch(searchTerm);
 
-  const filteredProducts = useMemo(() => {
-    if (!normalizedSearchTerm) {
-      return products;
-    }
+  const categoryFilters = useMemo(() => {
+    const categories = new Map<
+      string,
+      { slug: string; name: string; count: number }
+    >();
 
-    return products.filter((product) =>
-      normalizeSearch(product.name).includes(normalizedSearchTerm),
+    products.forEach((product) => {
+      product.categories.forEach((category) => {
+        const current = categories.get(category.slug);
+
+        categories.set(category.slug, {
+          slug: category.slug,
+          name: current?.name ?? category.name,
+          count: (current?.count ?? 0) + 1,
+        });
+      });
+    });
+
+    return [...categories.values()].sort((left, right) =>
+      left.name.localeCompare(right.name, "pt-BR"),
     );
-  }, [normalizedSearchTerm, products]);
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesCategory =
+        !selectedCategorySlug ||
+        product.categories.some(
+          (category) => category.slug === selectedCategorySlug,
+        );
+
+      if (!matchesCategory) {
+        return false;
+      }
+
+      if (!normalizedSearchTerm) {
+        return true;
+      }
+
+      const searchable = [
+        product.name,
+        product.description,
+        ...product.categories.map((category) => category.name),
+        ...product.categories.map((category) => category.slug),
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      return normalizeSearch(searchable).includes(normalizedSearchTerm);
+    });
+  }, [normalizedSearchTerm, products, selectedCategorySlug]);
 
   const hasSearch = searchTerm.trim().length > 0;
+  const hasCategoryFilter = Boolean(selectedCategorySlug);
+  const selectedCategory = categoryFilters.find(
+    (category) => category.slug === selectedCategorySlug,
+  );
+  const hasFilters = hasSearch || hasCategoryFilter;
   const hasProducts = filteredProducts.length > 0;
 
   return (
@@ -57,7 +105,7 @@ export function ProductsPage() {
                 htmlFor="product-search"
                 className="text-sm font-extrabold text-foreground"
               >
-                Filtrar por nome
+                Buscar no catálogo
               </label>
               <div className="relative">
                 <Search
@@ -70,7 +118,7 @@ export function ProductsPage() {
                   type="search"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
-                  placeholder="Buscar produto..."
+                  placeholder="Nome, descrição ou categoria..."
                   className="h-11 w-full rounded-full border bg-background/70 py-2 pl-10 pr-11 text-sm font-semibold text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 />
                 {hasSearch && (
@@ -80,7 +128,7 @@ export function ProductsPage() {
                     size="icon"
                     className="absolute right-1 top-1/2 size-9 -translate-y-1/2 rounded-full text-muted-foreground hover:text-foreground"
                     onClick={() => setSearchTerm("")}
-                    aria-label="Limpar filtro por nome"
+                    aria-label="Limpar busca"
                   >
                     <X aria-hidden="true" />
                   </Button>
@@ -88,6 +136,41 @@ export function ProductsPage() {
               </div>
             </form>
           </div>
+
+          {categoryFilters.length > 0 && (
+            <div
+              className="flex flex-wrap gap-2"
+              aria-label="Filtrar produtos por categoria"
+            >
+              <Button
+                type="button"
+                variant={!selectedCategorySlug ? "default" : "outline"}
+                size="sm"
+                className="rounded-full"
+                onClick={() => setSelectedCategorySlug("")}
+              >
+                Todas
+              </Button>
+              {categoryFilters.map((category) => (
+                <Button
+                  key={category.slug}
+                  type="button"
+                  data-testid={`products-category-filter-${category.slug}`}
+                  variant={
+                    selectedCategorySlug === category.slug
+                      ? "default"
+                      : "outline"
+                  }
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() => setSelectedCategorySlug(category.slug)}
+                >
+                  {category.name}
+                  <span className="text-xs opacity-75">{category.count}</span>
+                </Button>
+              ))}
+            </div>
+          )}
 
           <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <p>
@@ -99,9 +182,17 @@ export function ProductsPage() {
             </p>
             {hasSearch && (
               <p>
-                Filtro ativo para{" "}
+                Busca ativa para{" "}
                 <strong className="font-extrabold text-primary">
                   {searchTerm.trim()}
+                </strong>
+              </p>
+            )}
+            {selectedCategory && (
+              <p>
+                Categoria{" "}
+                <strong className="font-extrabold text-primary">
+                  {selectedCategory.name}
                 </strong>
               </p>
             )}
@@ -144,16 +235,19 @@ export function ProductsPage() {
                   Nenhum produto encontrado
                 </h2>
                 <p className="text-sm leading-6 text-muted-foreground">
-                  Tente buscar por outro nome ou limpe o filtro para ver o
+                  Tente buscar por outro termo ou limpe os filtros para ver o
                   catálogo completo.
                 </p>
                 <Button
                   type="button"
                   variant="secondary"
                   className="mx-auto rounded-full"
-                  onClick={() => setSearchTerm("")}
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedCategorySlug("");
+                  }}
                 >
-                  Limpar filtro
+                  {hasFilters ? "Limpar filtros" : "Ver catálogo"}
                 </Button>
               </div>
             </div>

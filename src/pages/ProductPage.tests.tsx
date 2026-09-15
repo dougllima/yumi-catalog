@@ -20,6 +20,13 @@ const product: Product = {
   weight: 392,
   price: 130,
   images: ["/products/porta-joias/01.webp"],
+  categories: [
+    {
+      id: "organizacao",
+      name: "Organização",
+      slug: "organizacao",
+    },
+  ],
   isActive: true,
 };
 
@@ -53,6 +60,8 @@ describe("ProductPage", () => {
     expect(screen.getByText("Organizador delicado")).toBeInTheDocument();
     expect(screen.getByText("R$ 130,00")).toBeInTheDocument();
     expect(screen.getByText("392 g")).toBeInTheDocument();
+    expect(screen.getByText("Categorias")).toBeInTheDocument();
+    expect(screen.getByText("Organização")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Falar sobre este produto/ }),
     ).toHaveAttribute("href", contactUrl);

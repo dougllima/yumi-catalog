@@ -11,6 +11,13 @@ const product: Product = {
   description: "Organizador delicado",
   price: 130,
   images: ["/products/porta-joias/01.webp"],
+  categories: [
+    {
+      id: "organizacao",
+      name: "Organização",
+      slug: "organizacao",
+    },
+  ],
   isActive: true,
 };
 
@@ -27,6 +34,7 @@ describe("ProductCard", () => {
     ).toHaveAttribute("href", "/produto/porta-joias");
     expect(screen.getByText("Porta Joias")).toBeInTheDocument();
     expect(screen.getByText("Organizador delicado")).toBeInTheDocument();
+    expect(screen.getByText("Organização")).toBeInTheDocument();
     expect(screen.getByText("R$ 130,00")).toBeInTheDocument();
     expect(screen.getByRole("img")).toHaveAttribute(
       "src",

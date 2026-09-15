@@ -3,11 +3,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { MediaStorage, ProductRepository } from "@/application/contracts";
 import type {
   Product,
+  ProductCategory,
   ProductImageInput,
   ProductInput,
 } from "@/domain/product";
+import { categorySlug, dedupeCategoryNames } from "@/domain/product";
 import {
   mapProductRow,
+  type SupabaseCategoryRow,
   type SupabaseProductImageRow,
   type SupabaseProductRow,
   toProductWriteRow,
@@ -30,6 +33,17 @@ const productSelect = `
     alt_text,
     sort_order,
     created_at
+  ),
+  product_categories (
+    product_id,
+    category_id,
+    categories (
+      id,
+      name,
+      slug,
+      created_at,
+      updated_at
+    )
   )
 `;
 
@@ -182,9 +196,106 @@ export class SupabaseProductRepository implements ProductRepository {
     );
   }
 
+  async listCategories() {
+    const { data, error } = await this.client
+      .from("categories")
+      .select("id, name, slug, created_at, updated_at")
+      .order("name", { ascending: true })
+      .returns<SupabaseCategoryRow[]>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data.map(mapCategoryRow);
+  }
+
+  async replaceProductCategories(productId: string, categoryNames: string[]) {
+    const categoryRecords = await this.ensureCategories(categoryNames);
+
+    const { error: deleteError } = await this.client
+      .from("product_categories")
+      .delete()
+      .eq("product_id", productId);
+
+    if (deleteError) {
+      throw new Error(deleteError.message);
+    }
+
+    if (categoryRecords.length === 0) {
+      return [];
+    }
+
+    const { error: insertError } = await this.client
+      .from("product_categories")
+      .insert(
+        categoryRecords.map((category) => ({
+          product_id: productId,
+          category_id: category.id,
+        })),
+      );
+
+    if (insertError) {
+      throw new Error(insertError.message);
+    }
+
+    return categoryRecords;
+  }
+
   private mapProduct(row: SupabaseProductRow): Product {
     return mapProductRow(row, (storagePath) =>
       this.mediaStorage.getPublicUrl(storagePath),
     );
   }
+
+  private async ensureCategories(categoryNames: string[]) {
+    const names = dedupeCategoryNames(categoryNames);
+    const rows = names
+      .map((name) => ({
+        name,
+        slug: categorySlug(name),
+      }))
+      .filter((category) => category.slug);
+
+    if (rows.length === 0) {
+      return [];
+    }
+
+    const { error: upsertError } = await this.client
+      .from("categories")
+      .upsert(rows, {
+        onConflict: "slug",
+        ignoreDuplicates: true,
+      });
+
+    if (upsertError) {
+      throw new Error(upsertError.message);
+    }
+
+    const { data, error } = await this.client
+      .from("categories")
+      .select("id, name, slug, created_at, updated_at")
+      .in(
+        "slug",
+        rows.map((category) => category.slug),
+      )
+      .returns<SupabaseCategoryRow[]>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const bySlug = new Map(data.map((category) => [category.slug, category]));
+
+    return rows
+      .map((row) => bySlug.get(row.slug))
+      .filter((category): category is SupabaseCategoryRow => Boolean(category))
+      .map(mapCategoryRow);
+  }
 }
+
+const mapCategoryRow = (row: SupabaseCategoryRow): ProductCategory => ({
+  id: row.id,
+  name: row.name,
+  slug: row.slug,
+});

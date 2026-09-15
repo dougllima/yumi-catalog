@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import { ProductGallery } from "@/components/ProductGallery";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Product } from "@/data/products";
+import type { Product } from "@/domain/product";
 import { formatCurrency } from "@/utils/formatters";
 
 type ProductCardProps = {
@@ -16,6 +16,7 @@ export function ProductCard({ product }: ProductCardProps) {
       ? product.price
       : null;
   const hasFooterInfo = price !== null;
+  const visibleCategories = product.categories.slice(0, 2);
 
   return (
     <Card
@@ -35,6 +36,18 @@ export function ProductCard({ product }: ProductCardProps) {
             <h3 className="font-display text-[1.05rem] font-semibold leading-tight tracking-normal">
               {product.name}
             </h3>
+            {visibleCategories.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {visibleCategories.map((category) => (
+                  <span
+                    key={category.slug}
+                    className="rounded-full border bg-background/55 px-2 py-0.5 text-[0.68rem] font-extrabold uppercase leading-none text-muted-foreground"
+                  >
+                    {category.name}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {hasDescription && (
