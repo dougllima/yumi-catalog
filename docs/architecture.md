@@ -931,6 +931,9 @@ Configuração versionada:
 - o workflow cria `dist/404.html` a partir de `dist/index.html` para suportar rotas diretas da SPA no GitHub Pages.
 - o workflow publica `dist` com `actions/upload-pages-artifact@v3` e
   `actions/deploy-pages@v4`.
+- `.github/workflows/check.yml` roda em PRs para `main` e em `workflow_dispatch`.
+  O job `check` executa `npm run check` com `VITE_DATA_PROVIDER=static`.
+- O ruleset da `main` deve exigir o check `check`.
 
 Em **Settings > Pages**, use **GitHub Actions** como fonte da publicação e
 `www.yumistudio3d.com.br` como domínio personalizado.

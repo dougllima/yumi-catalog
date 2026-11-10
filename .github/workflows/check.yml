@@ -1,0 +1,40 @@
+name: Check
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Registrar SHAs no resumo
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          checkout_sha=$(git rev-parse HEAD)
+          printf '### Revisão verificada\n\n- SHA da cabeça da PR: `%s`\n- SHA do checkout: `%s`\n' \
+            "${PR_HEAD_SHA:-não se aplica}" "$checkout_sha" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run check
+        env:
+          VITE_DATA_PROVIDER: static
