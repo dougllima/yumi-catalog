@@ -913,15 +913,15 @@ O frontend permanece desacoplado do provider de hosting no nível da aplicação
 
 O provider documentado atualmente é **GitHub Pages**.
 
-URL documentada:
+URL pública do catálogo
 
 ```text
-https://dougllima.github.io/yumi-catalog/
+https://www.yumistudio3d.com.br/
 ```
 
 Configuração versionada:
 
-- `vite.config.ts` usa `base: "/yumi-catalog/"`;
+- `vite.config.ts` usa `base: "/"` para servir o catálogo na raiz do domínio;
 - `BrowserRouter` usa `basename={import.meta.env.BASE_URL}`;
 - `.github/workflows/deploy.yml` roda em push para `main` e
   `workflow_dispatch`;
@@ -932,11 +932,8 @@ Configuração versionada:
 - o workflow publica `dist` com `actions/upload-pages-artifact@v3` e
   `actions/deploy-pages@v4`.
 
-No GitHub, Pages deve usar:
-
-```text
-Settings > Pages > Source > GitHub Actions
-```
+Em **Settings > Pages**, use **GitHub Actions** como fonte da publicação e
+`www.yumistudio3d.com.br` como domínio personalizado.
 
 Variáveis de deploy necessárias:
 
