@@ -1,10 +1,10 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
+import { ProductImageCropFrame } from "@/components/ProductImageCropFrame";
 import { Button } from "@/components/ui/button";
 import type { ProductImage } from "@/domain/product";
 import { cn } from "@/lib/utils";
-import { productImageCropStyle } from "@/utils/productImageCropStyle";
 import { publicAssetUrl } from "@/utils/publicAssetUrl";
 
 type ProductImageGalleryProps = {
@@ -63,15 +63,13 @@ export function ProductImageGallery({
 
   return (
     <div className="grid gap-3">
-      <div className="relative aspect-square overflow-hidden rounded-[1.5rem] border bg-muted shadow-xl shadow-primary/8">
-        <img
-          data-testid="product-image-gallery-active"
-          src={activeImageUrl}
-          alt={`${productName} - imagem ${activeImageIndex + 1}`}
-          className="block size-full object-cover"
-          style={productImageCropStyle(activeImage.crop)}
-        />
-
+      <ProductImageCropFrame
+        testId="product-image-gallery-active"
+        className="rounded-[1.5rem] border bg-muted shadow-xl shadow-primary/8"
+        src={activeImageUrl}
+        alt={`${productName} - imagem ${activeImageIndex + 1}`}
+        crop={activeImage.crop}
+      >
         {hasMultipleImages && (
           <div
             className="pointer-events-none absolute inset-0 flex items-center justify-between p-3"
@@ -101,7 +99,7 @@ export function ProductImageGallery({
             </Button>
           </div>
         )}
-      </div>
+      </ProductImageCropFrame>
 
       {hasMultipleImages && (
         <div
@@ -123,12 +121,10 @@ export function ProductImageGallery({
               )}
               onClick={() => setActiveImageIndex(index)}
             >
-              <img
+              <ProductImageCropFrame
                 src={publicAssetUrl(image.url)}
                 alt=""
-                className="block size-full object-cover"
-                style={productImageCropStyle(image.crop)}
-                aria-hidden="true"
+                crop={image.crop}
               />
             </Button>
           ))}

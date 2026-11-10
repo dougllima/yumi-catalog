@@ -31,6 +31,7 @@ import {
   productRepository,
   runtimeBackend,
 } from "@/application/dependencies";
+import { ProductImageCropFrame } from "@/components/ProductImageCropFrame";
 import { Button } from "@/components/ui/button";
 import type { Product, ProductImage, ProductImageCrop } from "@/domain/product";
 import {
@@ -43,7 +44,6 @@ import {
   normalizeSearch,
   reaisToCents,
 } from "@/domain/product";
-import { productImageCropStyle } from "@/utils/productImageCropStyle";
 
 type ProductFormState = {
   id: string;
@@ -945,10 +945,9 @@ export function AdminProductsPage() {
                       data-testid="admin-product-pending-image-preview"
                       className="overflow-hidden rounded-2xl border bg-card shadow-sm"
                     >
-                      <img
+                      <ProductImageCropFrame
                         src={preview.url}
                         alt={`Prévia de ${preview.file.name}`}
-                        className="aspect-square w-full object-cover"
                       />
                       <div className="flex items-center justify-between gap-2 p-2">
                         <span className="truncate text-xs font-semibold text-muted-foreground">
@@ -972,19 +971,17 @@ export function AdminProductsPage() {
 
               {editingCropImage && (
                 <div className="grid gap-4 rounded-2xl border bg-card/70 p-4 shadow-sm lg:grid-cols-[minmax(220px,360px)_1fr]">
-                  <div className="overflow-hidden rounded-2xl border bg-muted">
-                    <img
-                      data-testid="admin-product-crop-preview"
-                      src={editingCropImage.url}
-                      alt={`Prévia do enquadramento de ${
-                        editingCropImage.altText ??
-                        selectedProduct?.name ??
-                        "Produto"
-                      }`}
-                      className="aspect-square w-full object-cover"
-                      style={productImageCropStyle(cropDraft)}
-                    />
-                  </div>
+                  <ProductImageCropFrame
+                    testId="admin-product-crop-preview"
+                    src={editingCropImage.url}
+                    alt={`Prévia do enquadramento de ${
+                      editingCropImage.altText ??
+                      selectedProduct?.name ??
+                      "Produto"
+                    }`}
+                    className="rounded-2xl border bg-muted"
+                    crop={cropDraft}
+                  />
 
                   <div className="grid content-start gap-4">
                     <div className="flex items-start gap-2">
@@ -1089,13 +1086,12 @@ export function AdminProductsPage() {
                       key={image.id}
                       className="overflow-hidden rounded-2xl border bg-card shadow-sm"
                     >
-                      <img
+                      <ProductImageCropFrame
                         src={image.url}
                         alt={
                           image.altText ?? selectedProduct?.name ?? "Produto"
                         }
-                        className="aspect-square w-full object-cover"
-                        style={productImageCropStyle(image.crop)}
+                        crop={image.crop}
                       />
                       <div className="flex items-center justify-between gap-2 p-2">
                         <div className="flex gap-1">
