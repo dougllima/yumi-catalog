@@ -329,6 +329,92 @@ describe("AdminProductsPage", () => {
     );
   });
 
+  it("moves the crop by pointer and keyboard, zooms, and saves the draft", async () => {
+    const user = userEvent.setup();
+    mockedProductRepository.listAll.mockResolvedValue([
+      makeProduct({
+        name: "Mini Box",
+        imageRecords: [{ id: "image-1", url: "/mini-box.webp", sortOrder: 0 }],
+      }),
+    ]);
+    render(<AdminProductsPage />);
+    await user.click(await screen.findByRole("button", { name: /Mini Box/ }));
+    await user.click(screen.getByRole("button", { name: "Enquadrar imagem" }));
+
+    const image = screen.getByTestId("admin-product-crop-preview");
+    const frame = screen.getByRole("group", {
+      name: "Prévia do enquadramento",
+    });
+    vi.spyOn(frame, "getBoundingClientRect").mockReturnValue(
+      new DOMRect(0, 0, 200, 200),
+    );
+    const capture = vi.fn();
+    Object.defineProperty(frame, "setPointerCapture", { value: capture });
+    const start = { button: 0, pointerId: 1, clientX: 20, clientY: 30 };
+    const end = { ...start, clientX: 80, clientY: 50 };
+
+    fireEvent.pointerDown(frame, start);
+    fireEvent.pointerMove(frame, end);
+    expect(capture).not.toHaveBeenCalled();
+    expect(image.style.objectPosition).toBe("50% 50%");
+
+    Object.defineProperties(image, {
+      naturalWidth: { value: 400 },
+      naturalHeight: { value: 200 },
+    });
+    fireEvent.load(image);
+    fireEvent.change(screen.getByTestId("admin-product-crop-zoom-input"), {
+      target: { value: "2" },
+    });
+    fireEvent.pointerDown(frame, start);
+    fireEvent.pointerMove(frame, end);
+    fireEvent.pointerUp(frame, end);
+    expect(capture).toHaveBeenCalledWith(1);
+    expect(image.style.objectPosition).toBe("40% 40%");
+    fireEvent.pointerMove(frame, start);
+    expect(image.style.objectPosition).toBe("40% 40%");
+
+    frame.focus();
+    await user.keyboard("{ArrowRight}{Shift>}{ArrowUp}{/Shift}");
+    expect(image.style.objectPosition).toBe("41% 35%");
+    fireEvent.wheel(frame, { deltaY: -100 });
+    expect(image.style.transform).toBe("scale(2.05)");
+
+    await user.click(screen.getByRole("button", { name: "Centralizar" }));
+    expect(image.style.objectPosition).toBe("50% 50%");
+    expect(image.style.transform).toBe("scale(2.05)");
+
+    fireEvent.keyDown(frame, { key: "ArrowLeft" });
+    await user.click(screen.getByRole("button", { name: "Restaurar padrão" }));
+    expect(image.style.objectPosition).toBe("50% 50%");
+    expect(image.style.transform).toBe("");
+
+    fireEvent.keyDown(frame, { key: "ArrowDown", shiftKey: true });
+    await user.click(screen.getByRole("button", { name: "Cancelar" }));
+    expect(mockedProductRepository.updateImageCrop).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: "Enquadrar imagem" }));
+    expect(
+      screen.getByTestId("admin-product-crop-preview").style.objectPosition,
+    ).toBe("50% 50%");
+
+    fireEvent.keyDown(
+      screen.getByRole("group", { name: "Prévia do enquadramento" }),
+      {
+        key: "ArrowDown",
+        shiftKey: true,
+      },
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Salvar enquadramento" }),
+    );
+    await waitFor(() =>
+      expect(mockedProductRepository.updateImageCrop).toHaveBeenCalledWith(
+        "image-1",
+        { xPercent: 50, yPercent: 55, zoom: 1 },
+      ),
+    );
+  });
+
   it("shows existing categories and removes selected categories in the form", async () => {
     const user = userEvent.setup();
     mockedProductRepository.listAll.mockResolvedValue([

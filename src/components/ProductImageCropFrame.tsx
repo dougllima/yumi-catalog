@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactEventHandler } from "react";
 
 import type { ProductImageCrop } from "@/domain/product";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ type ProductImageCropFrameProps = ComponentProps<"div"> & {
   crop?: ProductImageCrop;
   imgClassName?: string;
   testId?: string;
+  onImageLoad?: ReactEventHandler<HTMLImageElement>;
 };
 
 export function ProductImageCropFrame({
@@ -19,6 +20,7 @@ export function ProductImageCropFrame({
   className,
   imgClassName,
   testId,
+  onImageLoad,
   children,
   ...frameProps
 }: ProductImageCropFrameProps) {
@@ -32,6 +34,7 @@ export function ProductImageCropFrame({
     >
       <img
         data-testid={testId}
+        onLoad={onImageLoad}
         src={src}
         alt={alt}
         className={cn(
