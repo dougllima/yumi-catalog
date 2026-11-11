@@ -1,5 +1,6 @@
 import { Search, Sparkles, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { FeatureStrip } from "@/components/FeatureStrip";
 import { ProductCard } from "@/components/ProductCard";
@@ -11,8 +12,28 @@ const productSkeletons = Array.from({ length: 12 }, (_, index) => index);
 
 export function ProductsPage() {
   const { products, loading, error } = usePublishedProducts();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategorySlug, setSelectedCategorySlug] = useState("");
+  // Filtros na URL para sobreviverem à ida e volta da página de produto.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchTerm = searchParams.get("q") ?? "";
+  const selectedCategorySlug = searchParams.get("categoria") ?? "";
+  const updateParam = (key: string, value: string) =>
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+
+        if (value) {
+          next.set(key, value);
+        } else {
+          next.delete(key);
+        }
+
+        return next;
+      },
+      { replace: true },
+    );
+  const setSearchTerm = (value: string) => updateParam("q", value);
+  const setSelectedCategorySlug = (value: string) =>
+    updateParam("categoria", value);
   const normalizedSearchTerm = normalizeSearch(searchTerm);
 
   const categoryFilters = useMemo(() => {
@@ -38,34 +59,32 @@ export function ProductsPage() {
     );
   }, [products]);
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchesCategory =
-        !selectedCategorySlug ||
-        product.categories.some(
-          (category) => category.slug === selectedCategorySlug,
-        );
+  const filteredProducts = products.filter((product) => {
+    const matchesCategory =
+      !selectedCategorySlug ||
+      product.categories.some(
+        (category) => category.slug === selectedCategorySlug,
+      );
 
-      if (!matchesCategory) {
-        return false;
-      }
+    if (!matchesCategory) {
+      return false;
+    }
 
-      if (!normalizedSearchTerm) {
-        return true;
-      }
+    if (!normalizedSearchTerm) {
+      return true;
+    }
 
-      const searchable = [
-        product.name,
-        product.description,
-        ...product.categories.map((category) => category.name),
-        ...product.categories.map((category) => category.slug),
-      ]
-        .filter(Boolean)
-        .join(" ");
+    const searchable = [
+      product.name,
+      product.description,
+      ...product.categories.map((category) => category.name),
+      ...product.categories.map((category) => category.slug),
+    ]
+      .filter(Boolean)
+      .join(" ");
 
-      return normalizeSearch(searchable).includes(normalizedSearchTerm);
-    });
-  }, [normalizedSearchTerm, products, selectedCategorySlug]);
+    return normalizeSearch(searchable).includes(normalizedSearchTerm);
+  });
 
   const hasSearch = searchTerm.trim().length > 0;
   const hasCategoryFilter = Boolean(selectedCategorySlug);
