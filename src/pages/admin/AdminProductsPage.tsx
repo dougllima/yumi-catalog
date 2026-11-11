@@ -31,6 +31,7 @@ import {
   productRepository,
   runtimeBackend,
 } from "@/application/dependencies";
+import { ProductImageCropFrame } from "@/components/ProductImageCropFrame";
 import { Button } from "@/components/ui/button";
 import type { Product, ProductImage, ProductImageCrop } from "@/domain/product";
 import {
@@ -43,7 +44,7 @@ import {
   normalizeSearch,
   reaisToCents,
 } from "@/domain/product";
-import { productImageCropStyle } from "@/utils/productImageCropStyle";
+import { AdminProductCropPreview } from "@/pages/admin/AdminProductCropPreview";
 
 type ProductFormState = {
   id: string;
@@ -950,10 +951,9 @@ export function AdminProductsPage() {
                       data-testid="admin-product-pending-image-preview"
                       className="overflow-hidden rounded-2xl border bg-card shadow-sm"
                     >
-                      <img
+                      <ProductImageCropFrame
                         src={preview.url}
                         alt={`Prévia de ${preview.file.name}`}
-                        className="aspect-square w-full object-cover"
                       />
                       <div className="flex items-center justify-between gap-2 p-2">
                         <span className="truncate text-xs font-semibold text-muted-foreground">
@@ -977,19 +977,17 @@ export function AdminProductsPage() {
 
               {editingCropImage && (
                 <div className="grid gap-4 rounded-2xl border bg-card/70 p-4 shadow-sm lg:grid-cols-[minmax(220px,360px)_1fr]">
-                  <div className="overflow-hidden rounded-2xl border bg-muted">
-                    <img
-                      data-testid="admin-product-crop-preview"
-                      src={editingCropImage.url}
-                      alt={`Prévia do enquadramento de ${
-                        editingCropImage.altText ??
-                        selectedProduct?.name ??
-                        "Produto"
-                      }`}
-                      className="aspect-square w-full object-cover"
-                      style={productImageCropStyle(cropDraft)}
-                    />
-                  </div>
+                  <AdminProductCropPreview
+                    key={`${editingCropImage.id}:${editingCropImage.url}`}
+                    src={editingCropImage.url}
+                    alt={`Prévia do enquadramento de ${
+                      editingCropImage.altText ??
+                      selectedProduct?.name ??
+                      "Produto"
+                    }`}
+                    crop={cropDraft}
+                    setCrop={setCropDraft}
+                  />
 
                   <div className="grid content-start gap-4">
                     <div className="flex items-start gap-2">
@@ -1003,67 +1001,87 @@ export function AdminProductsPage() {
                         </h3>
                         <p className="text-sm text-muted-foreground">
                           Ajuste o recorte usado no card e na página do produto.
+                          Arraste a imagem ou use as setas com a prévia em foco.
+                          Use a roda do mouse para alterar o zoom.
                         </p>
                       </div>
                     </div>
 
-                    <label className="grid gap-2 text-sm font-extrabold">
-                      Posição horizontal
-                      <input
-                        data-testid="admin-product-crop-x-input"
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value={cropDraft.xPercent}
-                        onChange={(event) =>
-                          updateCropDraft("xPercent", event.target.value)
-                        }
-                        className="w-full accent-primary"
-                      />
-                    </label>
+                    <fieldset className="grid gap-4">
+                      <legend className="mb-2 text-sm font-semibold">
+                        Ajuste fino
+                      </legend>
+                      <label className="grid gap-2 text-sm font-extrabold">
+                        Posição horizontal
+                        <input
+                          data-testid="admin-product-crop-x-input"
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={cropDraft.xPercent}
+                          onChange={(event) =>
+                            updateCropDraft("xPercent", event.target.value)
+                          }
+                          className="w-full accent-primary"
+                        />
+                      </label>
 
-                    <label className="grid gap-2 text-sm font-extrabold">
-                      Posição vertical
-                      <input
-                        data-testid="admin-product-crop-y-input"
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value={cropDraft.yPercent}
-                        onChange={(event) =>
-                          updateCropDraft("yPercent", event.target.value)
-                        }
-                        className="w-full accent-primary"
-                      />
-                    </label>
+                      <label className="grid gap-2 text-sm font-extrabold">
+                        Posição vertical
+                        <input
+                          data-testid="admin-product-crop-y-input"
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={cropDraft.yPercent}
+                          onChange={(event) =>
+                            updateCropDraft("yPercent", event.target.value)
+                          }
+                          className="w-full accent-primary"
+                        />
+                      </label>
 
-                    <label className="grid gap-2 text-sm font-extrabold">
-                      Zoom
-                      <input
-                        data-testid="admin-product-crop-zoom-input"
-                        type="range"
-                        min="1"
-                        max="3"
-                        step="0.05"
-                        value={cropDraft.zoom}
-                        onChange={(event) =>
-                          updateCropDraft("zoom", event.target.value)
-                        }
-                        className="w-full accent-primary"
-                      />
-                    </label>
+                      <label className="grid gap-2 text-sm font-extrabold">
+                        Zoom
+                        <input
+                          data-testid="admin-product-crop-zoom-input"
+                          type="range"
+                          min="1"
+                          max="3"
+                          step="0.05"
+                          value={cropDraft.zoom}
+                          onChange={(event) =>
+                            updateCropDraft("zoom", event.target.value)
+                          }
+                          className="w-full accent-primary"
+                        />
+                      </label>
+                    </fieldset>
 
                     <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"
                         variant="secondary"
                         className="rounded-full"
+                        onClick={() =>
+                          setCropDraft((current) => ({
+                            ...defaultProductImageCrop,
+                            zoom: current.zoom,
+                          }))
+                        }
+                      >
+                        Centralizar
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="rounded-full"
                         onClick={() => setCropDraft(defaultProductImageCrop)}
                       >
                         <RotateCcw aria-hidden="true" />
-                        Centralizar
+                        Restaurar padrão
                       </Button>
                       <Button
                         type="button"
@@ -1118,13 +1136,12 @@ export function AdminProductsPage() {
                         draggedImageIndex === index ? "opacity-50" : ""
                       }`}
                     >
-                      <img
+                      <ProductImageCropFrame
                         src={image.url}
                         alt={
                           image.altText ?? selectedProduct?.name ?? "Produto"
                         }
-                        className="aspect-square w-full object-cover"
-                        style={productImageCropStyle(image.crop)}
+                        crop={image.crop}
                       />
                       <div className="flex items-center justify-between gap-2 p-2">
                         <div className="flex gap-1">
