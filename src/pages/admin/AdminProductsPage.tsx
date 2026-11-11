@@ -104,6 +104,9 @@ export function AdminProductsPage() {
   const [categoryDraft, setCategoryDraft] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [isDraggingImages, setIsDraggingImages] = useState(false);
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(
+    null,
+  );
   const [editingCropImageId, setEditingCropImageId] = useState<string | null>(
     null,
   );
@@ -576,27 +579,29 @@ export function AdminProductsPage() {
     }
   };
 
-  const moveImage = async (imageIndex: number, direction: -1 | 1) => {
-    if (!selectedProduct?.imageRecords) {
+  const moveImage = async (fromIndex: number, toIndex: number) => {
+    if (!selectedProduct?.imageRecords || fromIndex === toIndex) {
       return;
     }
 
-    const nextIndex = imageIndex + direction;
     const nextImages = [...selectedProduct.imageRecords];
 
-    if (nextIndex < 0 || nextIndex >= nextImages.length) {
+    if (
+      fromIndex < 0 ||
+      fromIndex >= nextImages.length ||
+      toIndex < 0 ||
+      toIndex >= nextImages.length
+    ) {
       return;
     }
 
-    const currentImage = nextImages[imageIndex];
-    const targetImage = nextImages[nextIndex];
+    const movedImage = nextImages.splice(fromIndex, 1)[0];
 
-    if (!currentImage || !targetImage) {
+    if (!movedImage) {
       return;
     }
 
-    nextImages[imageIndex] = targetImage;
-    nextImages[nextIndex] = currentImage;
+    nextImages.splice(toIndex, 0, movedImage);
 
     setSaving(true);
     setError(null);
@@ -1087,7 +1092,31 @@ export function AdminProductsPage() {
                   (image, index, list) => (
                     <div
                       key={image.id}
-                      className="overflow-hidden rounded-2xl border bg-card shadow-sm"
+                      data-testid="admin-product-image-card"
+                      draggable={!saving}
+                      onDragStart={(event) => {
+                        event.dataTransfer.effectAllowed = "move";
+                        setDraggedImageIndex(index);
+                      }}
+                      onDragOver={(event) => {
+                        if (draggedImageIndex !== null) {
+                          event.preventDefault();
+                          event.dataTransfer.dropEffect = "move";
+                        }
+                      }}
+                      onDrop={(event) => {
+                        if (draggedImageIndex === null) {
+                          return;
+                        }
+                        event.preventDefault();
+                        const fromIndex = draggedImageIndex;
+                        setDraggedImageIndex(null);
+                        void moveImage(fromIndex, index);
+                      }}
+                      onDragEnd={() => setDraggedImageIndex(null)}
+                      className={`cursor-grab overflow-hidden rounded-2xl border bg-card shadow-sm ${
+                        draggedImageIndex === index ? "opacity-50" : ""
+                      }`}
                     >
                       <img
                         src={image.url}
@@ -1115,7 +1144,7 @@ export function AdminProductsPage() {
                             size="icon"
                             className="size-8 rounded-full"
                             disabled={index === 0 || saving}
-                            onClick={() => void moveImage(index, -1)}
+                            onClick={() => void moveImage(index, index - 1)}
                             aria-label="Mover imagem para cima"
                           >
                             <ArrowUp aria-hidden="true" />
@@ -1126,7 +1155,7 @@ export function AdminProductsPage() {
                             size="icon"
                             className="size-8 rounded-full"
                             disabled={index === list.length - 1 || saving}
-                            onClick={() => void moveImage(index, 1)}
+                            onClick={() => void moveImage(index, index + 1)}
                             aria-label="Mover imagem para baixo"
                           >
                             <ArrowDown aria-hidden="true" />

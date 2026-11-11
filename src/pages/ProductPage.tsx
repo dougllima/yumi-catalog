@@ -121,11 +121,13 @@ export function ProductPage() {
                 >
                   {product.name}
                 </h1>
-                {price !== null && (
-                  <strong className="text-3xl font-extrabold leading-none text-primary sm:text-[2.1rem]">
-                    {formatCurrency(price)}
-                  </strong>
-                )}
+                <strong
+                  className={`font-extrabold leading-none text-primary ${
+                    price !== null ? "text-3xl sm:text-[2.1rem]" : "text-xl"
+                  }`}
+                >
+                  {price !== null ? formatCurrency(price) : "Sob encomenda"}
+                </strong>
               </div>
             </div>
 

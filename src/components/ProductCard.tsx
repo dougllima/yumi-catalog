@@ -15,7 +15,6 @@ export function ProductCard({ product }: ProductCardProps) {
     typeof product.price === "number" && product.price > 0
       ? product.price
       : null;
-  const hasFooterInfo = price !== null;
   const visibleCategories = product.categories.slice(0, 2);
 
   return (
@@ -60,15 +59,15 @@ export function ProductCard({ product }: ProductCardProps) {
             </p>
           )}
 
-          {hasFooterInfo && (
-            <div className="mt-auto flex items-end justify-between gap-3">
-              {price !== null && (
-                <strong className="ml-auto text-lg font-extrabold leading-none text-primary">
-                  {formatCurrency(price)}
-                </strong>
-              )}
-            </div>
-          )}
+          <div className="mt-auto flex items-end justify-between gap-3">
+            <strong
+              className={`ml-auto font-extrabold leading-none text-primary ${
+                price !== null ? "text-lg" : "text-sm"
+              }`}
+            >
+              {price !== null ? formatCurrency(price) : "Sob encomenda"}
+            </strong>
+          </div>
         </CardContent>
       </article>
     </Card>
