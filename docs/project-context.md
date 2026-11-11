@@ -219,6 +219,8 @@ O preço final pode ser diferente do preço sugerido.
 
 Enquanto a lógica completa de precificação não estiver implementada, o preço público/final continua sendo um dado explícito do produto.
 
+Produtos sem preço definido exibem "Sob encomenda" no card e na página do produto.
+
 ---
 
 ## Materiais
@@ -314,6 +316,7 @@ Objetivos funcionais da fase atual:
 - gerenciar imagens;
 - adicionar imagens por seleção de arquivo ou arraste no formulário do produto;
 - pré-visualizar imagens selecionadas antes de salvar o produto;
+- reordenar imagens existentes por drag and drop (a primeira é a principal);
 - ajustar o enquadramento de imagens existentes sem alterar o arquivo original;
 - alterar preço;
 - marcar/desmarcar exibição na home;

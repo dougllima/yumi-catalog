@@ -42,4 +42,14 @@ describe("ProductCard", () => {
       expect.stringContaining("/products/porta-joias/01.webp"),
     );
   });
+
+  it("shows 'Sob encomenda' when the product has no price", () => {
+    render(
+      <MemoryRouter>
+        <ProductCard product={{ ...product, price: undefined }} />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText("Sob encomenda")).toBeInTheDocument();
+  });
 });
