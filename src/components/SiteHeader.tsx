@@ -16,7 +16,7 @@ const navItems = ["Início", "Produtos"];
 export function SiteHeader({ theme, onToggleTheme }: SiteHeaderProps) {
   return (
     <header className="relative z-20 mx-auto w-full max-w-[1560px] px-4 pt-4 sm:px-7">
-      <div className="yumi-header-surface flex items-center justify-between gap-4 rounded-[1.75rem] border px-4 py-3 shadow-lg shadow-primary/5 backdrop-blur-xl sm:px-6">
+      <div className="yumi-header-surface flex items-center justify-between gap-4 rounded-[1.75rem] border px-4 py-3 shadow-lg shadow-primary/5 sm:px-6">
         <BrandLogo />
 
         <nav

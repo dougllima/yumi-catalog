@@ -48,10 +48,7 @@ export function CategoryShortcuts({ products }: { products: Product[] }) {
   };
 
   return (
-    <section
-      className="grid gap-4 overflow-x-clip pt-8"
-      aria-labelledby="categories-title"
-    >
+    <section className="grid gap-4 pt-8" aria-labelledby="categories-title">
       <SectionHeader
         titleId="categories-title"
         title="Explore por categoria"
@@ -86,7 +83,7 @@ export function CategoryShortcuts({ products }: { products: Product[] }) {
       <div
         ref={trackRef}
         onScroll={updateScrollState}
-        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth scroll-px-4 px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:scroll-px-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
       >
         {categories.map(({ slug, name, imageUrl, crop }) => (
           <Link
