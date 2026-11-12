@@ -64,6 +64,20 @@ Não introduzir SSR ou backend Node próprio sem necessidade concreta.
 
 Preservar stack, padrões e comportamento existentes salvo motivo técnico ou funcional explícito para mudança.
 
+### Layout compartilhado
+
+Todas as páginas (públicas e admin) usam a mesma estrutura, sem repetir classes de layout:
+
+- `PageContainer`: `<main>` com largura máxima de 1560px (a mesma do header) e paddings padrão; prop `centered` para telas de estado/login.
+- `Panel` (+ `panelStyles.ts`): superfície padrão, variantes `card` e `item`.
+- `SectionHeader`: eyebrow, título (`h1`/`h2`), descrição e ação opcional.
+- `StatePanel`: estados de carregamento, erro, vazio e acesso negado.
+- `SiteFooter`: rodapé único, renderizado em `App.tsx` para toda rota fora de `/admin`; as páginas não renderizam rodapé próprio.
+- Novas páginas devem usar esses componentes e a largura de 1560px; não introduzir outras larguras máximas.
+- Fundo da página: `.yumi-page::before` em `index.css`, `position: fixed` em tela cheia, apenas gradientes CSS (não usar `background-attachment: fixed`, que falha no iOS).
+- Evitar `backdrop-filter` aninhado (pai e filhos), pois pode fazer filhos sumirem no Safari iOS.
+- A listagem `/produtos` pagina no cliente (12/24/48 por página, padrão 24) com estado na URL (`pagina`, `por-pagina`).
+
 ---
 
 ## Estrutura real do repositório
