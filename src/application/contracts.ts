@@ -46,6 +46,9 @@ export interface ProductRepository {
   addImage(productId: string, input: ProductImageInput): Promise<ProductImage>;
   removeImage(imageId: string): Promise<void>;
   updateImageOrder(productId: string, orderedImageIds: string[]): Promise<void>;
+  updateProductOrder(
+    orders: Array<{ id: string; sortOrder: number }>,
+  ): Promise<void>;
   updateImageCrop(
     imageId: string,
     input: ProductImageCropInput,

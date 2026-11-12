@@ -222,6 +222,21 @@ export class SupabaseProductRepository implements ProductRepository {
     );
   }
 
+  async updateProductOrder(orders: Array<{ id: string; sortOrder: number }>) {
+    await Promise.all(
+      orders.map(async ({ id, sortOrder }) => {
+        const { error } = await this.client
+          .from("products")
+          .update({ sort_order: sortOrder })
+          .eq("id", id);
+
+        if (error) {
+          throw new Error(error.message);
+        }
+      }),
+    );
+  }
+
   async updateImageCrop(
     imageId: string,
     input: ProductImageCropInput,

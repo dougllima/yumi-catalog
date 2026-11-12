@@ -30,6 +30,7 @@ vi.mock("@/application/dependencies", () => ({
     addImage: vi.fn(),
     removeImage: vi.fn(),
     updateImageOrder: vi.fn(),
+    updateProductOrder: vi.fn(),
     updateImageCrop: vi.fn(),
     replaceProductCategories: vi.fn(),
   },
@@ -66,6 +67,7 @@ describe("AdminProductsPage", () => {
     mockedProductRepository.addImage.mockReset();
     mockedProductRepository.removeImage.mockReset();
     mockedProductRepository.updateImageOrder.mockReset();
+    mockedProductRepository.updateProductOrder.mockReset();
     mockedProductRepository.updateImageCrop.mockReset();
     mockedProductRepository.replaceProductCategories.mockReset();
     mockedMediaStorage.uploadProductImage.mockReset();
@@ -110,7 +112,7 @@ describe("AdminProductsPage", () => {
 
     expect(
       within(screen.getByTestId("admin-products-list"))
-        .getAllByRole("button")
+        .getAllByRole("button", { name: /^(?!Arrastar)/ })
         .map((button) => button.textContent),
     ).toEqual(["Porta JoiasAtivo", "VasoInativoHome"]);
 
@@ -118,7 +120,7 @@ describe("AdminProductsPage", () => {
 
     expect(screen.queryByText("Porta Joias")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /Vaso/ }));
+    await user.click(screen.getByRole("button", { name: /^Vaso/ }));
 
     expect(screen.getByTestId("admin-product-id-input")).toHaveValue("vaso");
     expect(screen.getByTestId("admin-product-name-input")).toHaveValue("Vaso");
@@ -219,6 +221,53 @@ describe("AdminProductsPage", () => {
     ).toBeInTheDocument();
   });
 
+  it("lists products in the manual order, not alphabetically", async () => {
+    mockedProductRepository.listAll.mockResolvedValue([
+      makeProduct({ id: "vaso", name: "Vaso", sortOrder: 0 }),
+      makeProduct({ id: "porta-joias", name: "Porta Joias", sortOrder: 1 }),
+    ]);
+    mockedProductRepository.updateProductOrder.mockResolvedValue(undefined);
+
+    render(
+      <MemoryRouter>
+        <AdminProductsPage />
+      </MemoryRouter>,
+    );
+
+    const list = await screen.findByTestId("admin-products-list");
+
+    expect(
+      within(list)
+        .getAllByRole("button", { name: /^(?!Arrastar)/ })
+        .map((button) => button.textContent),
+    ).toEqual(["VasoAtivo", "Porta JoiasAtivo"]);
+  });
+
+  it("disables product reordering while the search is active", async () => {
+    const user = userEvent.setup();
+    mockedProductRepository.listAll.mockResolvedValue([
+      makeProduct({ id: "vaso", name: "Vaso", sortOrder: 0 }),
+    ]);
+
+    render(
+      <MemoryRouter>
+        <AdminProductsPage />
+      </MemoryRouter>,
+    );
+
+    await user.type(
+      await screen.findByTestId("admin-products-search-input"),
+      "vaso",
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Arrastar para reordenar Vaso" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByText("Limpe a busca para reordenar os produtos."),
+    ).toBeInTheDocument();
+  });
+
   it("accepts image files dropped into the image field", async () => {
     const user = userEvent.setup();
     const savedProduct = makeProduct({
@@ -312,7 +361,7 @@ describe("AdminProductsPage", () => {
       </MemoryRouter>,
     );
 
-    await user.click(await screen.findByRole("button", { name: /Mini Box/ }));
+    await user.click(await screen.findByRole("button", { name: /^Mini Box/ }));
     await user.click(screen.getByRole("button", { name: "Enquadrar imagem" }));
 
     fireEvent.change(screen.getByTestId("admin-product-crop-x-input"), {
@@ -359,7 +408,7 @@ describe("AdminProductsPage", () => {
         <AdminProductsPage />
       </MemoryRouter>,
     );
-    await user.click(await screen.findByRole("button", { name: /Mini Box/ }));
+    await user.click(await screen.findByRole("button", { name: /^Mini Box/ }));
     await user.click(screen.getByRole("button", { name: "Enquadrar imagem" }));
 
     const image = screen.getByTestId("admin-product-crop-preview");
@@ -461,7 +510,7 @@ describe("AdminProductsPage", () => {
     );
 
     await user.click(
-      await screen.findByRole("button", { name: /Porta Joias/ }),
+      await screen.findByRole("button", { name: /^Porta Joias/ }),
     );
 
     expect(screen.getByLabelText("Categorias selecionadas")).toHaveTextContent(

@@ -76,6 +76,13 @@ export class StaticProductRepository implements ProductRepository {
     throw notConfigured();
   }
 
+  async updateProductOrder(
+    orders: Array<{ id: string; sortOrder: number }>,
+  ): Promise<void> {
+    void orders;
+    throw notConfigured();
+  }
+
   async updateImageCrop(
     imageId: string,
     input: ProductImageCropInput,
