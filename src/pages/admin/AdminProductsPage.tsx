@@ -11,6 +11,7 @@ import {
   Save,
   SlidersHorizontal,
   Tag,
+  Tags,
   Trash2,
   Upload,
   X,
@@ -24,6 +25,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { Link } from "react-router-dom";
 
 import {
   authService,
@@ -658,6 +660,12 @@ export function AdminProductsPage() {
             >
               <Plus aria-hidden="true" />
               Novo produto
+            </Button>
+            <Button asChild variant="outline" className="rounded-full">
+              <Link to="/admin/categorias">
+                <Tags aria-hidden="true" />
+                Categorias
+              </Link>
             </Button>
             <Button
               type="button"

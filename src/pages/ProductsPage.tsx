@@ -1,5 +1,6 @@
 import { Search, Sparkles, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { FeatureStrip } from "@/components/FeatureStrip";
 import { ProductCard } from "@/components/ProductCard";
@@ -11,8 +12,28 @@ const productSkeletons = Array.from({ length: 12 }, (_, index) => index);
 
 export function ProductsPage() {
   const { products, loading, error } = usePublishedProducts();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategorySlug, setSelectedCategorySlug] = useState("");
+  // Filtros vivem na URL para que o "voltar" de um produto restaure a lista.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchTerm = searchParams.get("q") ?? "";
+  const selectedCategorySlug = searchParams.get("categoria") ?? "";
+  const updateParam = (key: "q" | "categoria", value: string) =>
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+
+        if (value) {
+          next.set(key, value);
+        } else {
+          next.delete(key);
+        }
+
+        return next;
+      },
+      { replace: true },
+    );
+  const setSearchTerm = (value: string) => updateParam("q", value);
+  const setSelectedCategorySlug = (value: string) =>
+    updateParam("categoria", value);
   const normalizedSearchTerm = normalizeSearch(searchTerm);
 
   const categoryFilters = useMemo(() => {
@@ -38,7 +59,7 @@ export function ProductsPage() {
     );
   }, [products]);
 
-  const filteredProducts = useMemo(() => {
+  const filteredProducts = (() => {
     return products.filter((product) => {
       const matchesCategory =
         !selectedCategorySlug ||
@@ -65,7 +86,7 @@ export function ProductsPage() {
 
       return normalizeSearch(searchable).includes(normalizedSearchTerm);
     });
-  }, [normalizedSearchTerm, products, selectedCategorySlug]);
+  })();
 
   const hasSearch = searchTerm.trim().length > 0;
   const hasCategoryFilter = Boolean(selectedCategorySlug);
@@ -206,7 +227,7 @@ export function ProductsPage() {
 
           {loading ? (
             <div
-              className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+              className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
               aria-label="Carregando produtos"
             >
               {productSkeletons.map((item) => (
@@ -218,7 +239,7 @@ export function ProductsPage() {
             </div>
           ) : hasProducts ? (
             <div
-              className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+              className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
               aria-label="Todos os produtos cadastrados"
             >
               {filteredProducts.map((product) => (

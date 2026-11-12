@@ -4,11 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { contactUrl } from "@/config/contact";
 import type { Product } from "@/domain/product";
-import { useProduct } from "@/hooks/useProducts";
+import { useProduct, usePublishedProducts } from "@/hooks/useProducts";
 import { ProductPage } from "@/pages/ProductPage";
 
 vi.mock("@/hooks/useProducts", () => ({
   useProduct: vi.fn(),
+  usePublishedProducts: vi.fn(),
 }));
 
 const mockedUseProduct = vi.mocked(useProduct);
@@ -42,6 +43,12 @@ const renderProductPage = () =>
 describe("ProductPage", () => {
   beforeEach(() => {
     mockedUseProduct.mockReset();
+    vi.mocked(usePublishedProducts).mockReturnValue({
+      products: [],
+      loading: false,
+      error: null,
+      reload: vi.fn(),
+    });
   });
 
   it("renders product details and contact action", () => {
@@ -64,6 +71,29 @@ describe("ProductPage", () => {
     expect(
       screen.getByRole("link", { name: /Falar sobre este produto/ }),
     ).toHaveAttribute("href", contactUrl);
+  });
+
+  it("goes back to the page the user came from", () => {
+    mockedUseProduct.mockReturnValue({ product, loading: false, error: null });
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          {
+            pathname: "/produto/porta-joias",
+            state: { from: "/produtos?q=a" },
+          },
+        ]}
+      >
+        <Routes>
+          <Route path="/produto/:id" element={<ProductPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Voltar aos produtos" }),
+    ).toHaveAttribute("href", "/produtos?q=a");
   });
 
   it("renders the loading state", () => {

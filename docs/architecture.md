@@ -248,6 +248,7 @@ O `ProductRepository` concentra as operações atuais de catálogo, incluindo:
 - inclusão, remoção e ordenação de imagens;
 - atualização de enquadramento de imagem;
 - listagem de categorias existentes;
+- atualização de nome e imagem de uma categoria;
 - substituição das categorias associadas a um produto.
 
 Não transformar essa separação em Clean Architecture cerimonial.
@@ -406,6 +407,9 @@ Campos documentados:
 - `id`: UUID gerado no banco;
 - `name`: nome exibido na UI;
 - `slug`: chave normalizada e única;
+- `image_path`: caminho opcional da imagem da categoria no bucket
+  `product-images`, sob o prefixo `categories/<id>/`; a URL pública é derivada
+  pelo adapter de Storage;
 - `created_at`;
 - `updated_at`.
 
@@ -535,6 +539,7 @@ supabase/migrations/202609080002_seed_products_from_static_data.sql
 supabase/migrations/202609140001_add_product_categories.sql
 supabase/migrations/202609150001_add_product_image_crop_metadata.sql
 supabase/migrations/202609150002_remove_product_weight_add_home_highlight.sql
+supabase/migrations/202611110001_add_category_image.sql
 ```
 
 A migration `202609080001_init_products_admin.sql` estabelece:
@@ -763,7 +768,8 @@ Comportamento implementado:
   UI;
 - o admin lista todas as categorias existentes via `listCategories`, inclusive
   categorias associadas apenas a produtos inativos;
-- não existe tela dedicada para gestão, renomeação ou exclusão de categorias.
+- a tela `/admin/categorias` permite renomear categorias (o slug é recalculado)
+  e definir/remover a imagem; não há exclusão de categorias pela UI.
 
 A substituição das categorias de um produto ocorre por
 `replaceProductCategories(productId, categoryNames)`. O adapter Supabase:
@@ -928,6 +934,11 @@ Configuração versionada:
 - o workflow usa Node 24, executa `npm ci` e `npm run check`;
 - o job de build usa o environment `github-pages` para acessar as variáveis
   `VITE_*` necessárias ao bundle publicado;
+- `npm run build` termina com `scripts/generate-share-pages.ts`, que consulta os
+  produtos ativos via REST do Supabase (chave pública) e gera
+  `dist/produto/<id>/index.html` com meta tags Open Graph, para pré-visualização
+  de links; sem Supabase configurado ou em caso de falha, o build segue sem
+  essas páginas;
 - o workflow cria `dist/404.html` a partir de `dist/index.html` para suportar rotas diretas da SPA no GitHub Pages.
 - o workflow publica `dist` com `actions/upload-pages-artifact@v3` e
   `actions/deploy-pages@v4`.

@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 
 import { SiteHeader } from "@/components/SiteHeader";
 import { useTheme } from "@/hooks/useTheme";
+import { AdminCategoriesPage } from "@/pages/admin/AdminCategoriesPage";
 import { AdminLoginPage } from "@/pages/admin/AdminLoginPage";
 import { AdminProductsPage } from "@/pages/admin/AdminProductsPage";
 import { AdminRoute } from "@/pages/admin/AdminRoute";
@@ -42,6 +43,14 @@ function App() {
           element={
             <AdminRoute>
               <AdminProductsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/categorias"
+          element={
+            <AdminRoute>
+              <AdminCategoriesPage />
             </AdminRoute>
           }
         />

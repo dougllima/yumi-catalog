@@ -1,24 +1,24 @@
-import {
-  ArrowLeft,
-  Heart,
-  MessageCircle,
-  PackageCheck,
-  Sparkles,
-  Tag,
-} from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { ArrowLeft, Heart, PackageCheck, Sparkles, Tag } from "lucide-react";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 import { FeatureStrip } from "@/components/FeatureStrip";
+import { ProductContactButton } from "@/components/ProductContactButton";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
+import { RelatedProducts } from "@/components/RelatedProducts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { contactUrl } from "@/config/contact";
 import { useProduct } from "@/hooks/useProducts";
 import { formatCurrency } from "@/utils/formatters";
 
 export function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const { product, loading, error } = useProduct(id);
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from;
+  const backTo = from ?? "/";
+  const backLabel = backTo.startsWith("/produtos")
+    ? "Voltar aos produtos"
+    : "Voltar ao catálogo";
 
   if (loading) {
     return (
@@ -84,9 +84,9 @@ export function ProductPage() {
           variant="ghost"
           className="mb-5 w-fit rounded-full px-2 text-muted-foreground hover:text-foreground"
         >
-          <Link to="/">
+          <Link to={backTo}>
             <ArrowLeft aria-hidden="true" />
-            Voltar ao catálogo
+            {backLabel}
           </Link>
         </Button>
 
@@ -165,15 +165,12 @@ export function ProductPage() {
                 />
                 Produção sob encomenda
               </p>
-              <Button asChild className="h-11 rounded-full text-base">
-                <a href={contactUrl} target="_blank" rel="noreferrer">
-                  <MessageCircle aria-hidden="true" />
-                  Falar sobre este produto
-                </a>
-              </Button>
+              <ProductContactButton productName={product.name} />
             </div>
           </div>
         </section>
+
+        <RelatedProducts product={product} />
       </main>
 
       <FeatureStrip />

@@ -1,4 +1,4 @@
-import { HeartHandshake, PackageCheck, ShieldCheck, Truck } from "lucide-react";
+import { MessageCircle, PackageCheck, Truck } from "lucide-react";
 
 const features = [
   {
@@ -7,14 +7,9 @@ const features = [
     text: "Com carinho e segurança",
   },
   {
-    icon: ShieldCheck,
-    title: "Compra segura",
-    text: "Atendimento sem complicação",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Atendimento humano",
-    text: "Fale com a gente",
+    icon: MessageCircle,
+    title: "Atendimento direto",
+    text: "Combine tudo pelo Instagram",
   },
   {
     icon: PackageCheck,
@@ -26,7 +21,7 @@ const features = [
 export function FeatureStrip() {
   return (
     <section className="pt-5" aria-label="Diferenciais">
-      <div className="grid gap-2 rounded-[1.5rem] border bg-card/68 p-3 shadow-lg shadow-primary/5 backdrop-blur-xl sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-2 rounded-[1.5rem] border bg-card/68 p-3 shadow-lg shadow-primary/5 backdrop-blur-xl sm:grid-cols-3">
         {features.map(({ icon: Icon, title, text }) => (
           <div
             key={title}

@@ -141,10 +141,13 @@ Ao cadastrar ou editar um produto, a interface administrativa deve permitir:
 - evitar duplicatas evidentes causadas por variações de acento, caixa ou
   espaçamento, como `Decoração`, `decoração` e `decoracao`.
 
-Não haverá gestão dedicada de categorias nesta etapa.
+A administração possui uma tela de categorias (`/admin/categorias`) para renomear
+e definir, trocar ou remover a imagem de cada categoria. Não há exclusão de
+categorias pela interface; limpezas desse tipo podem ser feitas diretamente no
+banco enquanto não houver necessidade real.
 
-Renomeação, correção ou limpeza de categorias existentes pode ser feita
-diretamente no banco enquanto não houver necessidade real de uma tela própria.
+Renomear uma categoria altera seu slug, o que invalida links antigos com
+`?categoria=`.
 
 No catálogo público:
 
@@ -300,6 +303,21 @@ Deve permanecer focado em:
 - descrição;
 - preço;
 - informações úteis à decisão do cliente.
+
+A home e a página de produto também ajudam a descoberta e o contato:
+
+- hero com peças em destaque;
+- carrossel com todas as categorias de produtos ativos (levam a
+  `/produtos?categoria=<slug>`); usa a imagem da categoria e, sem ela, a foto de
+  um produto da categoria, sem repetir o mesmo produto em outra categoria;
+- busca e filtro de categoria da página de produtos ficam na URL, e o botão
+  voltar da página de produto retorna à origem (lista filtrada ou home);
+- seção "Como encomendar", que informa que também são feitos modelos sob
+  medida;
+- selo "Novo" para produtos criados nos últimos 30 dias;
+- produtos relacionados (categorias em comum) na página do produto;
+- o botão de contato abre o Instagram e copia uma mensagem pronta com o
+  produto e o link, pois o Instagram não aceita texto pré-preenchido.
 
 Não introduzir carrinho, checkout, pagamentos ou conta de cliente sem decisão explícita.
 

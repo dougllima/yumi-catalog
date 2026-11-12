@@ -1,6 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import type { MediaStorage, ProductRepository } from "@/application/contracts";
+import type {
+  CategoryUpdateInput,
+  MediaStorage,
+  ProductRepository,
+} from "@/application/contracts";
 import type {
   Product,
   ProductCategory,
@@ -12,9 +16,11 @@ import type {
 import {
   categorySlug,
   dedupeCategoryNames,
+  normalizeCategoryName,
   normalizeProductImageCrop,
 } from "@/domain/product";
 import {
+  mapCategoryRow,
   mapProductRow,
   type SupabaseCategoryRow,
   type SupabaseProductImageRow,
@@ -50,6 +56,7 @@ const productSelect = `
       id,
       name,
       slug,
+      image_path,
       created_at,
       updated_at
     )
@@ -254,7 +261,7 @@ export class SupabaseProductRepository implements ProductRepository {
   async listCategories() {
     const { data, error } = await this.client
       .from("categories")
-      .select("id, name, slug, created_at, updated_at")
+      .select("id, name, slug, image_path, created_at, updated_at")
       .order("name", { ascending: true })
       .returns<SupabaseCategoryRow[]>();
 
@@ -262,7 +269,7 @@ export class SupabaseProductRepository implements ProductRepository {
       throw new Error(error.message);
     }
 
-    return data.map(mapCategoryRow);
+    return data.map((row) => this.toCategory(row));
   }
 
   async replaceProductCategories(productId: string, categoryNames: string[]) {
@@ -297,6 +304,42 @@ export class SupabaseProductRepository implements ProductRepository {
     return categoryRecords;
   }
 
+  async updateCategory(id: string, input: CategoryUpdateInput) {
+    const name = normalizeCategoryName(input.name);
+    const slug = categorySlug(name);
+
+    if (!slug) {
+      throw new Error("Informe um nome para a categoria.");
+    }
+
+    const { data, error } = await this.client
+      .from("categories")
+      .update({
+        name,
+        slug,
+        image_path: input.imagePath ?? null,
+      })
+      .eq("id", id)
+      .select("id, name, slug, image_path, created_at, updated_at")
+      .single<SupabaseCategoryRow>();
+
+    if (error) {
+      throw new Error(
+        error.code === "23505"
+          ? "Já existe uma categoria com esse nome."
+          : error.message,
+      );
+    }
+
+    return this.toCategory(data);
+  }
+
+  private toCategory(row: SupabaseCategoryRow): ProductCategory {
+    return mapCategoryRow(row, (storagePath) =>
+      this.mediaStorage.getPublicUrl(storagePath),
+    );
+  }
+
   private mapProduct(row: SupabaseProductRow): Product {
     return mapProductRow(row, (storagePath) =>
       this.mediaStorage.getPublicUrl(storagePath),
@@ -329,7 +372,7 @@ export class SupabaseProductRepository implements ProductRepository {
 
     const { data, error } = await this.client
       .from("categories")
-      .select("id, name, slug, created_at, updated_at")
+      .select("id, name, slug, image_path, created_at, updated_at")
       .in(
         "slug",
         rows.map((category) => category.slug),
@@ -345,12 +388,6 @@ export class SupabaseProductRepository implements ProductRepository {
     return rows
       .map((row) => bySlug.get(row.slug))
       .filter((category): category is SupabaseCategoryRow => Boolean(category))
-      .map(mapCategoryRow);
+      .map((row) => this.toCategory(row));
   }
 }
-
-const mapCategoryRow = (row: SupabaseCategoryRow): ProductCategory => ({
-  id: row.id,
-  name: row.name,
-  slug: row.slug,
-});

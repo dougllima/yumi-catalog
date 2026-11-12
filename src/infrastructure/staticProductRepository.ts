@@ -1,4 +1,7 @@
-import type { ProductRepository } from "@/application/contracts";
+import type {
+  CategoryUpdateInput,
+  ProductRepository,
+} from "@/application/contracts";
 import { products as staticProducts } from "@/data/products";
 import type {
   Product,
@@ -94,6 +97,15 @@ export class StaticProductRepository implements ProductRepository {
     return [...categories.values()].sort((left, right) =>
       left.name.localeCompare(right.name, "pt-BR"),
     );
+  }
+
+  async updateCategory(
+    id: string,
+    input: CategoryUpdateInput,
+  ): Promise<ProductCategory> {
+    void id;
+    void input;
+    throw notConfigured();
   }
 
   async replaceProductCategories(
