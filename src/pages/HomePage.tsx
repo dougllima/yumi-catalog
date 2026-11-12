@@ -1,8 +1,10 @@
 import { ArrowRight, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { CategoryShortcuts } from "@/components/CategoryShortcuts";
 import { FeatureStrip } from "@/components/FeatureStrip";
 import { Hero } from "@/components/Hero";
+import { HowToOrder } from "@/components/HowToOrder";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { usePublishedProducts } from "@/hooks/useProducts";
@@ -18,7 +20,7 @@ export function HomePage() {
 
   return (
     <>
-      <Hero />
+      <Hero products={featuredProducts} />
 
       <main className="mx-auto w-full max-w-[1400px] px-4 pb-6 pt-4 sm:px-7 sm:pb-8 sm:pt-5">
         <section
@@ -57,7 +59,7 @@ export function HomePage() {
           </div>
 
           <div
-            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+            className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-6"
             aria-label="Produtos disponíveis"
           >
             {loading
@@ -78,6 +80,10 @@ export function HomePage() {
             </p>
           )}
         </section>
+
+        <CategoryShortcuts products={products} />
+
+        <HowToOrder />
 
         <FeatureStrip />
       </main>

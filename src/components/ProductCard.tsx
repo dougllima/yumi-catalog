@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import { ProductGallery } from "@/components/ProductGallery";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Product } from "@/domain/product";
+import { isNewProduct, type Product } from "@/domain/product";
 import { formatCurrency } from "@/utils/formatters";
 
 type ProductCardProps = {
@@ -20,7 +20,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Card
       asChild
-      className="group relative overflow-hidden py-0 shadow-lg shadow-primary/5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10"
+      className="group relative h-full overflow-hidden py-0 shadow-lg shadow-primary/5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10"
     >
       <article>
         <Link
@@ -32,42 +32,40 @@ export function ProductCard({ product }: ProductCardProps) {
           image={product.imageRecords?.[0]}
           images={product.images}
           productName={product.name}
+          hoverImage={product.imageRecords?.[1]}
         />
+        {isNewProduct(product) && (
+          <span className="absolute left-2.5 top-2.5 z-[5] rounded-full bg-primary px-2.5 py-1 text-[0.68rem] font-extrabold uppercase leading-none text-primary-foreground shadow-md">
+            Novo
+          </span>
+        )}
 
-        <CardContent className="grid min-h-[126px] gap-2.5 p-3.5">
-          <div className="grid gap-1.5">
-            <h3 className="font-display text-[1.05rem] font-semibold leading-tight tracking-normal">
-              {product.name}
-            </h3>
-            {visibleCategories.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {visibleCategories.map((category) => (
-                  <span
-                    key={category.slug}
-                    className="rounded-full border bg-background/55 px-2 py-0.5 text-[0.68rem] font-extrabold uppercase leading-none text-muted-foreground"
-                  >
-                    {category.name}
-                  </span>
-                ))}
-              </div>
-            )}
+        <CardContent className="flex flex-1 flex-col gap-2 p-3 sm:p-3.5">
+          {/* Título reserva 2 linhas e a linha de categorias tem altura fixa,
+              para que badges e preço fiquem alinhados entre cards. */}
+          <h3 className="line-clamp-2 min-h-[2.5rem] font-display text-[0.95rem] font-semibold leading-tight tracking-normal sm:min-h-[2.65rem] sm:text-[1.05rem]">
+            {product.name}
+          </h3>
+          <div className="flex h-5 flex-wrap gap-1 overflow-hidden">
+            {visibleCategories.map((category) => (
+              <span
+                key={category.slug}
+                className="rounded-full border bg-background/55 px-2 py-0.5 text-[0.62rem] font-extrabold uppercase leading-none text-muted-foreground sm:text-[0.68rem]"
+              >
+                {category.name}
+              </span>
+            ))}
           </div>
 
           {hasDescription && (
-            <p className="line-clamp-2 text-[0.84rem] leading-snug text-muted-foreground">
+            <p className="line-clamp-2 text-[0.8rem] leading-snug text-muted-foreground sm:text-[0.84rem]">
               {product.description}
             </p>
           )}
 
-          <div className="mt-auto flex items-end justify-between gap-3">
-            <strong
-              className={`ml-auto font-extrabold leading-none text-primary ${
-                price !== null ? "text-lg" : "text-sm"
-              }`}
-            >
-              {price !== null ? formatCurrency(price) : "Sob encomenda"}
-            </strong>
-          </div>
+          <strong className="mt-auto pt-1 text-right text-base font-extrabold leading-none text-primary sm:text-lg">
+            {price !== null ? formatCurrency(price) : "Sob encomenda"}
+          </strong>
         </CardContent>
       </article>
     </Card>

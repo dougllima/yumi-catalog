@@ -6,6 +6,7 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mediaStorage, productRepository } from "@/application/dependencies";
@@ -98,7 +99,11 @@ describe("AdminProductsPage", () => {
       makeProduct({ id: "porta-joias", name: "Porta Joias", isActive: true }),
     ]);
 
-    render(<AdminProductsPage />);
+    render(
+      <MemoryRouter>
+        <AdminProductsPage />
+      </MemoryRouter>,
+    );
 
     expect(await screen.findByText("Porta Joias")).toBeInTheDocument();
     expect(screen.getByText("Vaso")).toBeInTheDocument();
@@ -159,7 +164,11 @@ describe("AdminProductsPage", () => {
       sortOrder: 0,
     });
 
-    render(<AdminProductsPage />);
+    render(
+      <MemoryRouter>
+        <AdminProductsPage />
+      </MemoryRouter>,
+    );
 
     await waitFor(() =>
       expect(mockedProductRepository.listAll).toHaveBeenCalledTimes(1),
@@ -236,7 +245,11 @@ describe("AdminProductsPage", () => {
       sortOrder: 0,
     });
 
-    render(<AdminProductsPage />);
+    render(
+      <MemoryRouter>
+        <AdminProductsPage />
+      </MemoryRouter>,
+    );
 
     await waitFor(() =>
       expect(mockedProductRepository.listAll).toHaveBeenCalledTimes(1),
@@ -293,7 +306,11 @@ describe("AdminProductsPage", () => {
 
     mockedProductRepository.listAll.mockResolvedValue([productWithImage]);
 
-    render(<AdminProductsPage />);
+    render(
+      <MemoryRouter>
+        <AdminProductsPage />
+      </MemoryRouter>,
+    );
 
     await user.click(await screen.findByRole("button", { name: /Mini Box/ }));
     await user.click(screen.getByRole("button", { name: "Enquadrar imagem" }));
@@ -337,7 +354,11 @@ describe("AdminProductsPage", () => {
         imageRecords: [{ id: "image-1", url: "/mini-box.webp", sortOrder: 0 }],
       }),
     ]);
-    render(<AdminProductsPage />);
+    render(
+      <MemoryRouter>
+        <AdminProductsPage />
+      </MemoryRouter>,
+    );
     await user.click(await screen.findByRole("button", { name: /Mini Box/ }));
     await user.click(screen.getByRole("button", { name: "Enquadrar imagem" }));
 
@@ -433,7 +454,11 @@ describe("AdminProductsPage", () => {
       },
     ]);
 
-    render(<AdminProductsPage />);
+    render(
+      <MemoryRouter>
+        <AdminProductsPage />
+      </MemoryRouter>,
+    );
 
     await user.click(
       await screen.findByRole("button", { name: /Porta Joias/ }),

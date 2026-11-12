@@ -5,11 +5,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { contactUrl } from "@/config/contact";
 import type { Product } from "@/domain/product";
-import { useProduct } from "@/hooks/useProducts";
+import { useProduct, usePublishedProducts } from "@/hooks/useProducts";
 import { ProductPage } from "@/pages/ProductPage";
 
 vi.mock("@/hooks/useProducts", () => ({
   useProduct: vi.fn(),
+  usePublishedProducts: vi.fn(),
 }));
 
 const mockedUseProduct = vi.mocked(useProduct);
@@ -43,6 +44,12 @@ const renderProductPage = () =>
 describe("ProductPage", () => {
   beforeEach(() => {
     mockedUseProduct.mockReset();
+    vi.mocked(usePublishedProducts).mockReturnValue({
+      products: [],
+      loading: false,
+      error: null,
+      reload: vi.fn(),
+    });
   });
 
   it("renders product details and contact action", () => {

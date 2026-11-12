@@ -23,7 +23,15 @@ export class SupabaseMediaStorage implements MediaStorage {
     this.bucketName = bucketName;
   }
 
-  async uploadProductImage(productId: string, file: File) {
+  uploadProductImage(productId: string, file: File) {
+    return this.upload(productId, file);
+  }
+
+  uploadCategoryImage(categoryId: string, file: File) {
+    return this.upload(`categories/${categoryId}`, file);
+  }
+
+  private async upload(folder: string, file: File) {
     if (!acceptedImageTypes.has(file.type)) {
       throw new Error("Formato inválido. Use JPEG, PNG ou WebP.");
     }
@@ -33,7 +41,7 @@ export class SupabaseMediaStorage implements MediaStorage {
     }
 
     const safeName = sanitizeFileName(file.name) || "imagem";
-    const storagePath = `${productId}/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
+    const storagePath = `${folder}/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
     const { error } = await this.client.storage
       .from(this.bucketName)
       .upload(storagePath, file, {

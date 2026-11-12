@@ -17,6 +17,8 @@ export type ProductCategory = {
   id: string;
   name: string;
   slug: string;
+  imagePath?: string;
+  imageUrl?: string;
 };
 
 export type Product = {
@@ -141,3 +143,131 @@ export const dedupeCategoryNames = (names: string[]) => {
 
 export const onlyActiveProducts = (products: Product[]) =>
   products.filter((product) => product.isActive);
+
+const newProductWindowInDays = 30;
+const millisecondsPerDay = 24 * 60 * 60 * 1000;
+
+export const isNewProduct = (product: Product, now = new Date()) => {
+  if (!product.createdAt) {
+    return false;
+  }
+
+  const createdAt = new Date(product.createdAt).getTime();
+
+  if (Number.isNaN(createdAt)) {
+    return false;
+  }
+
+  return (
+    now.getTime() - createdAt <= newProductWindowInDays * millisecondsPerDay
+  );
+};
+
+export const relatedProducts = (
+  product: Product,
+  products: Product[],
+  limit = 4,
+) => {
+  const slugs = new Set(product.categories.map((category) => category.slug));
+
+  if (slugs.size === 0) {
+    return [];
+  }
+
+  return products
+    .filter((candidate) => candidate.id !== product.id && candidate.isActive)
+    .map((candidate) => ({
+      candidate,
+      shared: candidate.categories.filter((category) =>
+        slugs.has(category.slug),
+      ).length,
+    }))
+    .filter(({ shared }) => shared > 0)
+    .sort(
+      (left, right) =>
+        right.shared - left.shared ||
+        left.candidate.name.localeCompare(right.candidate.name, "pt-BR"),
+    )
+    .slice(0, limit)
+    .map(({ candidate }) => candidate);
+};
+
+export type CategoryShowcase = {
+  slug: string;
+  name: string;
+  count: number;
+  imageUrl?: string;
+  crop?: ProductImageCrop;
+};
+
+/**
+ * Categorias com produtos ativos, prontas para a vitrine da home.
+ * A imagem da própria categoria tem prioridade; sem ela, usa a foto de um
+ * produto da categoria, sem repetir o mesmo produto em outra categoria.
+ * Categorias com menos produtos escolhem primeiro, para não ficarem sem opção.
+ */
+export const categoryShowcaseFrom = (
+  products: Product[],
+): CategoryShowcase[] => {
+  const groups = new Map<
+    string,
+    { category: ProductCategory; products: Product[] }
+  >();
+
+  products.forEach((product) => {
+    product.categories.forEach((category) => {
+      const group = groups.get(category.slug);
+
+      if (group) {
+        group.products.push(product);
+      } else {
+        groups.set(category.slug, { category, products: [product] });
+      }
+    });
+  });
+
+  const usedProductIds = new Set<string>();
+  const showcase = new Map<string, CategoryShowcase>();
+  const byScarcity = [...groups.values()].sort(
+    (left, right) =>
+      left.products.length - right.products.length ||
+      left.category.name.localeCompare(right.category.name, "pt-BR"),
+  );
+
+  byScarcity.forEach(({ category, products: categoryProducts }) => {
+    const base = {
+      slug: category.slug,
+      name: category.name,
+      count: categoryProducts.length,
+    };
+
+    if (category.imageUrl) {
+      showcase.set(category.slug, { ...base, imageUrl: category.imageUrl });
+      return;
+    }
+
+    const candidate = categoryProducts.find(
+      (product) =>
+        !usedProductIds.has(product.id) &&
+        (product.imageRecords?.[0]?.url ?? product.images[0]),
+    );
+
+    if (!candidate) {
+      showcase.set(category.slug, base);
+      return;
+    }
+
+    usedProductIds.add(candidate.id);
+    const image = candidate.imageRecords?.[0];
+    showcase.set(category.slug, {
+      ...base,
+      imageUrl: image?.url ?? candidate.images[0],
+      crop: image?.crop,
+    });
+  });
+
+  return [...showcase.values()].sort(
+    (left, right) =>
+      right.count - left.count || left.name.localeCompare(right.name, "pt-BR"),
+  );
+};

@@ -7,6 +7,12 @@ export class StaticMediaStorage implements MediaStorage {
     );
   }
 
+  async uploadCategoryImage(): Promise<UploadedMedia> {
+    throw new Error(
+      "Upload indisponível: configure o Supabase para habilitar storage.",
+    );
+  }
+
   async remove(): Promise<void> {
     throw new Error(
       "Remoção indisponível: configure o Supabase para habilitar storage.",

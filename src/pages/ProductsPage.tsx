@@ -225,7 +225,7 @@ export function ProductsPage() {
 
           {loading ? (
             <div
-              className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+              className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
               aria-label="Carregando produtos"
             >
               {productSkeletons.map((item) => (
@@ -237,7 +237,7 @@ export function ProductsPage() {
             </div>
           ) : hasProducts ? (
             <div
-              className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+              className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
               aria-label="Todos os produtos cadastrados"
             >
               {filteredProducts.map((product) => (

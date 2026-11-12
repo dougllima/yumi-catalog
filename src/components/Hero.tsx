@@ -1,6 +1,9 @@
 import { Gift, Heart, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
+import { ProductImageCropFrame } from "@/components/ProductImageCropFrame";
 import { Badge } from "@/components/ui/badge";
+import type { Product } from "@/domain/product";
 import { publicAssetUrl } from "@/utils/publicAssetUrl";
 
 const highlights = [
@@ -21,7 +24,88 @@ const highlights = [
   },
 ];
 
-export function Hero() {
+type HeroProps = {
+  products?: Product[];
+};
+
+function HeroLogo() {
+  return (
+    <div className="relative mx-auto grid w-full max-w-sm place-items-center lg:max-w-[30rem]">
+      <Sparkles
+        className="absolute left-2 top-12 size-7 text-primary/60"
+        aria-hidden="true"
+      />
+      <Heart
+        className="absolute right-7 top-6 size-6 text-primary/70"
+        aria-hidden="true"
+      />
+      <Sparkles
+        className="absolute bottom-24 right-1 size-9 text-accent-foreground/40"
+        aria-hidden="true"
+      />
+      <Heart
+        className="absolute bottom-16 left-6 size-6 text-primary/65"
+        aria-hidden="true"
+      />
+
+      <div className="yumi-logo-orbit relative grid aspect-square w-[min(76vw,21rem)] place-items-center rounded-full border-4 border-secondary/80 bg-secondary/70 shadow-2xl shadow-primary/20">
+        <div className="absolute inset-5 rounded-full border border-primary/25" />
+        <div className="absolute -inset-9 rounded-full border border-primary/10" />
+        <img
+          src={publicAssetUrl("/brand/yumi-logo.png")}
+          alt="Logo da Yumi Studio com mascote gatinho"
+          className="relative z-10 size-[88%] rounded-full object-contain shadow-lg"
+        />
+      </div>
+    </div>
+  );
+}
+
+function HeroShowcase({ products }: { products: Product[] }) {
+  const showcase = products
+    .map((product) => ({
+      product,
+      image: product.imageRecords?.[0],
+      url: product.imageRecords?.[0]?.url ?? product.images[0],
+    }))
+    .filter(({ url }) => Boolean(url))
+    .slice(0, 3);
+
+  if (showcase.length < 3) {
+    return <HeroLogo />;
+  }
+
+  const tilts = [
+    "-rotate-3 lg:translate-y-4",
+    "rotate-2 lg:-translate-y-3",
+    "-rotate-2 lg:translate-y-5",
+  ];
+
+  return (
+    <div
+      className="relative mx-auto grid w-full max-w-md grid-cols-3 gap-3 lg:max-w-[30rem]"
+      aria-label="Peças em destaque"
+    >
+      {showcase.map(({ product, image, url }, index) => (
+        <Link
+          key={product.id}
+          to={`/produto/${product.id}`}
+          aria-label={`Ver ${product.name}`}
+          className={`block overflow-hidden rounded-2xl border-4 border-secondary/80 bg-secondary/70 shadow-xl shadow-primary/20 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/60 ${tilts[index]}`}
+        >
+          <ProductImageCropFrame
+            src={publicAssetUrl(url ?? "")}
+            alt={product.name}
+            crop={image?.crop}
+            className="aspect-[3/4]"
+          />
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+export function Hero({ products = [] }: HeroProps) {
   return (
     <section
       className="yumi-hero relative overflow-hidden border-b"
@@ -75,34 +159,7 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="relative mx-auto grid w-full max-w-sm place-items-center lg:max-w-[30rem]">
-          <Sparkles
-            className="absolute left-2 top-12 size-7 text-primary/60"
-            aria-hidden="true"
-          />
-          <Heart
-            className="absolute right-7 top-6 size-6 text-primary/70"
-            aria-hidden="true"
-          />
-          <Sparkles
-            className="absolute bottom-24 right-1 size-9 text-accent-foreground/40"
-            aria-hidden="true"
-          />
-          <Heart
-            className="absolute bottom-16 left-6 size-6 text-primary/65"
-            aria-hidden="true"
-          />
-
-          <div className="yumi-logo-orbit relative grid aspect-square w-[min(76vw,21rem)] place-items-center rounded-full border-4 border-secondary/80 bg-secondary/70 shadow-2xl shadow-primary/20">
-            <div className="absolute inset-5 rounded-full border border-primary/25" />
-            <div className="absolute -inset-9 rounded-full border border-primary/10" />
-            <img
-              src={publicAssetUrl("/brand/yumi-logo.png")}
-              alt="Logo da Yumi Studio com mascote gatinho"
-              className="relative z-10 size-[88%] rounded-full object-contain shadow-lg"
-            />
-          </div>
-        </div>
+        <HeroShowcase products={products} />
       </div>
       <div
         className="yumi-wave absolute inset-x-0 bottom-0 h-9"

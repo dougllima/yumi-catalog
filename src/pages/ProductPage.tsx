@@ -1,19 +1,13 @@
-import {
-  ArrowLeft,
-  Heart,
-  MessageCircle,
-  PackageCheck,
-  Sparkles,
-  Tag,
-} from "lucide-react";
+import { ArrowLeft, Heart, PackageCheck, Sparkles, Tag } from "lucide-react";
 import type { MouseEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { FeatureStrip } from "@/components/FeatureStrip";
+import { ProductContactButton } from "@/components/ProductContactButton";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
+import { RelatedProducts } from "@/components/RelatedProducts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { contactUrl } from "@/config/contact";
 import { useProduct } from "@/hooks/useProducts";
 import { formatCurrency } from "@/utils/formatters";
 
@@ -179,15 +173,12 @@ export function ProductPage() {
                 />
                 Produção sob encomenda
               </p>
-              <Button asChild className="h-11 rounded-full text-base">
-                <a href={contactUrl} target="_blank" rel="noreferrer">
-                  <MessageCircle aria-hidden="true" />
-                  Falar sobre este produto
-                </a>
-              </Button>
+              <ProductContactButton productName={product.name} />
             </div>
           </div>
         </section>
+
+        <RelatedProducts product={product} />
       </main>
 
       <FeatureStrip />

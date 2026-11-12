@@ -12,6 +12,11 @@ export type AdminSession = {
   email?: string;
 };
 
+export type CategoryUpdateInput = {
+  name: string;
+  imagePath?: string | null;
+};
+
 export type UploadedMedia = {
   storagePath: string;
   publicUrl: string;
@@ -46,6 +51,10 @@ export interface ProductRepository {
     input: ProductImageCropInput,
   ): Promise<ProductImage>;
   listCategories(): Promise<ProductCategory[]>;
+  updateCategory(
+    id: string,
+    input: CategoryUpdateInput,
+  ): Promise<ProductCategory>;
   replaceProductCategories(
     productId: string,
     categoryNames: string[],
@@ -54,6 +63,7 @@ export interface ProductRepository {
 
 export interface MediaStorage {
   uploadProductImage(productId: string, file: File): Promise<UploadedMedia>;
+  uploadCategoryImage(categoryId: string, file: File): Promise<UploadedMedia>;
   remove(storagePath: string): Promise<void>;
   getPublicUrl(storagePath: string): string;
 }

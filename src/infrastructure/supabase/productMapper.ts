@@ -22,6 +22,7 @@ export type SupabaseCategoryRow = {
   id: string;
   name: string;
   slug: string;
+  image_path?: string | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -61,6 +62,17 @@ const optionalText = (value?: string) => {
   return trimmed ? trimmed : undefined;
 };
 
+export const mapCategoryRow = (
+  row: SupabaseCategoryRow,
+  getPublicUrl: (storagePath: string) => string,
+): ProductCategory => ({
+  id: row.id,
+  name: row.name,
+  slug: row.slug,
+  imagePath: row.image_path ?? undefined,
+  imageUrl: row.image_path ? getPublicUrl(row.image_path) : undefined,
+});
+
 export function mapProductRow(
   row: SupabaseProductRow,
   getPublicUrl: (storagePath: string) => string,
@@ -84,11 +96,7 @@ export function mapProductRow(
     .map((item) => item.categories)
     .filter((category): category is SupabaseCategoryRow => Boolean(category))
     .sort((left, right) => left.name.localeCompare(right.name, "pt-BR"))
-    .map((category) => ({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-    }));
+    .map((category) => mapCategoryRow(category, getPublicUrl));
 
   return {
     id: row.id,
