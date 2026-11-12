@@ -1,12 +1,18 @@
-import { Search, Sparkles, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Sparkles, X } from "lucide-react";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { FeatureStrip } from "@/components/FeatureStrip";
+import { PageContainer } from "@/components/PageContainer";
+import { Panel } from "@/components/Panel";
 import { ProductCard } from "@/components/ProductCard";
+import { SectionHeader } from "@/components/SectionHeader";
+import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
 import { normalizeSearch } from "@/domain/product";
 import { usePublishedProducts } from "@/hooks/useProducts";
+
+const pageSizeOptions = [12, 24, 48] as const;
+const defaultPageSize = 24;
 
 const productSkeletons = Array.from({ length: 12 }, (_, index) => index);
 
@@ -16,24 +22,42 @@ export function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchTerm = searchParams.get("q") ?? "";
   const selectedCategorySlug = searchParams.get("categoria") ?? "";
-  const updateParam = (key: string, value: string) =>
+  const requestedPageSize = Number(searchParams.get("por-pagina"));
+  const pageSize =
+    pageSizeOptions.find((option) => option === requestedPageSize) ??
+    defaultPageSize;
+  const requestedPage = Number(searchParams.get("pagina"));
+  const updateParams = (changes: Record<string, string>) =>
     setSearchParams(
       (current) => {
         const next = new URLSearchParams(current);
 
-        if (value) {
-          next.set(key, value);
-        } else {
-          next.delete(key);
-        }
+        Object.entries(changes).forEach(([key, value]) => {
+          if (value) {
+            next.set(key, value);
+          } else {
+            next.delete(key);
+          }
+        });
 
         return next;
       },
       { replace: true },
     );
-  const setSearchTerm = (value: string) => updateParam("q", value);
+  // Mudar filtro volta para a primeira página.
+  const setSearchTerm = (value: string) =>
+    updateParams({ q: value, pagina: "" });
   const setSelectedCategorySlug = (value: string) =>
-    updateParam("categoria", value);
+    updateParams({ categoria: value, pagina: "" });
+  const setPageSize = (value: number) =>
+    updateParams({
+      "por-pagina": value === defaultPageSize ? "" : String(value),
+      pagina: "",
+    });
+  const setPage = (value: number) => {
+    updateParams({ pagina: value > 1 ? String(value) : "" });
+    window.scrollTo({ top: 0 });
+  };
   const normalizedSearchTerm = normalizeSearch(searchTerm);
 
   const categoryFilters = useMemo(() => {
@@ -93,27 +117,31 @@ export function ProductsPage() {
   );
   const hasFilters = hasSearch || hasCategoryFilter;
   const hasProducts = filteredProducts.length > 0;
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+  const currentPage = Math.min(
+    Math.max(1, Number.isInteger(requestedPage) ? requestedPage : 1),
+    totalPages,
+  );
+  const pageStart = (currentPage - 1) * pageSize;
+  const pageProducts = filteredProducts.slice(pageStart, pageStart + pageSize);
 
   return (
     <>
-      <main className="mx-auto w-full max-w-[1400px] px-4 pb-6 pt-6 sm:px-7 sm:pb-8 sm:pt-8">
+      <PageContainer>
         <section className="grid gap-5" aria-labelledby="all-products-title">
-          <div className="grid gap-4 rounded-[1.75rem] border bg-card/58 p-4 shadow-xl shadow-primary/8 backdrop-blur sm:p-6 lg:grid-cols-[1fr_420px] lg:items-end">
-            <div className="grid gap-2">
-              <p className="flex items-center gap-2 text-sm font-extrabold text-primary">
-                <Sparkles className="size-4" aria-hidden="true" />
-                Catálogo completo
-              </p>
-              <h1
-                id="all-products-title"
-                className="font-display text-3xl font-semibold leading-tight tracking-normal sm:text-4xl"
-              >
-                Todos os produtos
-              </h1>
-              <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-                Encontre as peças cadastradas no catálogo da Yumi Studio.
-              </p>
-            </div>
+          <Panel className="grid gap-4 lg:grid-cols-[1fr_420px] lg:items-end">
+            <SectionHeader
+              as="h1"
+              titleId="all-products-title"
+              eyebrow={
+                <>
+                  <Sparkles aria-hidden="true" />
+                  Catálogo completo
+                </>
+              }
+              title="Todos os produtos"
+              description="Encontre as peças cadastradas no catálogo da Yumi Studio."
+            />
 
             <form
               className="grid gap-2"
@@ -154,7 +182,7 @@ export function ProductsPage() {
                 )}
               </div>
             </form>
-          </div>
+          </Panel>
 
           {categoryFilters.length > 0 && (
             <div
@@ -195,9 +223,11 @@ export function ProductsPage() {
             <p>
               Exibindo{" "}
               <strong className="font-extrabold text-foreground">
-                {loading ? "..." : filteredProducts.length}
+                {loading ? "..." : pageProducts.length}
               </strong>{" "}
-              de {products.length} produtos
+              de {filteredProducts.length} produtos
+              {filteredProducts.length !== products.length &&
+                ` (${products.length} no catálogo)`}
             </p>
             {hasSearch && (
               <p>
@@ -240,23 +270,17 @@ export function ProductsPage() {
               className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
               aria-label="Todos os produtos cadastrados"
             >
-              {filteredProducts.map((product) => (
+              {pageProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
           ) : (
-            <div className="grid min-h-[260px] place-items-center rounded-[1.5rem] border bg-card/62 p-6 text-center shadow-lg shadow-primary/5 backdrop-blur">
-              <div className="grid max-w-sm gap-3">
-                <div className="mx-auto grid size-12 place-items-center rounded-full bg-accent text-primary">
-                  <Search aria-hidden="true" />
-                </div>
-                <h2 className="font-display text-2xl font-semibold">
-                  Nenhum produto encontrado
-                </h2>
-                <p className="text-sm leading-6 text-muted-foreground">
-                  Tente buscar por outro termo ou limpe os filtros para ver o
-                  catálogo completo.
-                </p>
+            <div className="grid min-h-[260px] place-items-center">
+              <StatePanel
+                icon={Search}
+                title="Nenhum produto encontrado"
+                description="Tente buscar por outro termo ou limpe os filtros para ver o catálogo completo."
+              >
                 <Button
                   type="button"
                   variant="secondary"
@@ -268,13 +292,66 @@ export function ProductsPage() {
                 >
                   {hasFilters ? "Limpar filtros" : "Ver catálogo"}
                 </Button>
-              </div>
+              </StatePanel>
             </div>
           )}
-        </section>
 
-        <FeatureStrip />
-      </main>
+          {!loading && hasProducts && (
+            <nav
+              className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between"
+              aria-label="Paginação de produtos"
+            >
+              <label className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                Por página
+                <select
+                  data-testid="products-page-size"
+                  value={pageSize}
+                  onChange={(event) => setPageSize(Number(event.target.value))}
+                  className="h-9 rounded-full border bg-background/70 px-3 text-sm font-bold text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                >
+                  {pageSizeOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full"
+                    disabled={currentPage <= 1}
+                    onClick={() => setPage(currentPage - 1)}
+                  >
+                    <ChevronLeft aria-hidden="true" />
+                    Anterior
+                  </Button>
+                  <span
+                    className="text-sm font-bold"
+                    data-testid="products-page-indicator"
+                  >
+                    Página {currentPage} de {totalPages}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setPage(currentPage + 1)}
+                  >
+                    Próxima
+                    <ChevronRight aria-hidden="true" />
+                  </Button>
+                </div>
+              )}
+            </nav>
+          )}
+        </section>
+      </PageContainer>
     </>
   );
 }

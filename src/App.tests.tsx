@@ -55,9 +55,10 @@ describe("App", () => {
       </MemoryRouter>,
     );
 
-    expect(
-      screen.getByRole("link", { name: "Yumi Studio" }),
-    ).toBeInTheDocument();
+    // Marca no header e no rodapé compartilhados.
+    expect(screen.getAllByRole("link", { name: "Yumi Studio" })).toHaveLength(
+      2,
+    );
     expect(
       screen.getByRole("heading", { name: /Pe.as .nicas para decorar/i }),
     ).toBeInTheDocument();

@@ -147,4 +147,35 @@ describe("ProductsPage", () => {
     expect(screen.getByText("Porta Joias")).toBeInTheDocument();
     expect(screen.queryByText("Trono de Ferro")).not.toBeInTheDocument();
   });
+
+  it("paginates products and lets the user change the page size", async () => {
+    const user = userEvent.setup();
+    mockedUsePublishedProducts.mockReturnValue({
+      products: Array.from({ length: 25 }, (_, index) =>
+        makeProduct({ id: `p-${index}`, name: `Item ${index + 1}` }),
+      ),
+      loading: false,
+      error: null,
+      reload: vi.fn(),
+    });
+
+    renderProductsPage();
+
+    expect(screen.getByText("Item 24")).toBeInTheDocument();
+    expect(screen.queryByText("Item 25")).not.toBeInTheDocument();
+    expect(screen.getByTestId("products-page-indicator")).toHaveTextContent(
+      "Página 1 de 2",
+    );
+
+    await user.click(screen.getByRole("button", { name: /Próxima/ }));
+    expect(screen.getByText("Item 25")).toBeInTheDocument();
+    expect(screen.queryByText("Item 1")).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByTestId("products-page-size"), "12");
+    expect(screen.getByText("Item 12")).toBeInTheDocument();
+    expect(screen.queryByText("Item 13")).not.toBeInTheDocument();
+    expect(screen.getByTestId("products-page-indicator")).toHaveTextContent(
+      "Página 1 de 3",
+    );
+  });
 });

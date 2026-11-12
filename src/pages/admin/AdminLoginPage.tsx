@@ -3,6 +3,8 @@ import { FormEvent, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { authService, runtimeBackend } from "@/application/dependencies";
+import { PageContainer } from "@/components/PageContainer";
+import { Panel } from "@/components/Panel";
 import { Button } from "@/components/ui/button";
 import { useAdminSession } from "@/hooks/useAdminSession";
 
@@ -46,8 +48,8 @@ export function AdminLoginPage() {
   };
 
   return (
-    <main className="mx-auto grid min-h-[58vh] w-full max-w-[1360px] place-items-center px-4 py-10 sm:px-7">
-      <section className="grid w-full max-w-md gap-6 rounded-[1.75rem] border bg-card/72 p-6 shadow-2xl shadow-primary/10 backdrop-blur sm:p-8">
+    <PageContainer centered>
+      <Panel as="section" className="grid w-full max-w-md gap-6 sm:p-8">
         <div className="grid gap-3 text-center">
           <div className="mx-auto grid size-12 place-items-center rounded-full bg-accent text-primary">
             <LockKeyhole aria-hidden="true" />
@@ -115,7 +117,7 @@ export function AdminLoginPage() {
             {submitting ? "Entrando..." : "Entrar"}
           </Button>
         </form>
-      </section>
-    </main>
+      </Panel>
+    </PageContainer>
   );
 }

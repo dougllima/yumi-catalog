@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { ProductImageCropFrame } from "@/components/ProductImageCropFrame";
+import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { categoryShowcaseFrom, type Product } from "@/domain/product";
 import { publicAssetUrl } from "@/utils/publicAssetUrl";
@@ -51,38 +52,36 @@ export function CategoryShortcuts({ products }: { products: Product[] }) {
       className="grid gap-4 overflow-x-clip pt-8"
       aria-labelledby="categories-title"
     >
-      <div className="flex items-end justify-between gap-3">
-        <h2
-          id="categories-title"
-          className="font-display text-3xl font-semibold leading-tight sm:text-4xl"
-        >
-          Explore por categoria
-        </h2>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="rounded-full"
-            onClick={() => scrollByPage(-1)}
-            disabled={!canScrollPrevious}
-            aria-label="Categorias anteriores"
-          >
-            <ChevronLeft aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="rounded-full"
-            onClick={() => scrollByPage(1)}
-            disabled={!canScrollNext}
-            aria-label="Próximas categorias"
-          >
-            <ChevronRight aria-hidden="true" />
-          </Button>
-        </div>
-      </div>
+      <SectionHeader
+        titleId="categories-title"
+        title="Explore por categoria"
+        action={
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="rounded-full"
+              onClick={() => scrollByPage(-1)}
+              disabled={!canScrollPrevious}
+              aria-label="Categorias anteriores"
+            >
+              <ChevronLeft aria-hidden="true" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="rounded-full"
+              onClick={() => scrollByPage(1)}
+              disabled={!canScrollNext}
+              aria-label="Próximas categorias"
+            >
+              <ChevronRight aria-hidden="true" />
+            </Button>
+          </div>
+        }
+      />
 
       <div
         ref={trackRef}

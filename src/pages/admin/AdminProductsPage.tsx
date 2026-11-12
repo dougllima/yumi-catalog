@@ -33,7 +33,11 @@ import {
   productRepository,
   runtimeBackend,
 } from "@/application/dependencies";
+import { PageContainer } from "@/components/PageContainer";
+import { Panel } from "@/components/Panel";
+import { panelClass } from "@/components/panelStyles";
 import { ProductImageCropFrame } from "@/components/ProductImageCropFrame";
+import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
 import type { Product, ProductImage, ProductImageCrop } from "@/domain/product";
 import {
@@ -46,6 +50,7 @@ import {
   normalizeSearch,
   reaisToCents,
 } from "@/domain/product";
+import { cn } from "@/lib/utils";
 import { AdminProductCropPreview } from "@/pages/admin/AdminProductCropPreview";
 
 type ProductFormState = {
@@ -633,23 +638,24 @@ export function AdminProductsPage() {
   };
 
   return (
-    <main className="mx-auto w-full max-w-[1400px] px-4 pb-8 pt-6 sm:px-7">
+    <PageContainer>
       <section className="grid gap-5" aria-labelledby="admin-title">
-        <div className="flex flex-col gap-4 rounded-[1.75rem] border bg-card/64 p-4 shadow-xl shadow-primary/8 backdrop-blur sm:p-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="grid gap-1.5">
-            <p className="text-sm font-extrabold text-primary">Administração</p>
-            <h1
-              id="admin-title"
-              className="font-display text-3xl font-semibold tracking-normal sm:text-4xl"
-            >
-              Produtos da Yumi Studio
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Fonte ativa:{" "}
-              {runtimeBackend === "supabase" ? "Supabase" : "fallback estático"}
-              .
-            </p>
-          </div>
+        <Panel className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <SectionHeader
+            as="h1"
+            titleId="admin-title"
+            eyebrow="Administração"
+            title="Produtos da Yumi Studio"
+            description={
+              <>
+                Fonte ativa:{" "}
+                {runtimeBackend === "supabase"
+                  ? "Supabase"
+                  : "fallback estático"}
+                .
+              </>
+            }
+          />
 
           <div className="flex flex-wrap gap-2">
             <Button
@@ -677,10 +683,10 @@ export function AdminProductsPage() {
               Sair
             </Button>
           </div>
-        </div>
+        </Panel>
 
         <div className="grid gap-5 lg:grid-cols-[340px_1fr]">
-          <aside className="grid h-fit gap-3 rounded-[1.5rem] border bg-card/58 p-4 shadow-lg shadow-primary/5 backdrop-blur">
+          <Panel as="aside" variant="item" className="grid h-fit gap-3">
             <label className="grid gap-2 text-sm font-extrabold">
               Buscar produto
               <input
@@ -741,10 +747,10 @@ export function AdminProductsPage() {
                 ))
               )}
             </div>
-          </aside>
+          </Panel>
 
           <form
-            className="grid gap-5 rounded-[1.5rem] border bg-card/62 p-4 shadow-xl shadow-primary/8 backdrop-blur sm:p-6"
+            className={cn(panelClass(), "grid gap-5")}
             onSubmit={handleSave}
           >
             <div className="grid gap-4 sm:grid-cols-2">
@@ -1236,6 +1242,6 @@ export function AdminProductsPage() {
           </form>
         </div>
       </section>
-    </main>
+    </PageContainer>
   );
 }
