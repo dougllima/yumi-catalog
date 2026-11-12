@@ -1,3 +1,4 @@
+import { arrayMove } from "@dnd-kit/sortable";
 import {
   ArrowDown,
   ArrowUp,
@@ -38,6 +39,7 @@ import { Panel } from "@/components/Panel";
 import { panelClass } from "@/components/panelStyles";
 import { ProductImageCropFrame } from "@/components/ProductImageCropFrame";
 import { SectionHeader } from "@/components/SectionHeader";
+import { SortableItem, SortableList } from "@/components/SortableList";
 import { Button } from "@/components/ui/button";
 import type { Product, ProductImage, ProductImageCrop } from "@/domain/product";
 import {
@@ -112,9 +114,6 @@ export function AdminProductsPage() {
   const [categoryDraft, setCategoryDraft] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [isDraggingImages, setIsDraggingImages] = useState(false);
-  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(
-    null,
-  );
   const [editingCropImageId, setEditingCropImageId] = useState<string | null>(
     null,
   );
@@ -154,8 +153,12 @@ export function AdminProductsPage() {
 
   const filteredProducts = useMemo(() => {
     const normalized = normalizeSearch(searchTerm);
-    const sortedProducts = [...products].sort((left, right) =>
-      left.name.localeCompare(right.name, "pt-BR"),
+    // Mesma ordem do catálogo público: ordem manual e depois nome.
+    const sortedProducts = [...products].sort(
+      (left, right) =>
+        (left.sortOrder ?? Number.MAX_SAFE_INTEGER) -
+          (right.sortOrder ?? Number.MAX_SAFE_INTEGER) ||
+        left.name.localeCompare(right.name, "pt-BR"),
     );
 
     if (!normalized) {
@@ -633,6 +636,41 @@ export function AdminProductsPage() {
     }
   };
 
+  const canReorderProducts = !normalizeSearch(searchTerm);
+
+  const reorderProducts = async (fromIndex: number, toIndex: number) => {
+    const reordered = arrayMove(filteredProducts, fromIndex, toIndex).map(
+      (product, index) => ({ ...product, sortOrder: index }),
+    );
+    const orders = reordered
+      .filter(
+        (product) =>
+          product.sortOrder !==
+          products.find((current) => current.id === product.id)?.sortOrder,
+      )
+      .map((product) => ({ id: product.id, sortOrder: product.sortOrder }));
+
+    if (orders.length === 0) {
+      return;
+    }
+
+    setProducts(reordered);
+    setError(null);
+    setMessage(null);
+
+    try {
+      await productRepository.updateProductOrder(orders);
+      setMessage("Ordem dos produtos atualizada.");
+    } catch (unknownError) {
+      setError(
+        unknownError instanceof Error
+          ? unknownError.message
+          : "Não foi possível reorganizar os produtos.",
+      );
+      await loadProducts();
+    }
+  };
+
   const handleLogout = async () => {
     await authService.signOut();
   };
@@ -708,45 +746,74 @@ export function AdminProductsPage() {
                   Carregando produtos...
                 </p>
               ) : (
-                filteredProducts.map((product) => (
-                  <button
-                    key={product.id}
-                    type="button"
-                    className="grid rounded-2xl border bg-background/45 px-3 py-2 text-left transition hover:border-primary/50 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[active=true]:border-primary data-[active=true]:bg-accent"
-                    data-active={product.id === selectedId}
-                    onClick={() => {
-                      setSelectedId(product.id);
-                      setForm(toFormState(product));
-                      setCategoryDraft("");
-                      setFiles([]);
-                      setEditingCropImageId(null);
-                      setCropDraft(defaultProductImageCrop);
-                      setMessage(null);
-                      setError(null);
-                    }}
-                  >
-                    <span className="font-extrabold">{product.name}</span>
-                    <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                      {product.isActive ? (
-                        <Eye className="size-3.5" aria-hidden="true" />
-                      ) : (
-                        <EyeOff className="size-3.5" aria-hidden="true" />
-                      )}
-                      {product.isActive ? "Ativo" : "Inativo"}
-                      {product.showOnHome && (
+                <SortableList
+                  ids={filteredProducts.map((product) => product.id)}
+                  layout="list"
+                  onReorder={(from, to) => void reorderProducts(from, to)}
+                >
+                  {filteredProducts.map((product) => (
+                    <SortableItem
+                      key={product.id}
+                      id={product.id}
+                      disabled={!canReorderProducts}
+                      handleLabel={`Arrastar para reordenar ${product.name}`}
+                      handleClassName="size-9"
+                      className="flex items-center gap-1"
+                    >
+                      {(handle) => (
                         <>
-                          <HomeIcon
-                            className="ml-2 size-3.5"
-                            aria-hidden="true"
-                          />
-                          Home
+                          {handle}
+                          <button
+                            type="button"
+                            className="grid min-w-0 flex-1 rounded-2xl border bg-background/45 px-3 py-2 text-left transition hover:border-primary/50 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[active=true]:border-primary data-[active=true]:bg-accent"
+                            data-active={product.id === selectedId}
+                            onClick={() => {
+                              setSelectedId(product.id);
+                              setForm(toFormState(product));
+                              setCategoryDraft("");
+                              setFiles([]);
+                              setEditingCropImageId(null);
+                              setCropDraft(defaultProductImageCrop);
+                              setMessage(null);
+                              setError(null);
+                            }}
+                          >
+                            <span className="font-extrabold">
+                              {product.name}
+                            </span>
+                            <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+                              {product.isActive ? (
+                                <Eye className="size-3.5" aria-hidden="true" />
+                              ) : (
+                                <EyeOff
+                                  className="size-3.5"
+                                  aria-hidden="true"
+                                />
+                              )}
+                              {product.isActive ? "Ativo" : "Inativo"}
+                              {product.showOnHome && (
+                                <>
+                                  <HomeIcon
+                                    className="ml-2 size-3.5"
+                                    aria-hidden="true"
+                                  />
+                                  Home
+                                </>
+                              )}
+                            </span>
+                          </button>
                         </>
                       )}
-                    </span>
-                  </button>
-                ))
+                    </SortableItem>
+                  ))}
+                </SortableList>
               )}
             </div>
+            {!canReorderProducts && (
+              <p className="text-xs font-semibold text-muted-foreground">
+                Limpe a busca para reordenar os produtos.
+              </p>
+            )}
           </Panel>
 
           <form
@@ -1119,95 +1186,94 @@ export function AdminProductsPage() {
                 </div>
               )}
 
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {(selectedProduct?.imageRecords ?? []).map(
-                  (image, index, list) => (
-                    <div
-                      key={image.id}
-                      data-testid="admin-product-image-card"
-                      draggable={!saving}
-                      onDragStart={(event) => {
-                        event.dataTransfer.effectAllowed = "move";
-                        setDraggedImageIndex(index);
-                      }}
-                      onDragOver={(event) => {
-                        if (draggedImageIndex !== null) {
-                          event.preventDefault();
-                          event.dataTransfer.dropEffect = "move";
-                        }
-                      }}
-                      onDrop={(event) => {
-                        if (draggedImageIndex === null) {
-                          return;
-                        }
-                        event.preventDefault();
-                        const fromIndex = draggedImageIndex;
-                        setDraggedImageIndex(null);
-                        void moveImage(fromIndex, index);
-                      }}
-                      onDragEnd={() => setDraggedImageIndex(null)}
-                      className={`cursor-grab overflow-hidden rounded-2xl border bg-card shadow-sm ${
-                        draggedImageIndex === index ? "opacity-50" : ""
-                      }`}
-                    >
-                      <ProductImageCropFrame
-                        src={image.url}
-                        alt={
-                          image.altText ?? selectedProduct?.name ?? "Produto"
-                        }
-                        crop={image.crop}
-                      />
-                      <div className="flex items-center justify-between gap-2 p-2">
-                        <div className="flex gap-1">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 rounded-full"
-                            onClick={() => startImageCrop(image)}
-                            aria-label="Enquadrar imagem"
-                          >
-                            <Crop aria-hidden="true" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 rounded-full"
-                            disabled={index === 0 || saving}
-                            onClick={() => void moveImage(index, index - 1)}
-                            aria-label="Mover imagem para cima"
-                          >
-                            <ArrowUp aria-hidden="true" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 rounded-full"
-                            disabled={index === list.length - 1 || saving}
-                            onClick={() => void moveImage(index, index + 1)}
-                            aria-label="Mover imagem para baixo"
-                          >
-                            <ArrowDown aria-hidden="true" />
-                          </Button>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 rounded-full text-destructive"
-                          disabled={!image.storagePath || saving}
-                          onClick={() => void removeImage(image)}
-                          aria-label="Remover imagem"
-                        >
-                          <Trash2 aria-hidden="true" />
-                        </Button>
-                      </div>
-                    </div>
-                  ),
+              <SortableList
+                ids={(selectedProduct?.imageRecords ?? []).map(
+                  (image) => image.id,
                 )}
-              </div>
+                layout="grid"
+                onReorder={(from, to) => void moveImage(from, to)}
+              >
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {(selectedProduct?.imageRecords ?? []).map(
+                    (image, index, list) => (
+                      <SortableItem
+                        key={image.id}
+                        id={image.id}
+                        disabled={saving}
+                        handleLabel="Arrastar para reordenar imagem"
+                        data-testid="admin-product-image-card"
+                        className="overflow-hidden rounded-2xl border bg-card shadow-sm"
+                      >
+                        {(handle) => (
+                          <>
+                            <ProductImageCropFrame
+                              src={image.url}
+                              alt={
+                                image.altText ??
+                                selectedProduct?.name ??
+                                "Produto"
+                              }
+                              crop={image.crop}
+                            />
+                            <div className="flex items-center justify-between gap-2 p-2">
+                              <div className="flex gap-1">
+                                {handle}
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-8 rounded-full"
+                                  onClick={() => startImageCrop(image)}
+                                  aria-label="Enquadrar imagem"
+                                >
+                                  <Crop aria-hidden="true" />
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-8 rounded-full"
+                                  disabled={index === 0 || saving}
+                                  onClick={() =>
+                                    void moveImage(index, index - 1)
+                                  }
+                                  aria-label="Mover imagem para cima"
+                                >
+                                  <ArrowUp aria-hidden="true" />
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-8 rounded-full"
+                                  disabled={index === list.length - 1 || saving}
+                                  onClick={() =>
+                                    void moveImage(index, index + 1)
+                                  }
+                                  aria-label="Mover imagem para baixo"
+                                >
+                                  <ArrowDown aria-hidden="true" />
+                                </Button>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 rounded-full text-destructive"
+                                disabled={!image.storagePath || saving}
+                                onClick={() => void removeImage(image)}
+                                aria-label="Remover imagem"
+                              >
+                                <Trash2 aria-hidden="true" />
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </SortableItem>
+                    ),
+                  )}
+                </div>
+              </SortableList>
             </section>
 
             {message && (
