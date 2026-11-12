@@ -74,7 +74,12 @@ Todas as páginas (públicas e admin) usam a mesma estrutura, sem repetir classe
 - `StatePanel`: estados de carregamento, erro, vazio e acesso negado.
 - `SiteFooter`: rodapé único (marca, links e contato do Instagram, copyright), renderizado em `App.tsx` para toda rota fora de `/admin`; as páginas não renderizam rodapé próprio.
 - Novas páginas devem usar esses componentes e a largura de 1560px; não introduzir outras larguras máximas.
-- Fundo da página: `.yumi-page::before` em `index.css`, `position: fixed` em tela cheia, apenas gradientes CSS (não usar `background-attachment: fixed`, que falha no iOS).
+- Fundo da página: `.yumi-page::before` em `index.css`, `position: fixed` em tela cheia, apenas gradientes CSS (não usar `background-attachment: fixed`, que falha no iOS). Cores do fundo em variáveis `--glow-*` e `--page-wash`, definidas em `:root` e `.dark`.
+- Estilos compartilhados de formulário e superfície:
+  - `components/uiStyles.ts`: `inputClass` (campo de texto, select e busca, altura `h-10`) e `labelClass`. Textarea usa `cn(inputClass, "h-auto resize-y rounded-2xl py-3")`.
+  - `focus-visible:yumi-focus`: anel de foco padrão, definido como `@utility` em `index.css`. Usar em todo controle interativo em vez de repetir `ring-[3px] ring-ring/50`.
+  - Raios de superfície: `rounded-panel` (1.75rem, `Panel` `card`, header) e `rounded-item` (1.25rem, `Panel` `item`, cards e imagens). Outros raios usam a escala padrão do Tailwind.
+  - Opacidades de fundo em passos de 10 (ex.: `/40`, `/60`, `/70`, `/80`), não valores arbitrários.
 - Evitar `backdrop-filter` aninhado (pai e filhos), pois pode fazer filhos sumirem no Safari iOS.
 - A listagem `/produtos` pagina no cliente (12/24/48 por página, padrão 24) com estado na URL (`pagina`, `por-pagina`).
 

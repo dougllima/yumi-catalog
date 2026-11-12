@@ -6,7 +6,7 @@ export function BrandLogo() {
   return (
     <Link
       to="/"
-      className="block shrink-0 rounded-2xl focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+      className="block shrink-0 rounded-2xl focus-visible:yumi-focus"
       aria-label="Yumi Studio"
     >
       <span className="block size-16 overflow-hidden rounded-2xl sm:size-[4.5rem]">

@@ -5,7 +5,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { contactUrl, instagramUrl } from "@/config/contact";
 
 const linkClass =
-  "inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition hover:text-primary focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50";
+  "inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition hover:text-primary focus-visible:yumi-focus";
 
 export function SiteFooter() {
   return (

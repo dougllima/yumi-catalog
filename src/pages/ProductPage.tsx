@@ -99,7 +99,7 @@ export function ProductPage() {
           <div className="grid gap-4">
             <Badge
               variant="outline"
-              className="w-fit rounded-full bg-background/45 px-3 pb-1 pt-[0.4rem] font-extrabold uppercase"
+              className="w-fit rounded-full bg-background/40 px-3 pb-1 pt-[0.4rem] font-extrabold uppercase"
             >
               <Heart className="size-3.5 fill-primary/20" aria-hidden="true" />
               Impressão 3D

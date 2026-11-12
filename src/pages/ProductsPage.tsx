@@ -8,8 +8,10 @@ import { ProductCard } from "@/components/ProductCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
+import { inputClass } from "@/components/uiStyles";
 import { normalizeSearch } from "@/domain/product";
 import { usePublishedProducts } from "@/hooks/useProducts";
+import { cn } from "@/lib/utils";
 
 const pageSizeOptions = [12, 24, 48] as const;
 const defaultPageSize = 24;
@@ -166,7 +168,10 @@ export function ProductsPage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Nome, descrição ou categoria..."
-                  className="h-11 w-full rounded-full border bg-background/70 py-2 pl-10 pr-11 text-sm font-semibold text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  className={cn(
+                    inputClass,
+                    "w-full py-2 pl-10 pr-11 text-sm text-foreground",
+                  )}
                 />
                 {hasSearch && (
                   <Button
@@ -261,7 +266,7 @@ export function ProductsPage() {
               {productSkeletons.map((item) => (
                 <div
                   key={item}
-                  className="min-h-[310px] animate-pulse rounded-[1rem] border bg-card/50 shadow-lg shadow-primary/5"
+                  className="min-h-[310px] animate-pulse rounded-2xl border bg-card/60 shadow-lg shadow-primary/5"
                 />
               ))}
             </div>
@@ -307,7 +312,10 @@ export function ProductsPage() {
                   data-testid="products-page-size"
                   value={pageSize}
                   onChange={(event) => setPageSize(Number(event.target.value))}
-                  className="h-9 rounded-full border bg-background/70 px-3 text-sm font-bold text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  className={cn(
+                    inputClass,
+                    "px-3 text-sm font-bold text-foreground",
+                  )}
                 >
                   {pageSizeOptions.map((option) => (
                     <option key={option} value={option}>

@@ -91,7 +91,7 @@ function HeroShowcase({ products }: { products: Product[] }) {
           key={product.id}
           to={`/produto/${product.id}`}
           aria-label={`Ver ${product.name}`}
-          className={`block overflow-hidden rounded-2xl border-4 border-secondary/80 bg-secondary/70 shadow-xl shadow-primary/20 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/60 ${tilts[index]}`}
+          className={`block overflow-hidden rounded-2xl border-4 border-secondary/80 bg-secondary/70 shadow-xl shadow-primary/20 transition-transform duration-300 hover:scale-105 focus-visible:yumi-focus ${tilts[index]}`}
         >
           <ProductImageCropFrame
             src={publicAssetUrl(url ?? "")}
@@ -112,7 +112,7 @@ export function Hero({ products = [] }: HeroProps) {
         <div className="relative z-10 grid gap-4">
           <Badge
             variant="outline"
-            className="h-7 w-fit rounded-full bg-card/55 px-3 pt-[0.28rem] text-[0.7rem] font-extrabold uppercase shadow-sm backdrop-blur"
+            className="h-7 w-fit rounded-full bg-card/60 px-3 pt-[0.28rem] text-[0.7rem] font-extrabold uppercase shadow-sm backdrop-blur"
           >
             <Heart className="size-3.5 fill-primary/20" aria-hidden="true" />
             Impressão 3D com amor
@@ -138,7 +138,7 @@ export function Hero({ products = [] }: HeroProps) {
             {highlights.map(({ icon: Icon, title, text }) => (
               <div
                 key={title}
-                className="flex min-h-13 items-center gap-2.5 rounded-2xl border bg-card/48 px-3 py-2 shadow-sm shadow-primary/5 backdrop-blur-md"
+                className="flex min-h-13 items-center gap-2.5 rounded-2xl border bg-card/40 px-3 py-2 shadow-sm shadow-primary/5 backdrop-blur-md"
               >
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-secondary text-primary">
                   <Icon className="size-5" aria-hidden="true" />

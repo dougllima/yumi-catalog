@@ -25,7 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <article>
         <Link
           to={`/produto/${product.id}`}
-          className="absolute inset-0 z-10 rounded-lg focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/60"
+          className="absolute inset-0 z-10 rounded-lg focus-visible:yumi-focus"
           aria-label={`Ver detalhes de ${product.name}`}
         />
         <ProductGallery
@@ -50,7 +50,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {visibleCategories.map((category) => (
               <span
                 key={category.slug}
-                className="rounded-full border bg-background/55 px-2 pb-0.5 pt-[0.2rem] text-[0.62rem] font-extrabold uppercase leading-none text-muted-foreground sm:text-[0.68rem]"
+                className="rounded-full border bg-background/60 px-2 pb-0.5 pt-[0.2rem] text-[0.62rem] font-extrabold uppercase leading-none text-muted-foreground sm:text-[0.68rem]"
               >
                 {category.name}
               </span>
