@@ -72,7 +72,7 @@ Todas as páginas (públicas e admin) usam a mesma estrutura, sem repetir classe
 - `Panel` (+ `panelStyles.ts`): superfície padrão, variantes `card` e `item`.
 - `SectionHeader`: eyebrow, título (`h1`/`h2`), descrição e ação opcional.
 - `StatePanel`: estados de carregamento, erro, vazio e acesso negado.
-- `SiteFooter`: rodapé único, renderizado em `App.tsx` para toda rota fora de `/admin`; as páginas não renderizam rodapé próprio.
+- `SiteFooter`: rodapé único (marca, links e contato do Instagram, copyright), renderizado em `App.tsx` para toda rota fora de `/admin`; as páginas não renderizam rodapé próprio.
 - Novas páginas devem usar esses componentes e a largura de 1560px; não introduzir outras larguras máximas.
 - Fundo da página: `.yumi-page::before` em `index.css`, `position: fixed` em tela cheia, apenas gradientes CSS (não usar `background-attachment: fixed`, que falha no iOS).
 - Evitar `backdrop-filter` aninhado (pai e filhos), pois pode fazer filhos sumirem no Safari iOS.
