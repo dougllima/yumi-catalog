@@ -47,7 +47,10 @@ export function CategoryShortcuts({ products }: { products: Product[] }) {
   };
 
   return (
-    <section className="grid gap-4 pt-8" aria-labelledby="categories-title">
+    <section
+      className="grid gap-4 overflow-x-clip pt-8"
+      aria-labelledby="categories-title"
+    >
       <div className="flex items-end justify-between gap-3">
         <h2
           id="categories-title"
