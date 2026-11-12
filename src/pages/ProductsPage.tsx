@@ -170,7 +170,7 @@ export function ProductsPage() {
                   placeholder="Nome, descrição ou categoria..."
                   className={cn(
                     inputClass,
-                    "w-full py-2 pl-10 pr-11 text-sm text-foreground",
+                    "w-full py-2 pl-10 pr-11 text-sm text-foreground [&::-webkit-search-cancel-button]:appearance-none",
                   )}
                 />
                 {hasSearch && (
