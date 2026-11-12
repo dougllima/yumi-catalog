@@ -61,7 +61,7 @@ export function HomePage() {
               ? productSkeletons.map((item) => (
                   <div
                     key={item}
-                    className="min-h-[310px] animate-pulse rounded-[1rem] border bg-card/50 shadow-lg shadow-primary/5"
+                    className="min-h-[310px] animate-pulse rounded-2xl border bg-card/60 shadow-lg shadow-primary/5"
                   />
                 ))
               : featuredProducts.map((product) => (

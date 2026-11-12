@@ -11,6 +11,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { Panel } from "@/components/Panel";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
+import { inputClass } from "@/components/uiStyles";
 import type { ProductCategory } from "@/domain/product";
 import { publicAssetUrl } from "@/utils/publicAssetUrl";
 
@@ -111,7 +112,7 @@ function CategoryRow({ category, onSaved }: CategoryRowProps) {
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
-            className="h-10 rounded-full border bg-background/70 px-4 font-semibold outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className={inputClass}
           />
         </label>
         <div className="flex flex-wrap gap-2">

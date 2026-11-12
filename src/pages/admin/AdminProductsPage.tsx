@@ -41,6 +41,7 @@ import { ProductImageCropFrame } from "@/components/ProductImageCropFrame";
 import { SectionHeader } from "@/components/SectionHeader";
 import { SortableItem, SortableList } from "@/components/SortableList";
 import { Button } from "@/components/ui/button";
+import { inputClass, labelClass } from "@/components/uiStyles";
 import type { Product, ProductImage, ProductImageCrop } from "@/domain/product";
 import {
   categorySlug,
@@ -725,7 +726,7 @@ export function AdminProductsPage() {
 
         <div className="grid gap-5 lg:grid-cols-[340px_1fr]">
           <Panel as="aside" variant="item" className="grid h-fit gap-3">
-            <label className="grid gap-2 text-sm font-extrabold">
+            <label className={labelClass}>
               Buscar produto
               <input
                 data-testid="admin-products-search-input"
@@ -733,7 +734,7 @@ export function AdminProductsPage() {
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Nome do produto..."
-                className="h-10 rounded-full border bg-background/70 px-4 font-semibold outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                className={inputClass}
               />
             </label>
 
@@ -765,7 +766,7 @@ export function AdminProductsPage() {
                           {handle}
                           <button
                             type="button"
-                            className="grid min-w-0 flex-1 rounded-2xl border bg-background/45 px-3 py-2 text-left transition hover:border-primary/50 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[active=true]:border-primary data-[active=true]:bg-accent"
+                            className="grid min-w-0 flex-1 rounded-2xl border bg-background/40 px-3 py-2 text-left transition hover:border-primary/50 hover:bg-accent/40 focus-visible:yumi-focus data-[active=true]:border-primary data-[active=true]:bg-accent"
                             data-active={product.id === selectedId}
                             onClick={() => {
                               setSelectedId(product.id);
@@ -821,7 +822,7 @@ export function AdminProductsPage() {
             onSubmit={handleSave}
           >
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-2 text-sm font-extrabold">
+              <label className={labelClass}>
                 Identificador
                 <input
                   data-testid="admin-product-id-input"
@@ -831,23 +832,23 @@ export function AdminProductsPage() {
                   }
                   disabled={!isCreating}
                   required={isCreating}
-                  className="h-10 rounded-full border bg-background/70 px-4 font-semibold outline-none transition disabled:opacity-60 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  className={inputClass}
                 />
               </label>
 
-              <label className="grid gap-2 text-sm font-extrabold">
+              <label className={labelClass}>
                 Nome
                 <input
                   data-testid="admin-product-name-input"
                   value={form.name}
                   onChange={(event) => updateForm("name", event.target.value)}
                   required
-                  className="h-10 rounded-full border bg-background/70 px-4 font-semibold outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  className={inputClass}
                 />
               </label>
             </div>
 
-            <label className="grid gap-2 text-sm font-extrabold">
+            <label className={labelClass}>
               Descrição
               <textarea
                 data-testid="admin-product-description-input"
@@ -856,23 +857,23 @@ export function AdminProductsPage() {
                   updateForm("description", event.target.value)
                 }
                 rows={4}
-                className="resize-y rounded-2xl border bg-background/70 px-4 py-3 font-semibold outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                className={cn(inputClass, "h-auto resize-y rounded-2xl py-3")}
               />
             </label>
 
             <div className="grid gap-4 sm:grid-cols-3">
-              <label className="grid gap-2 text-sm font-extrabold">
+              <label className={labelClass}>
                 Preço (R$)
                 <input
                   data-testid="admin-product-price-input"
                   inputMode="decimal"
                   value={form.price}
                   onChange={(event) => updateForm("price", event.target.value)}
-                  className="h-10 rounded-full border bg-background/70 px-4 font-semibold outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  className={inputClass}
                 />
               </label>
 
-              <label className="flex items-center gap-3 rounded-2xl border bg-background/55 px-4 py-3 text-sm font-extrabold">
+              <label className="flex items-center gap-3 rounded-2xl border bg-background/60 px-4 py-3 text-sm font-extrabold">
                 <input
                   data-testid="admin-product-active-input"
                   type="checkbox"
@@ -885,7 +886,7 @@ export function AdminProductsPage() {
                 Visível no catálogo
               </label>
 
-              <label className="flex items-center gap-3 rounded-2xl border bg-background/55 px-4 py-3 text-sm font-extrabold">
+              <label className="flex items-center gap-3 rounded-2xl border bg-background/60 px-4 py-3 text-sm font-extrabold">
                 <input
                   data-testid="admin-product-show-on-home-input"
                   type="checkbox"
@@ -899,7 +900,7 @@ export function AdminProductsPage() {
               </label>
             </div>
 
-            <section className="grid gap-3 rounded-2xl border bg-background/45 p-4">
+            <section className="grid gap-3 rounded-2xl border bg-background/40 p-4">
               <div className="flex items-center gap-2">
                 <Tag className="size-4 text-primary" aria-hidden="true" />
                 <h2 className="font-display text-2xl font-semibold">
@@ -923,7 +924,7 @@ export function AdminProductsPage() {
                         {categoryName}
                         <button
                           type="button"
-                          className="grid size-5 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/12 hover:text-destructive focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                          className="grid size-5 place-items-center rounded-full text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive focus-visible:yumi-focus"
                           onClick={() => removeCategory(slug)}
                           aria-label={`Remover categoria ${categoryName}`}
                         >
@@ -935,7 +936,7 @@ export function AdminProductsPage() {
                 </div>
               )}
 
-              <label className="grid gap-2 text-sm font-extrabold">
+              <label className={labelClass}>
                 Adicionar categoria
                 <input
                   data-testid="admin-product-category-input"
@@ -943,7 +944,7 @@ export function AdminProductsPage() {
                   onChange={(event) => setCategoryDraft(event.target.value)}
                   onKeyDown={handleCategoryKeyDown}
                   placeholder="Digite e pressione Enter..."
-                  className="h-10 rounded-full border bg-background/70 px-4 font-semibold outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  className={inputClass}
                 />
               </label>
 
@@ -978,13 +979,13 @@ export function AdminProductsPage() {
               )}
             </section>
 
-            <section className="grid gap-3 rounded-2xl border bg-background/45 p-4">
+            <section className="grid gap-3 rounded-2xl border bg-background/40 p-4">
               <div
                 data-testid="admin-product-images-dropzone"
                 className={[
-                  "grid gap-3 rounded-2xl border border-dashed bg-card/45 p-4 transition sm:grid-cols-[1fr_auto] sm:items-center",
+                  "grid gap-3 rounded-2xl border border-dashed bg-card/40 p-4 transition sm:grid-cols-[1fr_auto] sm:items-center",
                   isDraggingImages
-                    ? "border-primary bg-accent/45 ring-[3px] ring-ring/30"
+                    ? "border-primary bg-accent/40 ring-[3px] ring-ring/30"
                     : "border-border",
                 ].join(" ")}
                 onDragOver={handleImagesDragOver}
@@ -1092,7 +1093,7 @@ export function AdminProductsPage() {
                       <legend className="mb-2 text-sm font-semibold">
                         Ajuste fino
                       </legend>
-                      <label className="grid gap-2 text-sm font-extrabold">
+                      <label className={labelClass}>
                         Posição horizontal
                         <input
                           data-testid="admin-product-crop-x-input"
@@ -1108,7 +1109,7 @@ export function AdminProductsPage() {
                         />
                       </label>
 
-                      <label className="grid gap-2 text-sm font-extrabold">
+                      <label className={labelClass}>
                         Posição vertical
                         <input
                           data-testid="admin-product-crop-y-input"
@@ -1124,7 +1125,7 @@ export function AdminProductsPage() {
                         />
                       </label>
 
-                      <label className="grid gap-2 text-sm font-extrabold">
+                      <label className={labelClass}>
                         Zoom
                         <input
                           data-testid="admin-product-crop-zoom-input"
@@ -1277,7 +1278,7 @@ export function AdminProductsPage() {
             </section>
 
             {message && (
-              <p className="rounded-2xl border bg-accent/55 px-4 py-3 text-sm font-semibold text-foreground">
+              <p className="rounded-2xl border bg-accent/60 px-4 py-3 text-sm font-semibold text-foreground">
                 {message}
               </p>
             )}

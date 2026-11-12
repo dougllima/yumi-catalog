@@ -89,7 +89,7 @@ export function CategoryShortcuts({ products }: { products: Product[] }) {
           <Link
             key={slug}
             to={`/produtos?categoria=${encodeURIComponent(slug)}`}
-            className="group relative block w-[42%] shrink-0 snap-start overflow-hidden rounded-[1.25rem] border bg-card shadow-lg shadow-primary/5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/60 sm:w-[30%] md:w-[22%] lg:w-[16%]"
+            className="group relative block w-[42%] shrink-0 snap-start overflow-hidden rounded-item border bg-card shadow-lg shadow-primary/5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10 focus-visible:yumi-focus sm:w-[30%] md:w-[22%] lg:w-[16%]"
           >
             {imageUrl ? (
               <ProductImageCropFrame

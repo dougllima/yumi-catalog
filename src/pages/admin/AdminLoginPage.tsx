@@ -6,6 +6,7 @@ import { authService, runtimeBackend } from "@/application/dependencies";
 import { PageContainer } from "@/components/PageContainer";
 import { Panel } from "@/components/Panel";
 import { Button } from "@/components/ui/button";
+import { inputClass, labelClass } from "@/components/uiStyles";
 import { useAdminSession } from "@/hooks/useAdminSession";
 
 export function AdminLoginPage() {
@@ -76,7 +77,7 @@ export function AdminLoginPage() {
         )}
 
         <form className="grid gap-4" onSubmit={handleSubmit}>
-          <label className="grid gap-2 text-sm font-extrabold">
+          <label className={labelClass}>
             Email
             <input
               data-testid="admin-login-email"
@@ -85,11 +86,11 @@ export function AdminLoginPage() {
               onChange={(event) => setEmail(event.target.value)}
               required
               autoComplete="email"
-              className="h-11 rounded-full border bg-background/70 px-4 font-semibold outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className={inputClass}
             />
           </label>
 
-          <label className="grid gap-2 text-sm font-extrabold">
+          <label className={labelClass}>
             Senha
             <input
               data-testid="admin-login-password"
@@ -98,7 +99,7 @@ export function AdminLoginPage() {
               onChange={(event) => setPassword(event.target.value)}
               required
               autoComplete="current-password"
-              className="h-11 rounded-full border bg-background/70 px-4 font-semibold outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className={inputClass}
             />
           </label>
 

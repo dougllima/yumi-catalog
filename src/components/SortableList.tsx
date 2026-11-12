@@ -113,7 +113,7 @@ export function SortableItem({
       disabled={disabled}
       aria-label={handleLabel}
       className={cn(
-        "grid size-8 shrink-0 cursor-grab touch-none place-items-center rounded-full text-muted-foreground transition hover:bg-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-40",
+        "grid size-8 shrink-0 cursor-grab touch-none place-items-center rounded-full text-muted-foreground transition hover:bg-accent/60 hover:text-foreground focus-visible:yumi-focus active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-40",
         handleClassName,
       )}
       {...attributes}

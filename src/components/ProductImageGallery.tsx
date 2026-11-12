@@ -30,7 +30,7 @@ export function ProductImageGallery({
 
   if (galleryImages.length === 0) {
     return (
-      <div className="grid aspect-square place-items-center rounded-[1.5rem] border bg-muted text-muted-foreground">
+      <div className="grid aspect-square place-items-center rounded-item border bg-muted text-muted-foreground">
         Imagem indisponível
       </div>
     );
@@ -40,7 +40,7 @@ export function ProductImageGallery({
 
   if (!activeImage) {
     return (
-      <div className="grid aspect-square place-items-center rounded-[1.5rem] border bg-muted text-muted-foreground">
+      <div className="grid aspect-square place-items-center rounded-item border bg-muted text-muted-foreground">
         Imagem indisponível
       </div>
     );
@@ -65,7 +65,7 @@ export function ProductImageGallery({
     <div className="grid gap-3">
       <ProductImageCropFrame
         testId="product-image-gallery-active"
-        className="rounded-[1.5rem] border bg-muted shadow-xl shadow-primary/8"
+        className="rounded-item border bg-muted shadow-xl shadow-primary/10"
         src={activeImageUrl}
         alt={`${productName} - imagem ${activeImageIndex + 1}`}
         crop={activeImage.crop}

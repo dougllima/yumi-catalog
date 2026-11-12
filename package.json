@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "tsc -b && vite build && tsx scripts/generate-share-pages.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -15,7 +15,7 @@
     "test:coverage": "vitest run --coverage",
     "lint-staged": "lint-staged",
     "prepare": "husky",
-    "preview": "vite preview",
+    "preview": "vite preview --host",
     "seed:products": "tsx scripts/seed-products.ts"
   },
   "lint-staged": {
