@@ -112,7 +112,7 @@ export function Hero({ products = [] }: HeroProps) {
         <div className="relative z-10 grid gap-4">
           <Badge
             variant="outline"
-            className="h-7 w-fit rounded-full bg-card/60 px-3 pt-[0.28rem] text-[0.7rem] font-extrabold uppercase shadow-sm backdrop-blur"
+            className="h-7 w-fit rounded-full bg-card/60 px-3 py-0 text-[0.7rem] font-extrabold uppercase leading-none shadow-sm backdrop-blur"
           >
             <Heart className="size-3.5 fill-primary/20" aria-hidden="true" />
             Impressão 3D com amor

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
@@ -46,6 +46,38 @@ describe("ProductImageGallery", () => {
       }),
     );
 
+    expect(activeImage).toHaveAttribute("alt", "Produto teste - imagem 1");
+  });
+
+  it("changes the image when swiped horizontally by touch", () => {
+    render(
+      <ProductImageGallery
+        images={["/products/item/01.webp", "/products/item/02.webp"]}
+        productName="Produto teste"
+      />,
+    );
+
+    const activeImage = screen.getByTestId("product-image-gallery-active");
+    const swipe = (fromX: number, toX: number) => {
+      fireEvent.pointerDown(activeImage, {
+        pointerId: 1,
+        pointerType: "touch",
+        clientX: fromX,
+      });
+      fireEvent.pointerUp(activeImage, {
+        pointerId: 1,
+        pointerType: "touch",
+        clientX: toX,
+      });
+    };
+
+    swipe(200, 120);
+    expect(activeImage).toHaveAttribute("alt", "Produto teste - imagem 2");
+
+    swipe(120, 200);
+    expect(activeImage).toHaveAttribute("alt", "Produto teste - imagem 1");
+
+    swipe(200, 190);
     expect(activeImage).toHaveAttribute("alt", "Produto teste - imagem 1");
   });
 
