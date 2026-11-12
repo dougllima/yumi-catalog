@@ -7,6 +7,9 @@ import {
   mediaStorage,
   productRepository,
 } from "@/application/dependencies";
+import { PageContainer } from "@/components/PageContainer";
+import { Panel } from "@/components/Panel";
+import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
 import type { ProductCategory } from "@/domain/product";
 import { publicAssetUrl } from "@/utils/publicAssetUrl";
@@ -84,9 +87,11 @@ function CategoryRow({ category, onSaved }: CategoryRowProps) {
   };
 
   return (
-    <li
+    <Panel
+      as="li"
+      variant="item"
       data-testid={`admin-category-${category.slug}`}
-      className="grid gap-3 rounded-[1.25rem] border bg-card/62 p-3 shadow-lg shadow-primary/5 sm:grid-cols-[96px_1fr_auto] sm:items-center"
+      className="grid gap-3 p-3 sm:grid-cols-[96px_1fr_auto] sm:items-center"
     >
       <div className="grid size-24 place-items-center overflow-hidden rounded-2xl border bg-muted text-xs font-bold text-muted-foreground">
         {currentImageUrl ? (
@@ -176,7 +181,7 @@ function CategoryRow({ category, onSaved }: CategoryRowProps) {
         <Save aria-hidden="true" />
         {saving ? "Salvando..." : "Salvar"}
       </Button>
-    </li>
+    </Panel>
   );
 }
 
@@ -207,21 +212,16 @@ export function AdminCategoriesPage() {
   }, [load]);
 
   return (
-    <main className="mx-auto w-full max-w-[1100px] px-4 pb-8 pt-6 sm:px-7">
+    <PageContainer>
       <section className="grid gap-5" aria-labelledby="admin-categories-title">
-        <div className="flex flex-col gap-4 rounded-[1.75rem] border bg-card/64 p-4 shadow-xl shadow-primary/8 backdrop-blur sm:p-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="grid gap-1.5">
-            <p className="text-sm font-extrabold text-primary">Administração</p>
-            <h1
-              id="admin-categories-title"
-              className="font-display text-3xl font-semibold sm:text-4xl"
-            >
-              Categorias
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Renomeie categorias e escolha a imagem exibida na home.
-            </p>
-          </div>
+        <Panel className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <SectionHeader
+            as="h1"
+            titleId="admin-categories-title"
+            eyebrow="Administração"
+            title="Categorias"
+            description="Renomeie categorias e escolha a imagem exibida na home."
+          />
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="secondary" className="rounded-full">
               <Link to="/admin">
@@ -239,7 +239,7 @@ export function AdminCategoriesPage() {
               Sair
             </Button>
           </div>
-        </div>
+        </Panel>
 
         {error && (
           <p role="alert" className="text-sm font-semibold text-destructive">
@@ -263,6 +263,6 @@ export function AdminCategoriesPage() {
           </ul>
         )}
       </section>
-    </main>
+    </PageContainer>
   );
 }

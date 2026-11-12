@@ -1,6 +1,9 @@
+import { ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
+import { PageContainer } from "@/components/PageContainer";
+import { StatePanel } from "@/components/StatePanel";
 import { useAdminSession } from "@/hooks/useAdminSession";
 
 type AdminRouteProps = {
@@ -13,16 +16,15 @@ export function AdminRoute({ children }: AdminRouteProps) {
 
   if (loading) {
     return (
-      <main className="mx-auto grid min-h-[48vh] w-full max-w-[1360px] place-items-center px-4 py-10 sm:px-7">
-        <section className="rounded-[1.5rem] border bg-card/72 p-7 text-center shadow-xl shadow-primary/8 backdrop-blur">
-          <h1 className="font-display text-3xl font-semibold">
-            Verificando acesso
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            Estamos validando sua sessão administrativa.
-          </p>
-        </section>
-      </main>
+      <PageContainer centered>
+        <StatePanel
+          as="section"
+          headingAs="h1"
+          icon={ShieldCheck}
+          title="Verificando acesso"
+          description="Estamos validando sua sessão administrativa."
+        />
+      </PageContainer>
     );
   }
 

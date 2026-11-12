@@ -38,7 +38,7 @@ export function SiteHeader({ theme, onToggleTheme }: SiteHeaderProps) {
           <Button
             asChild
             variant="outline"
-            className="hidden rounded-full bg-card/70 px-4 shadow-sm backdrop-blur sm:inline-flex"
+            className="hidden rounded-full bg-card/70 px-4 shadow-sm sm:inline-flex"
           >
             <a href={instagramUrl} target="_blank" rel="noreferrer">
               <Camera aria-hidden="true" />
@@ -58,7 +58,7 @@ export function SiteHeader({ theme, onToggleTheme }: SiteHeaderProps) {
             asChild
             variant="outline"
             size="icon"
-            className="rounded-full bg-card/70 backdrop-blur sm:hidden"
+            className="rounded-full bg-card/70 sm:hidden"
           >
             <a
               href={instagramUrl}

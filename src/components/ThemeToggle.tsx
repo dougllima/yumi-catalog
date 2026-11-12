@@ -15,7 +15,7 @@ export function ThemeToggle({ theme, onToggleTheme }: ThemeToggleProps) {
       type="button"
       variant="outline"
       size="icon"
-      className="rounded-full bg-card/70 backdrop-blur"
+      className="rounded-full bg-card/70"
       aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
       title={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
       onClick={onToggleTheme}

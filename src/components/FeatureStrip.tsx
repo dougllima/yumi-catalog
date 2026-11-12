@@ -1,5 +1,7 @@
 import { MessageCircle, PackageCheck, Truck } from "lucide-react";
 
+import { Panel } from "@/components/Panel";
+
 const features = [
   {
     icon: Truck,
@@ -20,14 +22,20 @@ const features = [
 
 export function FeatureStrip() {
   return (
-    <section className="pt-5" aria-label="Diferenciais">
-      <div className="grid gap-2 rounded-[1.5rem] border bg-card/68 p-3 shadow-lg shadow-primary/5 backdrop-blur-xl sm:grid-cols-3">
+    <section aria-label="Diferenciais">
+      {/* Mesma grade de 3 colunas e mesmo recuo (px-4) dos cards de
+          "Como encomendar", para os ícones ficarem alinhados. */}
+      <Panel
+        as="ul"
+        variant="item"
+        className="grid gap-3 px-0 py-3 sm:grid-cols-3"
+      >
         {features.map(({ icon: Icon, title, text }) => (
-          <div
+          <li
             key={title}
-            className="flex min-h-14 items-center gap-3 rounded-2xl px-3 py-1.5"
+            className="flex items-center justify-center gap-3 px-4 py-1"
           >
-            <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent text-primary">
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent text-primary">
               <Icon className="size-5" aria-hidden="true" />
             </span>
             <span className="grid">
@@ -36,9 +44,9 @@ export function FeatureStrip() {
               </strong>
               <span className="text-xs text-muted-foreground">{text}</span>
             </span>
-          </div>
+          </li>
         ))}
-      </div>
+      </Panel>
     </section>
   );
 }

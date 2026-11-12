@@ -6,6 +6,7 @@ import {
   useNavigationType,
 } from "react-router-dom";
 
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useTheme } from "@/hooks/useTheme";
 import { AdminCategoriesPage } from "@/pages/admin/AdminCategoriesPage";
@@ -69,6 +70,8 @@ function ScrollToAnchor() {
 
 function App() {
   const { theme, toggleTheme } = useTheme();
+  const { pathname } = useLocation();
+  const isAdminRoute = pathname.startsWith("/admin");
 
   return (
     <div className="yumi-page min-h-screen">
@@ -96,6 +99,7 @@ function App() {
           }
         />
       </Routes>
+      {!isAdminRoute && <SiteFooter />}
     </div>
   );
 }

@@ -2,10 +2,11 @@ import { ArrowRight, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { CategoryShortcuts } from "@/components/CategoryShortcuts";
-import { FeatureStrip } from "@/components/FeatureStrip";
 import { Hero } from "@/components/Hero";
 import { HowToOrder } from "@/components/HowToOrder";
+import { PageContainer } from "@/components/PageContainer";
 import { ProductCard } from "@/components/ProductCard";
+import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { usePublishedProducts } from "@/hooks/useProducts";
 
@@ -22,41 +23,35 @@ export function HomePage() {
     <>
       <Hero products={featuredProducts} />
 
-      <main className="mx-auto w-full max-w-[1400px] px-4 pb-6 pt-4 sm:px-7 sm:pb-8 sm:pt-5">
+      <PageContainer className="pt-4 sm:pt-5">
         <section
           id="produtos"
           className="grid gap-4"
           aria-labelledby="products-title"
         >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div className="grid gap-1.5">
-              <p className="flex items-center gap-2 text-sm font-extrabold text-primary">
-                <Heart className="size-4" aria-hidden="true" />
+          <SectionHeader
+            titleId="products-title"
+            eyebrow={
+              <>
+                <Heart aria-hidden="true" />
                 Destaques da Yumi Studio
-              </p>
-              <h2
-                id="products-title"
-                className="font-display text-3xl font-semibold leading-tight tracking-normal sm:text-4xl"
+              </>
+            }
+            title="Peças queridinhas"
+            description="Produtos fofos, úteis e cheios de personalidade para deixar seu dia mais bonito e organizado."
+            action={
+              <Button
+                asChild
+                variant="outline"
+                className="w-fit rounded-full px-5"
               >
-                Peças queridinhas
-              </h2>
-              <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-                Produtos fofos, úteis e cheios de personalidade para deixar seu
-                dia mais bonito e organizado.
-              </p>
-            </div>
-
-            <Button
-              asChild
-              variant="outline"
-              className="w-fit rounded-full px-5"
-            >
-              <Link to="/produtos">
-                Ver todos os produtos
-                <ArrowRight aria-hidden="true" />
-              </Link>
-            </Button>
-          </div>
+                <Link to="/produtos">
+                  Ver todos os produtos
+                  <ArrowRight aria-hidden="true" />
+                </Link>
+              </Button>
+            }
+          />
 
           <div
             className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-6"
@@ -84,9 +79,7 @@ export function HomePage() {
         <CategoryShortcuts products={products} />
 
         <HowToOrder />
-
-        <FeatureStrip />
-      </main>
+      </PageContainer>
     </>
   );
 }

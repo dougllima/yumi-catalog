@@ -107,15 +107,12 @@ function HeroShowcase({ products }: { products: Product[] }) {
 
 export function Hero({ products = [] }: HeroProps) {
   return (
-    <section
-      className="yumi-hero relative overflow-hidden border-b"
-      aria-labelledby="hero-title"
-    >
-      <div className="relative mx-auto grid max-w-[1400px] gap-6 px-4 pb-14 pt-8 sm:px-7 lg:h-[330px] lg:grid-cols-[55fr_45fr] lg:items-center lg:py-0">
+    <section className="relative overflow-hidden" aria-labelledby="hero-title">
+      <div className="relative mx-auto grid max-w-[1560px] gap-6 px-4 pb-14 pt-8 sm:px-7 lg:h-[330px] lg:grid-cols-[55fr_45fr] lg:items-center lg:py-0">
         <div className="relative z-10 grid gap-4">
           <Badge
             variant="outline"
-            className="h-7 w-fit rounded-full bg-card/55 px-3 text-[0.7rem] font-extrabold uppercase shadow-sm backdrop-blur"
+            className="h-7 w-fit rounded-full bg-card/55 px-3 pt-[0.28rem] text-[0.7rem] font-extrabold uppercase shadow-sm backdrop-blur"
           >
             <Heart className="size-3.5 fill-primary/20" aria-hidden="true" />
             Impressão 3D com amor
@@ -161,10 +158,6 @@ export function Hero({ products = [] }: HeroProps) {
 
         <HeroShowcase products={products} />
       </div>
-      <div
-        className="yumi-wave absolute inset-x-0 bottom-0 h-9"
-        aria-hidden="true"
-      />
     </section>
   );
 }
