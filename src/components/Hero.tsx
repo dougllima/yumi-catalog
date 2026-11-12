@@ -129,8 +129,8 @@ export function Hero({ products = [] }: HeroProps) {
               organizar e <span className="text-primary">encantar!</span>
             </h1>
             <p className="max-w-[560px] text-pretty text-base leading-7 text-muted-foreground sm:text-[1.05rem]">
-              Criações autorais impressas em 3D com muito carinho para
-              transformar seu espaço e celebrar o universo geek.
+              Criações impressas em 3D com muito carinho para transformar seu
+              espaço e celebrar o universo geek.
             </p>
           </div>
 
