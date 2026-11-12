@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -73,27 +74,29 @@ describe("ProductPage", () => {
     ).toHaveAttribute("href", contactUrl);
   });
 
-  it("goes back to the page the user came from", () => {
+  it("goes back to the previous screen when there is in-app history", async () => {
     mockedUseProduct.mockReturnValue({ product, loading: false, error: null });
 
     render(
       <MemoryRouter
         initialEntries={[
-          {
-            pathname: "/produto/porta-joias",
-            state: { from: "/produtos?q=a" },
-          },
+          "/produtos?categoria=organizacao",
+          "/produto/porta-joias",
         ]}
+        initialIndex={1}
       >
         <Routes>
+          <Route path="/produtos" element={<div>Lista de produtos</div>} />
           <Route path="/produto/:id" element={<ProductPage />} />
         </Routes>
       </MemoryRouter>,
     );
 
-    expect(
-      screen.getByRole("link", { name: "Voltar aos produtos" }),
-    ).toHaveAttribute("href", "/produtos?q=a");
+    await userEvent.click(
+      screen.getByRole("link", { name: /Voltar ao cat.logo/i }),
+    );
+
+    expect(screen.getByText("Lista de produtos")).toBeInTheDocument();
   });
 
   it("renders the loading state", () => {

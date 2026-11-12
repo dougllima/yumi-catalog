@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { ProductGallery } from "@/components/ProductGallery";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,17 +10,12 @@ type ProductCardProps = {
 };
 
 export function ProductCard({ product }: ProductCardProps) {
-  const location = useLocation();
   const hasDescription = Boolean(product.description?.trim());
   const price =
     typeof product.price === "number" && product.price > 0
       ? product.price
       : null;
   const visibleCategories = product.categories.slice(0, 2);
-  // A partir de outro produto (relacionados), preserva a origem original.
-  const linkState = location.pathname.startsWith("/produto/")
-    ? location.state
-    : { from: `${location.pathname}${location.search}${location.hash}` };
 
   return (
     <Card
@@ -30,7 +25,6 @@ export function ProductCard({ product }: ProductCardProps) {
       <article>
         <Link
           to={`/produto/${product.id}`}
-          state={linkState}
           className="absolute inset-0 z-10 rounded-lg focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/60"
           aria-label={`Ver detalhes de ${product.name}`}
         />

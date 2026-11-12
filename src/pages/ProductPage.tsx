@@ -1,5 +1,6 @@
 import { ArrowLeft, Heart, PackageCheck, Sparkles, Tag } from "lucide-react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import type { MouseEvent } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { FeatureStrip } from "@/components/FeatureStrip";
 import { ProductContactButton } from "@/components/ProductContactButton";
@@ -14,11 +15,18 @@ export function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const { product, loading, error } = useProduct(id);
   const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from;
-  const backTo = from ?? "/";
-  const backLabel = backTo.startsWith("/produtos")
-    ? "Voltar aos produtos"
-    : "Voltar ao catálogo";
+  const navigate = useNavigate();
+
+  // "default" indica entrada direta na página (sem histórico interno): nesse
+  // caso o link segue para a home; caso contrário volta à tela anterior.
+  const handleBack = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (location.key === "default") {
+      return;
+    }
+
+    event.preventDefault();
+    navigate(-1);
+  };
 
   if (loading) {
     return (
@@ -84,9 +92,9 @@ export function ProductPage() {
           variant="ghost"
           className="mb-5 w-fit rounded-full px-2 text-muted-foreground hover:text-foreground"
         >
-          <Link to={backTo}>
+          <Link to="/" onClick={handleBack}>
             <ArrowLeft aria-hidden="true" />
-            {backLabel}
+            Voltar ao catálogo
           </Link>
         </Button>
 

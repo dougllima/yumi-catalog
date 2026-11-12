@@ -35,11 +35,19 @@ Entre soluções válidas, priorizar a que simplifica a operação e reduz esfor
 
 ## Escopo da fase atual
 
-A fase atual é a evolução do catálogo temporário para uma aplicação persistente com administração.
+A fase atual inclui a manutenção do catálogo persistente com administração e a
+ampliação do site público para apresentar o estúdio, demonstrar trabalhos reais
+e facilitar encomendas. A prioridade de evolução pública é conteúdo,
+apresentação e caminhos de contato.
 
 ### Em escopo
 
 - catálogo público;
+- apresentação da Yumi e página Sobre;
+- portfólio de peças produzidas;
+- informações sobre atuação, encomendas e atendimento;
+- caminho de encomenda a partir de ideias e referências;
+- novidades e seleções de modelos dos estúdios assinados;
 - persistência de produtos;
 - área administrativa;
 - autenticação de administradores;
@@ -61,6 +69,7 @@ A fase atual é a evolução do catálogo temporário para uma aplicação persi
 - financeiro;
 - relatórios;
 - workflows complexos de aprovação.
+- busca, importação ou integração com catálogos de plataformas externas de modelos.
 
 Esses módulos podem existir no futuro, mas não devem ser antecipados sem necessidade concreta.
 
@@ -76,7 +85,7 @@ O núcleo esperado do sistema inclui:
 - componentes de custo;
 - configurações.
 
-As interfaces atuais são:
+As interfaces implementadas atualmente são:
 
 - catálogo público;
 - administração.
@@ -101,6 +110,30 @@ O conceito de produto também inclui:
 - requer revisão.
 
 A forma técnica de persistir esses conceitos pertence à arquitetura e pode evoluir sem alterar a regra funcional.
+
+### Modelos ainda não produzidos e peças de estudo
+
+O catálogo pode incluir modelos ainda não produzidos pela Yumi, selecionados e
+cadastrados manualmente, inclusive modelos que o estúdio já possui ou deseja
+produzir. A oferta sob encomenda pode incluir impressão, pintura e acabamento.
+
+Quando uma peça ainda não tiver sido produzida, essa condição deve ser informada
+ao cliente, distinguindo imagens de referência de fotos reais da produção da
+Yumi. A viabilidade e as condições de produção precisam ser avaliadas; o prazo
+pode ser maior por envolver preparação e validação do processo.
+
+Uma peça pode ser considerada internamente uma peça de estudo e receber um
+valor especial durante essa fase. A fase de estudo não termina automaticamente
+após a primeira unidade nem após uma quantidade fixa de encomendas: permanece
+até a Yumi decidir que a peça está validada e seguirá no catálogo como oferta
+consolidada. Essa decisão e a definição do preço regular são manuais.
+
+A classificação interna de estudo não precisa ser exposta com esse nome ao
+cliente, mas as condições relevantes da oferta devem ser claras. O valor
+especial não implica desconto percentual automático nem preço regular derivado.
+
+O nome do label público e a representação técnica dessa classificação ainda
+não foram definidos.
 
 ### Ativação e inativação
 
@@ -129,6 +162,10 @@ Produtos podem possuir zero, uma ou múltiplas categorias.
 Categorias são uma forma de organização e descoberta do catálogo. Elas ajudam o
 cliente a encontrar produtos, mas não fazem parte das regras de precificação,
 materiais, componentes de custo ou criação/fabricação de peças.
+
+Categorias podem organizar produtos por tipo de peça, tema ou universo, como
+decoração, Halloween e Resident Evil. A organização deve aproveitar as categorias
+existentes, sem exigir hierarquia de franquias e subcategorias nesta etapa.
 
 As categorias são texto livre, mas devem ser reutilizáveis para evitar cadastros
 duplicados desnecessários.
@@ -290,13 +327,16 @@ Quando flexibilidade aumentar significativamente o esforço de cadastro, preferi
 
 ---
 
-## Catálogo público
+## Site público e catálogo
 
-O catálogo existe para permitir que clientes consultem produtos e preços sem precisar solicitar essas informações pelo Instagram.
+O site deve apresentar a Yumi, demonstrar sua experiência e ajudar clientes a
+descobrir produtos ou conversar sobre uma encomenda. O catálogo continua
+permitindo consultar produtos e preços sem solicitar essas informações pelo
+Instagram.
 
 Não é um e-commerce.
 
-Deve permanecer focado em:
+O catálogo deve apresentar:
 
 - produtos;
 - imagens;
@@ -320,6 +360,67 @@ A home e a página de produto também ajudam a descoberta e o contato:
   produto e o link, pois o Instagram não aceita texto pré-preenchido.
 
 Não introduzir carrinho, checkout, pagamentos ou conta de cliente sem decisão explícita.
+
+### Apresentação e Sobre
+
+A home deve apresentar o estúdio e oferecer caminhos claros para catálogo e
+encomendas. A página Sobre deve apresentar quem está por trás da Yumi, o ateliê,
+como atua e sua proposta, utilizando conteúdo e fotos reais. Capacidades atuais
+devem ser distinguidas de planos e possibilidades ainda em desenvolvimento.
+
+### Portfólio
+
+Trabalhos já produzidos devem poder ser apresentados com fotos reais e contexto
+sobre as peças, incluindo impressão, pintura e acabamento quando aplicáveis.
+Portfólio demonstra experiência; catálogo apresenta ofertas. Um trabalho de
+portfólio não precisa ser um produto à venda, embora possa ser relacionado a um.
+
+### Encomendas por ideia ou referência
+
+O cliente pode trazer um tema, personagem, referência ou necessidade. A Yumi
+busca opções de modelos e avalia a produção, que pode incluir impressão, pintura
+e acabamento. Esse serviço não implica oferta de modelagem exclusiva.
+
+O caminho de encomenda deve atender tanto quem já possui uma referência quanto
+quem deseja ajuda para encontrar uma opção. O cliente não precisa avaliar
+detalhes técnicos dos arquivos; essa avaliação cabe à Yumi.
+
+Ao explorar uma categoria, deve existir uma continuação para quem não encontrou
+o que procura. O tema ou categoria de origem deve acompanhar o contato para
+evitar que o cliente repita informações.
+
+Para decoração, o levantamento deve considerar necessidade, uso, medidas,
+estilo e referências conforme relevantes ao pedido.
+
+As condições de encomenda devem esclarecer avaliação de viabilidade, definição
+de tamanho e acabamento, prazo e eventual custo de aquisição do modelo ou
+licença no orçamento. A licença aplicável deve ser verificada antes de oferecer
+a produção. Imagens de referência não representam uma peça já produzida pela
+Yumi nem garantem automaticamente o mesmo acabamento.
+
+Não faz parte desta evolução direcionar a descoberta para catálogos externos
+nem integrar buscas de plataformas de modelos. A seleção de ofertas publicadas
+pela Yumi permanece manual; referências trazidas pelo cliente são aceitas.
+
+### Novidades
+
+A seção de novidades pode apresentar trabalhos, lançamentos, coleções e seleções
+mensais de modelos dos estúdios assinados como possibilidades de encomenda.
+Não há compromisso de frequência editorial.
+
+Uma publicação não transforma automaticamente os modelos apresentados em
+produtos do catálogo. As imagens e condições devem distinguir referências de
+peças produzidas e ofertas já definidas. A autorização para uso das imagens e
+produção comercial deve ser conferida conforme a licença do estúdio.
+
+### Navegação e informações comerciais
+
+O site deve possuir navegação consistente e footer com acesso a contato,
+informações do estúdio e condições de encomenda, atendimento e entrega conforme
+a operação real. A apresentação comercial mais completa não implica adoção de
+carrinho ou checkout.
+
+O plano de entrega desta evolução está em `docs/public-site-evolution-plan.md`.
 
 ---
 

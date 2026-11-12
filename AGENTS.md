@@ -208,6 +208,16 @@ Relate apenas resultados realmente executados.
 
 ---
 
+## Pull requests
+
+Abra todo PR como draft (`gh pr create --draft`) e mantenha-o em draft enquanto houver trabalho, validação ou decisão pendente.
+
+Só marque como pronto (`gh pr ready <número>`) quando ele puder ser mesclado: checks aplicáveis executados e relatados, documentos atualizados e nenhuma pendência real. Se voltar a haver trabalho, devolva a draft (`gh pr ready <número> --undo`).
+
+Quem marca o PR como pronto é o agente responsável por ele, não o Douglas: confira os critérios, execute `gh pr ready` e não peça isso ao Douglas. O merge segue as regras do projeto.
+
+---
+
 ## Disciplina de escopo
 
 Implemente apenas o escopo solicitado e o que for estritamente necessário para suportá-lo.

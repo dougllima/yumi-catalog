@@ -1,5 +1,10 @@
 import { useEffect } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import {
+  Route,
+  Routes,
+  useLocation,
+  useNavigationType,
+} from "react-router-dom";
 
 import { SiteHeader } from "@/components/SiteHeader";
 import { useTheme } from "@/hooks/useTheme";
@@ -11,8 +16,11 @@ import { HomePage } from "@/pages/HomePage";
 import { ProductPage } from "@/pages/ProductPage";
 import { ProductsPage } from "@/pages/ProductsPage";
 
+const savedScroll = new Map<string, number>();
+
 function ScrollToAnchor() {
-  const { hash, pathname } = useLocation();
+  const { hash, key, pathname } = useLocation();
+  const navigationType = useNavigationType();
 
   useEffect(() => {
     if (hash) {
@@ -20,8 +28,41 @@ function ScrollToAnchor() {
       return;
     }
 
-    window.scrollTo({ top: 0 });
-  }, [hash, pathname]);
+    const target = navigationType === "POP" ? savedScroll.get(key) : undefined;
+
+    if (!target) {
+      window.scrollTo({ top: 0 });
+      return;
+    }
+
+    // Ao voltar, o conteúdo pode ainda estar carregando: tenta até a página
+    // ter altura suficiente (ou ~1,5s).
+    let frame = 0;
+    let attempts = 0;
+    const restore = () => {
+      window.scrollTo({ top: target });
+      attempts += 1;
+
+      if (
+        Math.abs(window.scrollY - target) > 2 &&
+        attempts < 90 &&
+        document.documentElement.scrollHeight < target + window.innerHeight
+      ) {
+        frame = requestAnimationFrame(restore);
+      }
+    };
+    restore();
+
+    return () => cancelAnimationFrame(frame);
+  }, [hash, key, navigationType, pathname]);
+
+  useEffect(() => {
+    const save = () => savedScroll.set(key, window.scrollY);
+
+    window.addEventListener("scroll", save, { passive: true });
+
+    return () => window.removeEventListener("scroll", save);
+  }, [key]);
 
   return null;
 }
