@@ -34,7 +34,7 @@ export function ProductGallery({
       {hoverImageUrl && (
         <ProductImageCropFrame
           data-testid="product-card-hover-image"
-          className="absolute inset-0 aspect-auto opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          className="absolute inset-0 aspect-auto self-stretch opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           src={publicAssetUrl(hoverImageUrl)}
           alt=""
           crop={hoverImage?.crop}
