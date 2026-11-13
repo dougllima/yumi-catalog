@@ -137,7 +137,7 @@ export function ProductImageGallery({
         >
           {hasMultipleImages && previousImage && (
             <ProductImageCropFrame
-              className="absolute inset-0 aspect-auto -translate-x-full"
+              className="absolute inset-0 aspect-auto self-stretch -translate-x-full"
               src={publicAssetUrl(previousImage.url)}
               alt=""
               crop={previousImage.crop}
@@ -145,14 +145,14 @@ export function ProductImageGallery({
           )}
           <ProductImageCropFrame
             testId="product-image-gallery-active"
-            className="absolute inset-0 aspect-auto"
+            className="absolute inset-0 aspect-auto self-stretch"
             src={activeImageUrl}
             alt={`${productName} - imagem ${activeImageIndex + 1}`}
             crop={activeImage.crop}
           />
           {hasMultipleImages && nextImage && (
             <ProductImageCropFrame
-              className="absolute inset-0 aspect-auto translate-x-full"
+              className="absolute inset-0 aspect-auto self-stretch translate-x-full"
               src={publicAssetUrl(nextImage.url)}
               alt=""
               crop={nextImage.crop}
