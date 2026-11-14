@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -16,18 +16,20 @@
     <title>Yumi Studio - Catálogo</title>
     <script>
       (() => {
+        // Keep in sync with src/hooks/useTheme.ts.
+        let theme = "light";
         try {
-          const storedTheme = localStorage.getItem("yumi-theme");
-          const theme =
-            storedTheme === "light" || storedTheme === "dark"
-              ? storedTheme
-              : "dark";
-          document.documentElement.classList.toggle("dark", theme === "dark");
-          document.documentElement.style.colorScheme = theme;
+          const storedTheme = localStorage.getItem("yumi-theme-choice");
+          if (storedTheme === "light" || storedTheme === "dark") {
+            theme = storedTheme;
+          } else if (matchMedia("(prefers-color-scheme: dark)").matches) {
+            theme = "dark";
+          }
         } catch {
-          document.documentElement.classList.add("dark");
-          document.documentElement.style.colorScheme = "dark";
+          // Falls back to light.
         }
+        document.documentElement.classList.toggle("dark", theme === "dark");
+        document.documentElement.style.colorScheme = theme;
       })();
     </script>
   </head>
