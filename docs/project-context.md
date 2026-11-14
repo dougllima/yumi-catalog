@@ -368,6 +368,10 @@ encomendas. A página Sobre deve apresentar quem está por trás da Yumi, o atel
 como atua e sua proposta, utilizando conteúdo e fotos reais. Capacidades atuais
 devem ser distinguidas de planos e possibilidades ainda em desenvolvimento.
 
+A página Cuidados (`/cuidados`) apresenta o material das peças (PLA e reciclagem)
+e orientações de conservação. Seu conteúdo é estático no código. Ela é acessada
+pelo rodapé, em todas as telas públicas, e por um link na página de produto.
+
 ### Portfólio
 
 Trabalhos já produzidos devem poder ser apresentados com fotos reais e contexto

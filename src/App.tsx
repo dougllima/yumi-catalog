@@ -13,6 +13,7 @@ import { AdminCategoriesPage } from "@/pages/admin/AdminCategoriesPage";
 import { AdminLoginPage } from "@/pages/admin/AdminLoginPage";
 import { AdminProductsPage } from "@/pages/admin/AdminProductsPage";
 import { AdminRoute } from "@/pages/admin/AdminRoute";
+import { CarePage } from "@/pages/CarePage";
 import { HomePage } from "@/pages/HomePage";
 import { ProductPage } from "@/pages/ProductPage";
 import { ProductsPage } from "@/pages/ProductsPage";
@@ -81,6 +82,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/produtos" element={<ProductsPage />} />
         <Route path="/produto/:id" element={<ProductPage />} />
+        <Route path="/cuidados" element={<CarePage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route
           path="/admin"

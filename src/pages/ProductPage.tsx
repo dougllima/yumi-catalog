@@ -1,4 +1,11 @@
-import { ArrowLeft, Heart, PackageCheck, Sparkles, Tag } from "lucide-react";
+import {
+  ArrowLeft,
+  Heart,
+  Leaf,
+  PackageCheck,
+  Sparkles,
+  Tag,
+} from "lucide-react";
 import type { MouseEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -156,6 +163,13 @@ export function ProductPage() {
               />
               Produção sob encomenda
             </p>
+            <Link
+              to="/cuidados"
+              className="flex w-fit items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:yumi-focus"
+            >
+              <Leaf className="size-4" aria-hidden="true" />
+              Como cuidar da sua peça
+            </Link>
             <ProductContactButton productName={product.name} />
           </div>
         </Panel>
