@@ -71,7 +71,8 @@ Todas as páginas (públicas e admin) usam a mesma estrutura, sem repetir classe
 - `PageContainer`: `<main>` com largura máxima de 1560px (a mesma do header) e paddings padrão; prop `centered` para telas de estado/login.
 - `Panel` (+ `panelStyles.ts`): superfície padrão, variantes `card` e `item`.
 - `SectionHeader`: eyebrow, título (`h1`/`h2`), descrição e ação opcional.
-- `StatePanel`: estados de carregamento, erro, vazio e acesso negado.
+- `StatePanel`: estados de erro, vazio e acesso negado.
+- Carregamento das telas públicas usa skeletons individuais por componente (`ui/skeleton.tsx`, `ProductCardSkeleton`, `RelatedProductsSkeleton`, skeleton do Hero e da página de produto) com o mesmo tamanho do conteúdo final, evitando salto de layout. Não usar spinner global nem `StatePanel` para loading.
 - `SiteFooter`: rodapé único (marca, links e contato do Instagram, copyright), renderizado em `App.tsx` para toda rota fora de `/admin`; as páginas não renderizam rodapé próprio.
 - Novas páginas devem usar esses componentes e a largura de 1560px; não introduzir outras larguras máximas.
 - Fundo da página: `.yumi-page::before` em `index.css`, `position: fixed` em tela cheia, apenas gradientes CSS (não usar `background-attachment: fixed`, que falha no iOS). Cores do fundo em variáveis `--glow-*` e `--page-wash`, definidas em `:root` e `.dark`.

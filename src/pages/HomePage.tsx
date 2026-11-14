@@ -6,6 +6,7 @@ import { Hero } from "@/components/Hero";
 import { HowToOrder } from "@/components/HowToOrder";
 import { PageContainer } from "@/components/PageContainer";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { usePublishedProducts } from "@/hooks/useProducts";
@@ -21,7 +22,7 @@ export function HomePage() {
 
   return (
     <>
-      <Hero products={featuredProducts} />
+      <Hero products={featuredProducts} loading={loading} />
 
       <PageContainer className="pt-4 sm:pt-5">
         <section
@@ -59,10 +60,7 @@ export function HomePage() {
           >
             {loading
               ? productSkeletons.map((item) => (
-                  <div
-                    key={item}
-                    className="min-h-[310px] animate-pulse rounded-2xl border bg-card/60 shadow-lg shadow-primary/5"
-                  />
+                  <ProductCardSkeleton key={item} />
                 ))
               : featuredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
@@ -76,7 +74,7 @@ export function HomePage() {
           )}
         </section>
 
-        <CategoryShortcuts products={products} />
+        <CategoryShortcuts products={products} loading={loading} />
 
         <HowToOrder />
       </PageContainer>

@@ -13,12 +13,75 @@ import { PageContainer } from "@/components/PageContainer";
 import { Panel } from "@/components/Panel";
 import { ProductContactButton } from "@/components/ProductContactButton";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
-import { RelatedProducts } from "@/components/RelatedProducts";
+import {
+  RelatedProducts,
+  RelatedProductsSkeleton,
+} from "@/components/RelatedProducts";
 import { StatePanel } from "@/components/StatePanel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useProduct } from "@/hooks/useProducts";
 import { formatCurrency } from "@/utils/formatters";
+
+/** Mesma estrutura de `ProductPage` (galeria, painel e relacionados) para não haver salto de layout. */
+function ProductPageSkeleton() {
+  return (
+    <PageContainer>
+      <p role="status" className="sr-only">
+        Carregando produto
+      </p>
+      <Skeleton className="mb-5 h-9 w-44 rounded-full" />
+
+      <section
+        className="grid gap-7 lg:grid-cols-[58fr_42fr] lg:items-start"
+        aria-hidden="true"
+      >
+        <div className="grid gap-3">
+          <Skeleton className="aspect-square w-full rounded-item" />
+          <div className="flex gap-2 pb-1">
+            {[0, 1, 2, 3].map((item) => (
+              <Skeleton key={item} className="size-18 shrink-0 rounded-xl" />
+            ))}
+          </div>
+        </div>
+
+        <Panel className="grid gap-6 lg:sticky lg:top-6">
+          <div className="grid gap-4">
+            <Skeleton className="h-7 w-36 rounded-full" />
+            <div className="grid gap-3">
+              <div className="grid gap-2">
+                <Skeleton className="h-10 w-4/5 sm:h-12 lg:h-[3.25rem]" />
+                <Skeleton className="h-10 w-1/2 sm:h-12 lg:h-[3.25rem]" />
+              </div>
+              <Skeleton className="h-8 w-36 sm:h-9" />
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Skeleton className="h-[1.625rem] w-full" />
+            <Skeleton className="h-[1.625rem] w-2/3" />
+          </div>
+
+          <div className="grid gap-2">
+            <Skeleton className="h-5 w-28" />
+            <div className="flex gap-2">
+              <Skeleton className="h-7 w-20 rounded-full" />
+              <Skeleton className="h-7 w-24 rounded-full" />
+            </div>
+          </div>
+
+          <div className="grid gap-4 border-t pt-5">
+            <Skeleton className="h-5 w-56" />
+            <Skeleton className="h-11 w-full rounded-full" />
+          </div>
+        </Panel>
+      </section>
+
+      <RelatedProductsSkeleton />
+    </PageContainer>
+  );
+}
 
 export function ProductPage() {
   const { id } = useParams<{ id: string }>();
@@ -38,17 +101,7 @@ export function ProductPage() {
   };
 
   if (loading) {
-    return (
-      <PageContainer centered>
-        <StatePanel
-          as="section"
-          headingAs="h1"
-          icon={Sparkles}
-          title="Carregando produto"
-          description="Só um instante enquanto buscamos as informações."
-        />
-      </PageContainer>
-    );
+    return <ProductPageSkeleton />;
   }
 
   if (!product || error) {

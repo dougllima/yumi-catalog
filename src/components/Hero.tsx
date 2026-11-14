@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { ProductImageCropFrame } from "@/components/ProductImageCropFrame";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Product } from "@/domain/product";
 import { publicAssetUrl } from "@/utils/publicAssetUrl";
 
@@ -26,7 +27,32 @@ const highlights = [
 
 type HeroProps = {
   products?: Product[];
+  loading?: boolean;
 };
+
+const showcaseTilts = [
+  "-rotate-3 lg:translate-y-4",
+  "rotate-2 lg:-translate-y-3",
+  "-rotate-2 lg:translate-y-5",
+];
+
+function HeroShowcaseSkeleton() {
+  return (
+    <div
+      className="relative mx-auto grid w-full max-w-md grid-cols-3 gap-3 lg:max-w-[30rem]"
+      aria-hidden="true"
+    >
+      {showcaseTilts.map((tilt) => (
+        <div
+          key={tilt}
+          className={`overflow-hidden rounded-2xl border-4 border-secondary/80 bg-secondary/70 shadow-xl shadow-primary/20 ${tilt}`}
+        >
+          <Skeleton className="aspect-[3/4] w-full rounded-none" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function HeroLogo() {
   return (
@@ -61,7 +87,17 @@ function HeroLogo() {
   );
 }
 
-function HeroShowcase({ products }: { products: Product[] }) {
+function HeroShowcase({
+  products,
+  loading,
+}: {
+  products: Product[];
+  loading: boolean;
+}) {
+  if (loading) {
+    return <HeroShowcaseSkeleton />;
+  }
+
   const showcase = products
     .map((product) => ({
       product,
@@ -75,12 +111,6 @@ function HeroShowcase({ products }: { products: Product[] }) {
     return <HeroLogo />;
   }
 
-  const tilts = [
-    "-rotate-3 lg:translate-y-4",
-    "rotate-2 lg:-translate-y-3",
-    "-rotate-2 lg:translate-y-5",
-  ];
-
   return (
     <div
       className="relative mx-auto grid w-full max-w-md grid-cols-3 gap-3 lg:max-w-[30rem]"
@@ -91,7 +121,7 @@ function HeroShowcase({ products }: { products: Product[] }) {
           key={product.id}
           to={`/produto/${product.id}`}
           aria-label={`Ver ${product.name}`}
-          className={`block overflow-hidden rounded-2xl border-4 border-secondary/80 bg-secondary/70 shadow-xl shadow-primary/20 transition-transform duration-300 hover:scale-105 focus-visible:yumi-focus ${tilts[index]}`}
+          className={`block overflow-hidden rounded-2xl border-4 border-secondary/80 bg-secondary/70 shadow-xl shadow-primary/20 transition-transform duration-300 hover:scale-105 focus-visible:yumi-focus ${showcaseTilts[index]}`}
         >
           <ProductImageCropFrame
             src={publicAssetUrl(url ?? "")}
@@ -105,7 +135,7 @@ function HeroShowcase({ products }: { products: Product[] }) {
   );
 }
 
-export function Hero({ products = [] }: HeroProps) {
+export function Hero({ products = [], loading = false }: HeroProps) {
   return (
     <section className="relative overflow-hidden" aria-labelledby="hero-title">
       <div className="relative mx-auto grid max-w-[1560px] gap-6 px-4 pb-14 pt-8 sm:px-7 lg:h-[330px] lg:grid-cols-[55fr_45fr] lg:items-center lg:py-0">
@@ -156,7 +186,7 @@ export function Hero({ products = [] }: HeroProps) {
           </div>
         </div>
 
-        <HeroShowcase products={products} />
+        <HeroShowcase products={products} loading={loading} />
       </div>
     </section>
   );
