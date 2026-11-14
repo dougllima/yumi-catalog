@@ -29,6 +29,9 @@ export function SiteFooter() {
             <Link to="/produtos" className={linkClass}>
               Produtos
             </Link>
+            <Link to="/cuidados" className={linkClass}>
+              Cuidados
+            </Link>
           </nav>
 
           <div className="grid content-start gap-3">
