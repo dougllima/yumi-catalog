@@ -5,10 +5,19 @@ import { Link } from "react-router-dom";
 import { ProductImageCropFrame } from "@/components/ProductImageCropFrame";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { categoryShowcaseFrom, type Product } from "@/domain/product";
 import { publicAssetUrl } from "@/utils/publicAssetUrl";
 
-export function CategoryShortcuts({ products }: { products: Product[] }) {
+const categorySkeletons = Array.from({ length: 6 }, (_, index) => index);
+
+export function CategoryShortcuts({
+  products,
+  loading = false,
+}: {
+  products: Product[];
+  loading?: boolean;
+}) {
   const categories = categoryShowcaseFrom(products);
   const trackRef = useRef<HTMLDivElement>(null);
   const [canScrollPrevious, setCanScrollPrevious] = useState(false);
@@ -34,7 +43,7 @@ export function CategoryShortcuts({ products }: { products: Product[] }) {
     return () => window.removeEventListener("resize", updateScrollState);
   }, [categories.length, updateScrollState]);
 
-  if (categories.length === 0) {
+  if (!loading && categories.length === 0) {
     return null;
   }
 
@@ -60,7 +69,7 @@ export function CategoryShortcuts({ products }: { products: Product[] }) {
               size="icon"
               className="rounded-full"
               onClick={() => scrollByPage(-1)}
-              disabled={!canScrollPrevious}
+              disabled={loading || !canScrollPrevious}
               aria-label="Categorias anteriores"
             >
               <ChevronLeft aria-hidden="true" />
@@ -71,7 +80,7 @@ export function CategoryShortcuts({ products }: { products: Product[] }) {
               size="icon"
               className="rounded-full"
               onClick={() => scrollByPage(1)}
-              disabled={!canScrollNext}
+              disabled={loading || !canScrollNext}
               aria-label="Próximas categorias"
             >
               <ChevronRight aria-hidden="true" />
@@ -85,29 +94,37 @@ export function CategoryShortcuts({ products }: { products: Product[] }) {
         onScroll={updateScrollState}
         className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth scroll-px-4 px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:scroll-px-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
       >
-        {categories.map(({ slug, name, imageUrl, crop }) => (
-          <Link
-            key={slug}
-            to={`/produtos?categoria=${encodeURIComponent(slug)}`}
-            className="group relative block w-[42%] shrink-0 snap-start overflow-hidden rounded-item border bg-card shadow-lg shadow-primary/5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10 focus-visible:yumi-focus sm:w-[30%] md:w-[22%] lg:w-[16%]"
-          >
-            {imageUrl ? (
-              <ProductImageCropFrame
-                className="bg-muted"
-                src={publicAssetUrl(imageUrl)}
-                alt=""
-                crop={crop}
-              />
-            ) : (
-              <div className="grid aspect-square place-items-center bg-accent text-primary">
-                <Shapes className="size-8" aria-hidden="true" />
-              </div>
-            )}
-            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2.5 pt-8 font-display text-base font-semibold leading-tight text-white">
-              {name}
-            </span>
-          </Link>
-        ))}
+        {loading &&
+          categorySkeletons.map((item) => (
+            <Skeleton
+              key={item}
+              className="aspect-square w-[42%] shrink-0 snap-start rounded-item sm:w-[30%] md:w-[22%] lg:w-[16%]"
+            />
+          ))}
+        {!loading &&
+          categories.map(({ slug, name, imageUrl, crop }) => (
+            <Link
+              key={slug}
+              to={`/produtos?categoria=${encodeURIComponent(slug)}`}
+              className="group relative block w-[42%] shrink-0 snap-start overflow-hidden rounded-item border bg-card shadow-lg shadow-primary/5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10 focus-visible:yumi-focus sm:w-[30%] md:w-[22%] lg:w-[16%]"
+            >
+              {imageUrl ? (
+                <ProductImageCropFrame
+                  className="bg-muted"
+                  src={publicAssetUrl(imageUrl)}
+                  alt=""
+                  crop={crop}
+                />
+              ) : (
+                <div className="grid aspect-square place-items-center bg-accent text-primary">
+                  <Shapes className="size-8" aria-hidden="true" />
+                </div>
+              )}
+              <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2.5 pt-8 font-display text-base font-semibold leading-tight text-white">
+                {name}
+              </span>
+            </Link>
+          ))}
       </div>
     </section>
   );

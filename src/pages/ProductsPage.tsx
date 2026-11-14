@@ -5,9 +5,11 @@ import { useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
 import { Panel } from "@/components/Panel";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { inputClass } from "@/components/uiStyles";
 import { normalizeSearch } from "@/domain/product";
 import { usePublishedProducts } from "@/hooks/useProducts";
@@ -17,6 +19,7 @@ const pageSizeOptions = [12, 24, 48] as const;
 const defaultPageSize = 24;
 
 const productSkeletons = Array.from({ length: 12 }, (_, index) => index);
+const categorySkeletons = Array.from({ length: 5 }, (_, index) => index);
 
 export function ProductsPage() {
   const { products, loading, error } = usePublishedProducts();
@@ -189,7 +192,15 @@ export function ProductsPage() {
             </form>
           </Panel>
 
-          {categoryFilters.length > 0 && (
+          {loading && (
+            <div className="flex flex-wrap gap-2" aria-hidden="true">
+              {categorySkeletons.map((item) => (
+                <Skeleton key={item} className="h-8 w-24 rounded-full" />
+              ))}
+            </div>
+          )}
+
+          {!loading && categoryFilters.length > 0 && (
             <div
               className="flex flex-wrap gap-2"
               aria-label="Filtrar produtos por categoria"
@@ -264,10 +275,7 @@ export function ProductsPage() {
               aria-label="Carregando produtos"
             >
               {productSkeletons.map((item) => (
-                <div
-                  key={item}
-                  className="min-h-[310px] animate-pulse rounded-2xl border bg-card/60 shadow-lg shadow-primary/5"
-                />
+                <ProductCardSkeleton key={item} />
               ))}
             </div>
           ) : hasProducts ? (
