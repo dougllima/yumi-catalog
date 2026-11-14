@@ -234,13 +234,16 @@ describe("AdminProductsPage", () => {
       </MemoryRouter>,
     );
 
+    // A lista existe já no estado "Carregando produtos...": espera os itens.
     const list = await screen.findByTestId("admin-products-list");
+    const productButtons = await within(list).findAllByRole("button", {
+      name: /^(?!Arrastar)/,
+    });
 
-    expect(
-      within(list)
-        .getAllByRole("button", { name: /^(?!Arrastar)/ })
-        .map((button) => button.textContent),
-    ).toEqual(["VasoAtivo", "Porta JoiasAtivo"]);
+    expect(productButtons.map((button) => button.textContent)).toEqual([
+      "VasoAtivo",
+      "Porta JoiasAtivo",
+    ]);
   });
 
   it("disables product reordering while the search is active", async () => {
