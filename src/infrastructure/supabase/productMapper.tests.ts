@@ -106,4 +106,18 @@ describe("Supabase product mapper", () => {
       sort_order: null,
     });
   });
+
+  it("preserves line breaks inside descriptions when saving", () => {
+    const description = "Linha um\n\nLinha dois\nLinha três";
+
+    expect(
+      toProductWriteRow({
+        id: "quebras",
+        name: "Quebras",
+        description,
+        isActive: true,
+        showOnHome: false,
+      }).description,
+    ).toBe(description);
+  });
 });
