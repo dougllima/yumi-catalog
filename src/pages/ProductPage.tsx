@@ -130,7 +130,7 @@ export function ProductPage() {
           </div>
 
           {hasDescription && (
-            <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+            <p className="max-w-xl whitespace-pre-line text-base leading-7 text-muted-foreground sm:text-lg">
               {product.description}
             </p>
           )}
